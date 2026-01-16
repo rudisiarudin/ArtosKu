@@ -420,12 +420,7 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] transition-colors duration-500 font-sans overflow-x-hidden relative selection:bg-emerald-500/10`}>
-      {/* Dynamic Background Blobs - Lime Contrast (Stockbit Green) */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#00d293]/10 dark:bg-[#00d293]/[0.05] rounded-full blur-[120px] animate-blob"></div>
-        <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#00d293]/5 dark:bg-[#00d293]/[0.03] rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-10%] right-[10%] w-[70%] h-[70%] bg-[#00d293]/5 dark:bg-[#00d293]/[0.04] rounded-full blur-[140px] animate-blob animation-delay-4000"></div>
-      </div>
+      {/* Clean Background - All heavy blobs removed for performance */}
 
       <div className="relative z-10 max-w-md mx-auto min-h-screen flex flex-col">
         <main className="flex-1 pb-24">
@@ -433,31 +428,10 @@ const App: React.FC = () => {
         </main>
       </div>
 
-      {/* Floating Pill Bottom Navigation */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] bg-zinc-900/90 backdrop-blur-xl border border-white/5 rounded-[2rem] px-2 py-2 flex items-center justify-between shadow-2xl z-50">
-        {[
-          { id: 'dashboard', icon: 'fa-house-chimney', label: 'Explore' },
-          { id: 'stats', icon: 'fa-chart-pie', label: 'Stats' },
-          { id: 'wallets', icon: 'fa-vault', label: 'Assets' },
-          { id: 'profile', icon: 'fa-circle-user', label: 'Profile' }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as TabType)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-500 ${activeTab === tab.id
-              ? 'bg-[#00d293] text-black shadow-[0_0_20px_rgba(0,210,147,0.3)] scale-105'
-              : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-          >
-            <i className={`fa-solid ${tab.icon} ${activeTab === tab.id ? 'text-[14px]' : 'text-[18px]'}`}></i>
-            {activeTab === tab.id && (
-              <span className="text-[12px] font-bold uppercase tracking-tight truncate max-w-[60px]">
-                {tab.label}
-              </span>
-            )}
-          </button>
-        ))}
-      </nav>
+      <Navigation
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
 
       <AddTransactionModal
         isOpen={isModalOpen}

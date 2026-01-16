@@ -92,11 +92,22 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       const topUpBase = Number(w.balance) + totalTopUps;
       const growthPercent = topUpBase > 0 ? ((currentBalance - topUpBase) / topUpBase) * 100 : 0;
 
+      const getWalletIcon = (type: WalletType) => {
+        if (w.icon) return w.icon;
+        switch (type) {
+          case WalletType.BANK: return 'fa-building-columns';
+          case WalletType.EWALLET: return 'fa-mobile-screen-button';
+          case WalletType.CASH: return 'fa-money-bill-1';
+          default: return 'fa-vault';
+        }
+      };
+
       return {
         ...w,
         currentBalance,
-        topUps: topUpCount,
+        topUps: totalTopUps,
         growthPercent,
+        icon: getWalletIcon(w.type as WalletType),
         code: w.name.split(' ').map(s => s[0]).join('').toUpperCase().slice(0, 4)
       };
     }).sort((a, b) => b.currentBalance - a.currentBalance);
@@ -230,8 +241,8 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                       <p className="text-[9px] font-medium text-zinc-600 uppercase tracking-widest truncate max-w-[80px]">{asset.name}</p>
                     </div>
                   </div>
-                  <div className="col-span-2 text-center text-[12px] font-semibold text-zinc-400">
-                    {asset.topUps}
+                  <div className="col-span-2 text-center text-[10px] font-bold text-zinc-400 tabular-nums">
+                    {asset.topUps > 0 ? `Rp${formatIDR(asset.topUps)}` : '-'}
                   </div>
                   <div className="col-span-5 text-right">
                     <p className="text-[13px] font-bold tracking-tight text-white mb-0.5">Rp{formatIDR(asset.currentBalance)}</p>
