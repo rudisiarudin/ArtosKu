@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Transaction, TransactionType } from '../types';
+import { getLocalIsoDate } from '../lib/utils';
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -8,6 +9,7 @@ interface TransactionListProps {
 
 const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactions }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<'ALL' | 'INCOME' | 'EXPENSE' | 'DEBT'>('ALL');
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -18,24 +20,44 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
   };
 
   const formatDate = (dateStr: string) => {
+    // Ensure we handle both YYYY-MM-DD and full ISO strings
     const date = new Date(dateStr);
     const now = new Date();
-    if (date.toDateString() === now.toDateString()) return 'Today';
-    const yesterday = new Date();
-    yesterday.setDate(now.getDate() - 1);
-    if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+
+    // Reset hours to compare only dates
+    const dDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const dNow = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dYesterday = new Date(dNow);
+    dYesterday.setDate(dYesterday.getDate() - 1);
+
+    if (dDate.getTime() === dNow.getTime()) return 'Today';
+    if (dDate.getTime() === dYesterday.getTime()) return 'Yesterday';
+
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
-  const filteredTransactions = useMemo(() => transactions.filter(t =>
-    t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.category.toLowerCase().includes(searchTerm.toLowerCase())
-  ), [transactions, searchTerm]);
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(t => {
+      // 1. Filter by Search Term
+      const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.category.toLowerCase().includes(searchTerm.toLowerCase());
+      if (!matchesSearch) return false;
+
+      // 2. Filter by Transaction Type
+      if (filterType === 'ALL') return true;
+      if (filterType === 'INCOME') return t.type === TransactionType.INCOME || t.type === TransactionType.DEBT;
+      if (filterType === 'EXPENSE') return t.type === TransactionType.EXPENSE || t.type === TransactionType.RECEIVABLE;
+      if (filterType === 'DEBT') return t.type === TransactionType.DEBT || t.type === TransactionType.RECEIVABLE;
+
+      return true;
+    });
+  }, [transactions, searchTerm, filterType]);
 
   const groupedTransactions = useMemo(() => filteredTransactions.reduce((acc, t) => {
-    const date = t.date;
-    if (!acc[date]) acc[date] = [];
-    acc[date].push(t);
+    // Extract local YYYY-MM-DD for grouping
+    const dateKey = getLocalIsoDate(new Date(t.date));
+    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey].push(t);
     return acc;
   }, {} as Record<string, Transaction[]>), [filteredTransactions]);
 
@@ -45,7 +67,7 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
 
   return (
     <div className="flex flex-col min-h-screen pb-36 animate-in fade-in duration-700">
-      <header className="px-8 pt-6 mb-8 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 px-8 pt-6 pb-6 flex items-center justify-between bg-black/80 backdrop-blur-xl border-b border-white/5 max-w-md mx-auto">
         <div className="space-y-1">
           <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em]">Transaction Ledger</p>
           <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">Financial History</h2>
@@ -55,8 +77,11 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
         </div>
       </header>
 
+      {/* Spacer for fixed header */}
+      <div className="h-[88px]"></div>
+
       {/* Search & Filter Bar */}
-      <div className="px-6 mb-10">
+      <div className="px-6 space-y-5 mb-8">
         <div className="premium-card bg-[var(--bg-inner)] border-none p-1 flex items-center gap-4 group focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
           <div className="w-12 h-12 flex items-center justify-center text-[var(--text-muted)] group-focus-within:text-emerald-500 transition-colors">
             <i className="fa-solid fa-magnifying-glass"></i>
@@ -68,9 +93,28 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
-          <button className="w-12 h-12 flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-500 transition-colors">
-            <i className="fa-solid fa-sliders"></i>
-          </button>
+        </div>
+
+        {/* Filter Chips */}
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-1">
+          {[
+            { id: 'ALL', label: 'All History', icon: 'fa-layer-group' },
+            { id: 'INCOME', label: 'Incomes', icon: 'fa-circle-arrow-up' },
+            { id: 'EXPENSE', label: 'Expenses', icon: 'fa-circle-arrow-down' },
+            { id: 'DEBT', label: 'Liabilities', icon: 'fa-hand-holding-dollar' }
+          ].map((type) => (
+            <button
+              key={type.id}
+              onClick={() => setFilterType(type.id as any)}
+              className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.15em] transition-all duration-300 border ${filterType === type.id
+                ? 'bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20 active:scale-95'
+                : 'bg-zinc-900/50 border-white/5 text-zinc-500 hover:text-zinc-300 hover:border-white/10'
+                }`}
+            >
+              <i className={`fa-solid ${type.icon} ${filterType === type.id ? 'text-black/60' : 'text-zinc-600'}`}></i>
+              {type.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -102,8 +146,8 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`text-[13px] font-bold tabular-nums tracking-tight ${t.type === TransactionType.INCOME ? 'text-emerald-500' : 'text-[var(--text-primary)]'}`}>
-                      {t.type === TransactionType.INCOME ? '+' : '-'}{formatCurrency(t.amount)}
+                    <p className={`text-[13px] font-bold tabular-nums tracking-tight ${t.type === TransactionType.INCOME || t.type === TransactionType.DEBT ? 'text-emerald-500' : 'text-rose-500'}`}>
+                      {t.type === TransactionType.INCOME || t.type === TransactionType.DEBT ? '+' : '-'}{formatCurrency(t.amount)}
                     </p>
                     <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">IDR Verified</p>
                   </div>

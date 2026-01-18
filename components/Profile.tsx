@@ -14,6 +14,7 @@ interface ProfileProps {
 const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme, profile, onUpdateProfile, wallets }) => {
   const isDark = theme === 'dark';
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [newPin, setNewPin] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -51,14 +52,14 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
   };
 
   const handleLogout = async () => {
-    if (confirm('Are you sure you want to logout?')) {
-      await signOut();
-      window.location.reload();
-    }
+    await signOut();
+    window.location.reload();
   };
+
 
   return (
     <div className="flex flex-col min-h-screen pb-32 animate-in fade-in duration-700 font-['Inter']">
+      {/* Profile Header - Scrollable */}
       <header className="px-8 pt-8 mb-4 relative overflow-hidden text-center">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#00d293]/10 blur-[100px] rounded-full -mt-32 pointer-events-none"></div>
         <div className="relative z-10 flex flex-col items-center">
@@ -144,10 +145,10 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
           </div>
 
           <button
-            onClick={handleLogout}
-            className="w-full h-14 rounded-2xl bg-zinc-900 border border-white/5 text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] hover:bg-rose-500/10 transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-xl"
+            onClick={() => setIsLogoutModalOpen(true)}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-rose-500/10 to-rose-600/10 border border-rose-500/20 text-[11px] font-black text-rose-500 uppercase tracking-[0.2em] hover:from-rose-500/20 hover:to-rose-600/20 hover:border-rose-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg"
           >
-            <i className="fa-solid fa-right-from-bracket text-[12px]"></i>
+            <i className="fa-solid fa-right-from-bracket text-[13px]"></i>
             Keluar Akun
           </button>
         </section>
@@ -188,6 +189,50 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
                   {loading ? 'Securing...' : 'Verify'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 z-[1100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="w-full max-w-[340px] bg-zinc-900 border border-white/10 rounded-[2rem] p-8 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300">
+            {/* Top accent line */}
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-rose-500 to-transparent"></div>
+
+            {/* Glow effect */}
+            <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 bg-rose-500/20 blur-[80px] rounded-full pointer-events-none"></div>
+
+            <div className="text-center mb-8 relative z-10">
+              {/* Icon */}
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-600/20 border border-rose-500/30 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-rose-500/10">
+                <i className="fa-solid fa-right-from-bracket text-3xl text-rose-500"></i>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-xl font-black text-white mb-3 tracking-tight">Keluar Akun?</h3>
+
+              {/* Description */}
+              <p className="text-[12px] font-medium text-zinc-400 leading-relaxed px-2">
+                Anda yakin ingin keluar dari akun <span className="text-emerald-500 font-bold">ArtosKu</span>?
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3 relative z-10">
+              <button
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="flex-1 h-12 rounded-xl bg-zinc-800 border border-white/5 text-[11px] font-black text-zinc-300 uppercase tracking-widest hover:bg-zinc-700 hover:text-white hover:border-white/10 transition-all active:scale-95"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 h-12 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-rose-500/30 hover:shadow-rose-500/40 hover:from-rose-600 hover:to-rose-700 transition-all active:scale-95"
+              >
+                Ya, Keluar
+              </button>
             </div>
           </div>
         </div>

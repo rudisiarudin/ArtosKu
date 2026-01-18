@@ -11,6 +11,7 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
         { id: 'dashboard', icon: 'fa-house-chimney', label: 'Home' },
         { id: 'stats', icon: 'fa-chart-pie', label: 'Stats' },
         { id: 'wallets', icon: 'fa-sack-dollar', label: 'Assets' },
+        { id: 'deposit', icon: 'fa-vault', label: 'Deposit' },
         { id: 'profile', icon: 'fa-circle-user', label: 'Profile' }
     ];
 
@@ -23,8 +24,8 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as TabType)}
                         className={`group relative flex items-center justify-center transition-all duration-500 rounded-full h-11 px-5 ${isActive
-                                ? 'bg-[#00d293] text-black shadow-[0_10px_25px_rgba(0,210,147,0.3)] scale-105'
-                                : 'text-zinc-500 hover:text-zinc-300'
+                            ? 'bg-[#00d293] text-black shadow-[0_10px_25px_rgba(0,210,147,0.3)] scale-105'
+                            : 'text-zinc-500 hover:text-zinc-300'
                             }`}
                     >
                         <i className={`fa-solid ${tab.icon} ${isActive ? 'text-[14px]' : 'text-[16px]'} transition-all`}></i>

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
+import { getLocalIsoDate } from '../lib/utils';
 
 interface DashboardProps {
   userName: string;
@@ -11,9 +12,12 @@ interface DashboardProps {
   onTopup: (walletId: string) => void;
   onQuickAction: (label: string) => void;
   setActiveTab: (tab: any) => void;
+  onSearch: () => void;
+  onShowNotifications: () => void;
+  hasUnreadNotifications?: boolean;
 }
 
-const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, transactions, wallets, onShowAll, theme, setTheme, onTopup, onQuickAction, setActiveTab }) => {
+const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, transactions, wallets, onShowAll, theme, setTheme, onTopup, onQuickAction, setActiveTab, onSearch, onShowNotifications, hasUnreadNotifications }) => {
   const [showBalance, setShowBalance] = React.useState(true);
 
   const formatIDR = (val: number) => {
@@ -41,35 +45,33 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, transactions
   };
 
   const totals = useMemo(() => {
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
-    const yesterdayDate = new Date(now);
+    const today = getLocalIsoDate();
+    const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    const yesterday = yesterdayDate.toISOString().split('T')[0];
+    const yesterday = getLocalIsoDate(yesterdayDate);
 
-    // INCOME & RECEIVABLE (Piutang) = uang masuk
+    // INCOME & DEBT (Hutang) = uang masuk
     const totalIncome = transactions
-      .filter(t => t.type === TransactionType.INCOME || t.type === TransactionType.RECEIVABLE)
+      .filter(t => t.type === TransactionType.INCOME || t.type === TransactionType.DEBT)
       .reduce((sum, t) => sum + Number(t.amount), 0);
-    // EXPENSE & DEBT (Hutang) = uang keluar
+    // EXPENSE & RECEIVABLE (Piutang) = uang keluar
     const totalExpense = transactions
-      .filter(t => t.type === TransactionType.EXPENSE || t.type === TransactionType.DEBT)
+      .filter(t => t.type === TransactionType.EXPENSE || t.type === TransactionType.RECEIVABLE)
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
-    const initialBalance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
-    const balance = initialBalance + totalIncome - totalExpense;
+    const balance = wallets.reduce((sum, w) => sum + Number(w.balance), 0);
 
     // Daily Logic
     const todayIncome = transactions
-      .filter(t => (t.type === TransactionType.INCOME || t.type === TransactionType.RECEIVABLE) && t.date.split('T')[0] === today)
+      .filter(t => (t.type === TransactionType.INCOME || t.type === TransactionType.DEBT) && getLocalIsoDate(new Date(t.date)) === today)
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     const todayExpense = transactions
-      .filter(t => (t.type === TransactionType.EXPENSE || t.type === TransactionType.DEBT) && t.date.split('T')[0] === today)
+      .filter(t => (t.type === TransactionType.EXPENSE || t.type === TransactionType.RECEIVABLE) && getLocalIsoDate(new Date(t.date)) === today)
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     const yesterdayExpense = transactions
-      .filter(t => (t.type === TransactionType.EXPENSE || t.type === TransactionType.DEBT) && t.date.split('T')[0] === yesterday)
+      .filter(t => (t.type === TransactionType.EXPENSE || t.type === TransactionType.RECEIVABLE) && getLocalIsoDate(new Date(t.date)) === yesterday)
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     // Calculate Trend (Net Performance % relative to total balance)
@@ -95,8 +97,11 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, transactions
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white pb-32 selection:bg-[#00d293]/20">
+      {/* Spacer for fixed header */}
+      <div className="h-[88px]"></div>
+
       {/* 1. Header Section */}
-      <header className="px-6 pt-10 pb-6 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 pt-10 pb-6 flex items-center justify-between bg-black/80 backdrop-blur-xl border-b border-white/5 max-w-md mx-auto">
         <div className="flex items-center gap-3">
           <div
             onClick={() => setActiveTab('profile')}
@@ -113,11 +118,20 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, transactions
         </div>
 
         <div className="flex gap-2">
-          <button className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white transition-colors border border-white/5">
+          <button
+            onClick={onSearch}
+            className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white transition-colors border border-white/5 active:scale-90"
+          >
             <i className="fa-solid fa-magnifying-glass text-sm"></i>
           </button>
-          <button className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white transition-colors border border-white/5">
+          <button
+            onClick={onShowNotifications}
+            className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white transition-colors border border-white/5 active:scale-90 relative"
+          >
             <i className="fa-regular fa-bell text-sm"></i>
+            {hasUnreadNotifications && (
+              <span className="absolute top-2 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-zinc-900 animate-pulse"></span>
+            )}
           </button>
         </div>
       </header>
@@ -206,9 +220,9 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, transactions
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className={`w-1.5 h-1.5 rounded-full ${(t.type === TransactionType.INCOME || t.type === TransactionType.RECEIVABLE) ? 'bg-[#00E676]' : 'bg-[#FF5252]'} shadow-lg`}></div>
-                <p className={`text-[13px] font-bold tabular-nums tracking-tight ${(t.type === TransactionType.INCOME || t.type === TransactionType.RECEIVABLE) ? 'text-emerald-500' : 'text-white'}`}>
-                  {(t.type === TransactionType.INCOME || t.type === TransactionType.RECEIVABLE) ? '+' : '-'}{formatIDR(t.amount)}
+                <div className={`w-1.5 h-1.5 rounded-full ${(t.type === TransactionType.INCOME || t.type === TransactionType.DEBT) ? 'bg-[#00E676]' : 'bg-[#FF5252]'} shadow-lg`}></div>
+                <p className={`text-[13px] font-bold tabular-nums tracking-tight ${(t.type === TransactionType.INCOME || t.type === TransactionType.DEBT) ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  {(t.type === TransactionType.INCOME || t.type === TransactionType.DEBT) ? '+' : '-'}{formatIDR(t.amount)}
                 </p>
               </div>
             </div>

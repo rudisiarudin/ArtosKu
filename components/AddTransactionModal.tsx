@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TransactionType, Category, Wallet } from '../types';
 import { CATEGORIES } from '../constants';
+import { getLocalIsoDate } from '../lib/utils';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
     amount: '0',
     type: TransactionType.EXPENSE,
     category: 'Makan' as Category,
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalIsoDate(),
     description: '',
     walletId: wallets[0]?.id || ''
   });
@@ -29,7 +30,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
           amount: '0',
           type: prefilledData.type || TransactionType.EXPENSE,
           category: prefilledData.category || 'Makan',
-          date: new Date().toISOString().split('T')[0],
+          date: getLocalIsoDate(),
           description: prefilledData.description || '',
           walletId: prefilledData.walletId || wallets[0]?.id || ''
         });
@@ -185,7 +186,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
           <section className="px-2 pb-6">
             <h3 className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-3 ml-2">Payment Source</h3>
             <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-              {wallets.map(w => (
+              {wallets.filter(w => w.type !== 'INVESTMENT').map(w => (
                 <button
                   key={w.id}
                   onClick={() => setFormData(d => ({ ...d, walletId: w.id }))}
@@ -205,9 +206,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
         <div className="px-8 pb-6 pt-3 bg-[var(--bg-card)] border-t border-[var(--border-subtle)] relative z-20">
           <button
             onClick={handleSubmit}
-            className="w-full h-13 rounded-xl bg-emerald-500 text-[#09090b] shadow-xl shadow-emerald-500/20 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2.5 active:scale-[0.98] hover:bg-emerald-400 transition-all border-none"
+            className="w-full h-12 rounded-xl bg-emerald-500 text-[#09090b] shadow-xl shadow-emerald-500/20 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2.5 active:scale-[0.98] hover:bg-emerald-400 transition-all border-none"
           >
-            Authorize Payment <i className="fa-solid fa-shield-check text-[9px]"></i>
+            Confirm Transaction <i className="fa-solid fa-check text-[10px]"></i>
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { TransactionType, Category, Wallet } from '../types';
+import { getLocalIsoDate } from '../lib/utils';
 
 interface TopupModalProps {
     isOpen: boolean;
@@ -8,15 +9,19 @@ interface TopupModalProps {
     onAdd: (t: any) => void;
     wallets: Wallet[];
     prefilledWalletId?: string;
+    onTransfer?: (fromId: string, toId: string, amount: number, description: string) => Promise<void>;
     theme: 'light' | 'dark';
+    title?: string;
+    defaultDescription?: string;
 }
 
-const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onAdd, wallets, prefilledWalletId, theme }) => {
+const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onAdd, onTransfer, wallets, prefilledWalletId, theme, title, defaultDescription }) => {
+    const [sourceWalletId, setSourceWalletId] = useState<string | 'EXTERNAL'>('EXTERNAL');
     const [formData, setFormData] = useState({
         amount: '0',
         type: TransactionType.INCOME,
         category: 'Topup' as Category,
-        date: new Date().toISOString().split('T')[0],
+        date: getLocalIsoDate(),
         description: '',
         walletId: ''
     });
@@ -27,12 +32,13 @@ const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onA
                 amount: '0',
                 type: TransactionType.INCOME,
                 category: 'Topup' as Category,
-                date: new Date().toISOString().split('T')[0],
-                description: '',
+                date: getLocalIsoDate(),
+                description: defaultDescription || '',
                 walletId: prefilledWalletId || wallets[0]?.id || ''
             });
+            setSourceWalletId('EXTERNAL');
         }
-    }, [isOpen, prefilledWalletId, wallets]);
+    }, [isOpen, prefilledWalletId, wallets, defaultDescription]);
 
     const handleSubmit = () => {
         const numericAmount = parseFloat(formData.amount);
@@ -45,11 +51,20 @@ const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onA
             return;
         }
 
-        onAdd({
-            ...formData,
-            amount: numericAmount,
-            description: formData.description.trim() || 'Top Up'
-        });
+        if (sourceWalletId !== 'EXTERNAL' && onTransfer && formData.walletId) {
+            // Check if source and dest are same
+            if (sourceWalletId === formData.walletId) {
+                alert('Source and destination cannot be the same');
+                return;
+            }
+            onTransfer(sourceWalletId, formData.walletId, numericAmount, formData.description || 'Quick Deposit');
+        } else {
+            onAdd({
+                ...formData,
+                amount: numericAmount,
+                description: formData.description.trim() || 'Top Up'
+            });
+        }
         onClose();
     };
 
@@ -76,7 +91,7 @@ const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onA
 
                     <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 px-6 py-2.5 rounded-2xl">
                         <i className="fa-solid fa-circle-arrow-up text-emerald-500 text-xs"></i>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">Quick Top Up</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">{title || 'Quick Top Up'}</span>
                     </div>
 
                     <button onClick={handleSubmit} className="w-12 h-12 rounded-2xl bg-emerald-500 text-[#09090b] shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center">
@@ -110,22 +125,52 @@ const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onA
 
                     <section className="px-2">
                         <h3 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4 ml-2">
-                            Income Source
+                            Source of Funds
                         </h3>
-                        <div className="premium-card bg-[var(--bg-inner)] border border-[var(--border-subtle)] p-6 focus-within:border-emerald-500/50 focus-within:ring-4 focus-within:ring-emerald-500/5 transition-all glass-morphism">
-                            <div className="flex items-center gap-5">
-                                <div className="w-12 h-12 rounded-2xl bg-[var(--bg-card)] flex items-center justify-center text-emerald-500 shadow-sm border border-[var(--border-subtle)] elite-glow">
-                                    <i className="fa-solid fa-building-columns text-sm"></i>
+
+                        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                            {/* External Option */}
+                            <button
+                                onClick={() => setSourceWalletId('EXTERNAL')}
+                                className={`min-w-[120px] p-4 rounded-xl border transition-all text-left relative overflow-hidden group ${sourceWalletId === 'EXTERNAL' ? 'bg-[#18181b] border-emerald-500/50 text-white' : 'glass-morphism border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-emerald-500/30'}`}
+                            >
+                                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-500 mb-2">
+                                    <i className="fa-solid fa-cloud-arrow-down text-xs"></i>
                                 </div>
+                                <p className="text-[10px] font-bold uppercase tracking-tight">Income / External</p>
+                                {sourceWalletId === 'EXTERNAL' && <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>}
+                            </button>
+
+                            {/* Wallet Options */}
+                            {wallets.filter(w => w.id !== formData.walletId).map(w => (
+                                <button
+                                    key={w.id}
+                                    onClick={() => setSourceWalletId(w.id)}
+                                    className={`min-w-[120px] p-4 rounded-xl border transition-all text-left relative overflow-hidden group ${sourceWalletId === w.id ? 'bg-[#18181b] border-emerald-500/50 text-white' : 'glass-morphism border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-emerald-500/30'}`}
+                                >
+                                    <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 mb-2 group-hover:text-emerald-500 transition-colors">
+                                        <i className={`fa-solid ${w.icon || (w.type === 'Bank' ? 'fa-building-columns' : 'fa-wallet')} text-xs`}></i>
+                                    </div>
+                                    <p className="text-[7.5px] font-bold uppercase tracking-widest opacity-60 mb-1">{w.type}</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-tight truncate">{w.name}</p>
+                                    <p className="text-[9px] font-medium text-zinc-500 truncate">Rp{new Intl.NumberFormat('id-ID').format(Number(w.balance))}</p>
+                                    {sourceWalletId === w.id && <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Optional Description Input if needed */}
+                        {sourceWalletId === 'EXTERNAL' && (
+                            <div className="mt-4 px-1">
                                 <input
                                     type="text"
                                     value={formData.description}
                                     onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                                    className="bg-transparent border-none outline-none text-[var(--text-primary)] text-sm font-bold w-full placeholder:text-[var(--text-muted)] placeholder:uppercase placeholder:text-[10px] placeholder:tracking-widest"
-                                    placeholder="e.g. Salary, Gift, Side Hustle..."
+                                    className="w-full bg-transparent border-b border-[var(--border-subtle)] py-2 text-[12px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-emerald-500 transition-colors"
+                                    placeholder="Add note (e.g. Salary)..."
                                 />
                             </div>
-                        </div>
+                        )}
                     </section>
 
                     <section className="px-2 pb-6">
@@ -151,9 +196,9 @@ const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onA
                 <div className="px-8 pb-6 pt-3 bg-[var(--bg-card)] border-t border-[var(--border-subtle)] relative z-20">
                     <button
                         onClick={handleSubmit}
-                        className="w-full h-13 rounded-xl bg-emerald-500 text-[#09090b] shadow-xl shadow-emerald-500/20 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2.5 active:scale-[0.98] hover:bg-emerald-400 transition-all border-none"
+                        className="w-full h-12 rounded-xl bg-emerald-500 text-[#09090b] shadow-xl shadow-emerald-500/20 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2.5 active:scale-[0.98] hover:bg-emerald-400 transition-all border-none"
                     >
-                        Authorize Top Up <i className="fa-solid fa-shield-check text-[9px]"></i>
+                        Confirm Transaction <i className="fa-solid fa-check text-[10px]"></i>
                     </button>
                 </div>
             </div>

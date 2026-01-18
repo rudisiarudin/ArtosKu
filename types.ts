@@ -6,7 +6,7 @@ export enum TransactionType {
   RECEIVABLE = 'RECEIVABLE'
 }
 
-export type TabType = 'dashboard' | 'stats' | 'wallets' | 'profile' | 'transactions' | 'debt';
+export type TabType = 'dashboard' | 'stats' | 'wallets' | 'profile' | 'transactions' | 'debt' | 'deposit';
 
 export interface Debt {
   id: string;
@@ -31,12 +31,14 @@ export type Category =
   | 'Hadiah'
   | 'Topup'
   | 'Loan'
+  | 'Transfer'
   | 'Others';
 
 export enum WalletType {
   CASH = 'CASH',
   BANK = 'BANK',
-  EWALLET = 'EWALLET'
+  EWALLET = 'EWALLET',
+  INVESTMENT = 'INVESTMENT'
 }
 
 export interface Wallet {
@@ -75,4 +77,9 @@ export interface AIAnalysis {
   topInsights: string[];
   recommendations: string[];
   budgetTips: string[];
+}
+
+export interface Budget {
+  category: Category;
+  amount: number;
 }

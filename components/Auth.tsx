@@ -73,14 +73,14 @@ const Auth: React.FC<AuthProps> = ({ onSuccess }) => {
 
             <div className="w-full max-w-[420px] relative z-10 animate-in fade-in zoom-in-95 duration-1000">
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-zinc-900 border border-white/5 mb-6 relative group animate-float shadow-2xl">
-                        <div className="absolute inset-0 bg-[#00d293]/20 blur-2xl rounded-full opacity-50"></div>
-                        <i className="fa-solid fa-vault text-3xl text-[#000] z-10 bg-[#00d293] p-4 rounded-2xl"></i>
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-gradient-to-br from-emerald-500 to-emerald-600 border border-emerald-400/20 mb-6 relative group shadow-2xl shadow-emerald-500/20">
+                        <div className="absolute inset-0 bg-emerald-400/30 blur-2xl rounded-full opacity-50"></div>
+                        <i className="fa-solid fa-wallet text-3xl text-black z-10"></i>
                     </div>
-                    <h1 className="text-[24px] font-black tracking-tighter text-white mb-1">
+                    <h1 className="text-[20px] font-black tracking-tight text-white mb-1">
                         {isForgot ? 'Reset Password' : isReset ? 'New Password' : 'ArtosKu'}
                     </h1>
-                    <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em]">
+                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">
                         {isForgot ? 'Enter email to receive reset link' : isReset ? 'Choose a strong key' : 'Personal Finance Manager'}
                     </p>
                 </div>
@@ -204,8 +204,15 @@ const Auth: React.FC<AuthProps> = ({ onSuccess }) => {
                     </form>
                 </div>
 
-                <div className="mt-10 text-center">
-                    <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-[0.2em]">Secured by Supabase</p>
+                <div className="mt-8 text-center space-y-2">
+                    <p className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.2em]">Secured by Supabase</p>
+                    <div className="flex items-center justify-center gap-2">
+                        <div className="h-px w-12 bg-zinc-800"></div>
+                        <p className="text-[10px] font-medium text-zinc-600">
+                            ArtosKu Made by <span className="text-emerald-500 font-bold">Rudi Siarudin</span>
+                        </p>
+                        <div className="h-px w-12 bg-zinc-800"></div>
+                    </div>
                 </div>
             </div>
         </div>

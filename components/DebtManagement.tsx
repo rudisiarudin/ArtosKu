@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { TransactionType, Debt, Wallet } from '../types';
+import { getLocalIsoDate } from '../lib/utils';
+import RepaymentModal from './RepaymentModal';
 
 interface DebtManagementProps {
     debts: Debt[];
@@ -25,10 +27,11 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
     const [formData, setFormData] = useState({
         title: '',
         amount: '',
-        dueDate: new Date().toISOString().split('T')[0],
+        dueDate: getLocalIsoDate(),
         type: TransactionType.DEBT,
         walletId: wallets[0]?.id || ''
     });
+    const [selectedDebtForPayment, setSelectedDebtForPayment] = useState<Debt | null>(null);
 
     const formatIDR = (val: number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -77,14 +80,11 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
         setShowAddForm(false);
     };
 
-    const handlePay = (debt: Debt) => {
-        const payAmount = prompt(`Enter payment amount for "${debt.title}":`, debt.amount.toString());
-        if (!payAmount) return;
+    const handlePaymentConfirm = (amount: number) => {
+        if (!selectedDebtForPayment) return;
+        const debt = selectedDebtForPayment;
 
-        const numericAmount = parseFloat(payAmount.replace(/\D/g, ''));
-        if (isNaN(numericAmount) || numericAmount <= 0) return;
-
-        const newAmount = debt.amount - numericAmount;
+        const newAmount = debt.amount - amount;
         const isNowPaid = newAmount <= 0;
 
         onUpdateDebt({
@@ -94,19 +94,21 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
         });
 
         onAddTransaction({
-            amount: numericAmount,
+            amount: amount,
             type: debt.type === TransactionType.DEBT ? TransactionType.EXPENSE : TransactionType.INCOME,
             category: 'Others',
-            description: `Payment for ${debt.title}`,
+            description: `Payment for ${debt.title} (${amount >= debt.amount ? 'Full' : 'Partial'})`,
             date: new Date().toISOString(),
             walletId: debt.walletId
         });
+
+        setSelectedDebtForPayment(null);
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-black text-white pb-32 animate-in fade-in duration-500">
             {/* Header */}
-            <header className="px-6 pt-12 text-center">
+            <header className="fixed top-0 left-0 right-0 z-50 px-6 pt-12 pb-6 text-center bg-black/80 backdrop-blur-xl border-b border-white/5 max-w-md mx-auto">
                 <div className="flex items-center justify-between mb-8">
                     <button onClick={onBack} className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-500 hover:text-white transition-colors border border-white/5">
                         <i className="fa-solid fa-arrow-left text-xs"></i>
@@ -130,6 +132,9 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                     ))}
                 </div>
             </header>
+
+            {/* Spacer for fixed header */}
+            <div className="h-[140px]"></div>
 
             <div className="px-5 pt-8 space-y-6">
                 {/* Summary View */}
@@ -174,7 +179,11 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                                     <div className="min-w-0">
                                         <h4 className="text-[12px] font-bold tracking-tight text-white uppercase truncate">{debt.title}</h4>
                                         <p className="text-[9px] font-medium text-zinc-600 uppercase tracking-widest truncate">
-                                            {new Date(debt.dueDate).toLocaleDateString([], { day: 'numeric', month: 'short' })}
+                                            {(() => {
+                                                const d = new Date(debt.dueDate);
+                                                // Ensure local display by using properties instead of just UTC
+                                                return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                                            })()}
                                         </p>
                                     </div>
                                 </div>
@@ -190,16 +199,10 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                                     {!debt.isPaid && (
                                         <div className="flex justify-end gap-2 mt-3 scale-90 origin-right">
                                             <button
-                                                onClick={() => handlePay(debt)}
-                                                className="px-3 py-1.5 rounded-lg bg-zinc-800 text-white text-[9px] font-semibold uppercase tracking-widest hover:bg-zinc-700"
+                                                onClick={() => setSelectedDebtForPayment(debt)}
+                                                className="px-4 py-1.5 rounded-lg bg-zinc-800 text-white text-[9px] font-semibold uppercase tracking-widest hover:bg-zinc-700"
                                             >
-                                                Pay
-                                            </button>
-                                            <button
-                                                onClick={() => onDeleteDebt(debt.id)}
-                                                className="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 text-[9px] font-semibold uppercase tracking-widest hover:bg-rose-500/20"
-                                            >
-                                                Drop
+                                                Pay / Settle
                                             </button>
                                         </div>
                                     )}
@@ -223,7 +226,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowAddForm(false)}></div>
                     <div className="bg-zinc-900 w-full max-w-[360px] p-6 rounded-[2.5rem] border border-white/5 relative z-10 animate-in slide-in-from-bottom-10 duration-500">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-[12px] font-semibold uppercase tracking-[0.2em] text-zinc-400 px-1">Entry New Position</h3>
+                            <h3 className="text-[12px] font-semibold uppercase tracking-[0.2em] text-zinc-400 px-1">Pinjam / Pinjamkan Uang</h3>
                             <button onClick={() => setShowAddForm(false)} className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">
                                 <i className="fa-solid fa-times text-xs"></i>
                             </button>
@@ -243,11 +246,14 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                                 <div className="space-y-1.5">
                                     <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-widest px-1">Amount (IDR)</p>
                                     <input
-                                        type="number"
+                                        type="text"
                                         placeholder="0"
-                                        className="w-full h-12 bg-black rounded-2xl px-5 text-[12px] font-semibold text-white border border-white/5 focus:border-[#00d293]/50 outline-none transition-all"
-                                        value={formData.amount}
-                                        onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                                        className="w-full h-12 bg-black rounded-2xl px-5 text-[12px] font-semibold text-white border border-white/5 focus:border-[#00d293]/50 outline-none transition-all tabular-nums"
+                                        value={formData.amount ? Number(formData.amount).toLocaleString('id-ID') : ''}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            setFormData({ ...formData, amount: val });
+                                        }}
                                     />
                                 </div>
                                 <div className="space-y-1.5">
@@ -297,6 +303,13 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                     </div>
                 </div>
             )}
+
+            <RepaymentModal
+                isOpen={!!selectedDebtForPayment}
+                onClose={() => setSelectedDebtForPayment(null)}
+                debt={selectedDebtForPayment}
+                onConfirm={handlePaymentConfirm}
+            />
         </div>
     );
 });
