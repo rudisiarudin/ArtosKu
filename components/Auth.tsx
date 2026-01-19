@@ -73,9 +73,9 @@ const Auth: React.FC<AuthProps> = ({ onSuccess }) => {
 
             <div className="w-full max-w-[420px] relative z-10 animate-in fade-in zoom-in-95 duration-1000">
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-gradient-to-br from-emerald-500 to-emerald-600 border border-emerald-400/20 mb-6 relative group shadow-2xl shadow-emerald-500/20">
-                        <div className="absolute inset-0 bg-emerald-400/30 blur-2xl rounded-full opacity-50"></div>
-                        <i className="fa-solid fa-wallet text-3xl text-black z-10"></i>
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2.2rem] bg-zinc-900 border border-white/10 mb-6 relative group shadow-2xl overflow-hidden">
+                        <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-full opacity-50"></div>
+                        <img src="/pwa-192x192.png" alt="ArtosKu Logo" className="w-14 h-14 z-10 relative group-hover:scale-110 transition-transform duration-500" />
                     </div>
                     <h1 className="text-[20px] font-black tracking-tight text-white mb-1">
                         {isForgot ? 'Reset Password' : isReset ? 'New Password' : 'ArtosKu'}
