@@ -134,7 +134,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
             </header>
 
             {/* Spacer for fixed header */}
-            <div className="h-[140px]"></div>
+            <div className="h-[220px]"></div>
 
             <div className="px-5 pt-8 space-y-6">
                 {/* Summary View */}

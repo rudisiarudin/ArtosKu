@@ -25,9 +25,12 @@ export const createWallet = async (userId: string, wallet: Omit<Wallet, 'id'>) =
 };
 
 export const updateWallet = async (walletId: string, updates: Partial<Wallet>) => {
+    // Exclude id from updates to avoid Supabase errors
+    const { id, ...dataToUpdate } = updates as any;
+
     const { data, error } = await supabase
         .from('wallets')
-        .update(updates)
+        .update(dataToUpdate)
         .eq('id', walletId)
         .select()
         .single();

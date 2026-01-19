@@ -12,7 +12,9 @@ import WalletManagement from './components/WalletManagement';
 import TopupModal from './components/TopupModal';
 import TransferModal from './components/TransferModal';
 import NotificationModal from './components/NotificationModal';
+import UpdateBalanceModal from './components/UpdateBalanceModal';
 import Auth from './components/Auth';
+import { getLocalIsoDate, getLocalIsoString } from './lib/utils';
 import PinScreen from './components/PinScreen';
 import { supabase, getSession, getUserProfile, signOut } from './lib/supabase';
 import { fetchWallets, createWallet, updateWallet, deleteWallet, fetchTransactions, createTransaction, deleteTransaction as deleteTransactionFromDB, fetchDebts, createDebt, updateDebt, deleteDebt } from './lib/database';
@@ -46,6 +48,7 @@ const App: React.FC = () => {
     const saved = localStorage.getItem(STORAGE_KEY_BUDGETS);
     return saved ? JSON.parse(saved) : [];
   });
+  const [selectedWalletForUpdate, setSelectedWalletForUpdate] = useState<Wallet | null>(null);
 
   // Check authentication on mount
   useEffect(() => {
@@ -184,48 +187,35 @@ const App: React.FC = () => {
     if (!session?.user) return;
 
     try {
-      // 1. Create transaction in Supabase
+      // 1. Create transaction in Supabase first to ensure data integrity
       const newTransaction = await createTransaction(session.user.id, t);
 
-      // 2. Update wallet balance
-      // We perform a local state update first to get the latest wallet data
-      let updatedWallet: Wallet | undefined;
-
-      setWallets(prev => {
-        const wallet = prev.find(w => w.id === t.walletId);
-        if (!wallet) return prev;
+      // 2. Perform Atomic Update for Wallets
+      setWallets(prevWallets => {
+        const wallet = prevWallets.find(w => w.id === t.walletId);
+        if (!wallet) return prevWallets;
 
         const isIncreasing = t.type === TransactionType.INCOME || t.type === TransactionType.DEBT;
         const newBalance = isIncreasing
           ? Number(wallet.balance) + Number(t.amount)
           : Number(wallet.balance) - Number(t.amount);
 
-        updatedWallet = { ...wallet, balance: newBalance };
+        // Update Supabase in the background after we have the definite new balance
+        updateWallet(t.walletId, { balance: newBalance }).catch(err => {
+          console.error('Error updating wallet balance in DB:', err);
+        });
 
-        // Return updated array
-        return prev.map(w => w.id === t.walletId ? updatedWallet! : w);
+        return prevWallets.map(w => w.id === t.walletId ? { ...w, balance: newBalance } : w);
       });
 
       // 3. Update local transactions state
       setTransactions(prev => [newTransaction, ...prev]);
 
-      // 4. Update wallet balance in Supabase (side effect)
-      // We use a small delay or just wait for the next tick to ensure we have the updatedWallet from the tick
-      // Or better, calculate it again for the DB call or pass it from the setWallets logic if possible.
-      // For simplicity, we calculate it again based on the known change.
-      const currentWallet = wallets.find(w => w.id === t.walletId);
-      if (currentWallet) {
-        const isIncreasing = t.type === TransactionType.INCOME || t.type === TransactionType.DEBT;
-        const dbNewBalance = isIncreasing
-          ? Number(currentWallet.balance) + Number(t.amount)
-          : Number(currentWallet.balance) - Number(t.amount);
-        await updateWallet(t.walletId, { balance: dbNewBalance });
-      }
     } catch (error) {
       console.error('Error adding transaction:', error);
       alert('Failed to add transaction. Please try again.');
     }
-  }, [session, wallets]);
+  }, [session]);
 
   const deleteTransaction = useCallback(async (id: string) => {
     const txToDelete = transactions.find(t => t.id === id);
@@ -273,13 +263,16 @@ const App: React.FC = () => {
     if (!session?.user) return;
 
     try {
+      const fromWallet = wallets.find(w => w.id === fromId);
+      const toWallet = wallets.find(w => w.id === toId);
+
       // 1. Create OUTGOING transaction (Expense)
       await addTransaction({
         amount,
         type: TransactionType.EXPENSE,
         category: 'Transfer',
         date: new Date().toISOString(),
-        description: `Transfer ke: ${wallets.find(w => w.id === toId)?.name} - ${description}`,
+        description: `Transfer ke: ${toWallet?.name || 'Wallet'} - ${description}`,
         walletId: fromId
       });
 
@@ -289,17 +282,58 @@ const App: React.FC = () => {
         type: TransactionType.INCOME,
         category: 'Transfer',
         date: new Date().toISOString(),
-        description: `Transfer dari: ${wallets.find(w => w.id === fromId)?.name} - ${description}`,
+        description: `Transfer dari: ${fromWallet?.name || 'Wallet'} - ${description}`,
         walletId: toId
       });
 
-      // Since addTransaction already updates wallet balances and local state, 
+      // Since addTransaction already updates wallet balances and local state,
       // calling it twice handles both sides.
     } catch (error) {
       console.error('Error during transfer:', error);
       alert('Transfer failed. Please check your balance.');
     }
   }, [session, wallets, addTransaction]);
+
+  const handleUpdateBalance = useCallback(async (walletId: string, newBalance: number, diff: number) => {
+    if (!session?.user || diff === 0) return;
+
+    try {
+      // 1. Update wallet balance in Supabase
+      const updatedWallet = await updateWallet(walletId, { balance: newBalance });
+
+      // 2. Create automated transaction for Gain/Loss
+      const isGain = diff > 0;
+      await createTransaction(session.user.id, {
+        amount: Math.abs(diff),
+        type: isGain ? TransactionType.INCOME : TransactionType.EXPENSE,
+        category: isGain ? 'Investasi' : 'Others',
+        date: getLocalIsoString(),
+        description: `Auto-Adjustment: ${isGain ? 'Gain' : 'Loss'} from Balance Update`,
+        walletId: walletId
+      });
+
+      // 3. Update local state
+      setWallets(prev => prev.map(w => w.id === walletId ? updatedWallet : w));
+
+      // 4. Refresh transactions locally
+      const { data: txData, error: txError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('date', { ascending: false });
+
+      if (!txError && txData) {
+        setTransactions(txData.map(item => ({
+          ...item,
+          walletId: item.wallet_id
+        })));
+      }
+
+    } catch (error) {
+      console.error('Failed to update balance:', error);
+      alert('Failed to update balance. Please try again.');
+    }
+  }, [session]);
 
   const handleQuickAction = useCallback((label: string) => {
     if (label === 'Hutang' || label === 'Loan') {
@@ -473,6 +507,11 @@ const App: React.FC = () => {
             transactions={transactions}
             onDeposit={() => handleOpenTopup(wallets[0]?.id, { title: 'New Deposit' })}
             onWithdraw={() => setIsTransferModalOpen(true)}
+            onUpdateBalance={(walletId, newBalance, diff) => {
+              handleUpdateBalance(walletId, newBalance, diff);
+              setSelectedWalletForUpdate(null);
+            }}
+            onUpdateBalanceRequest={(w) => setSelectedWalletForUpdate(w)}
           />
         );
       case 'profile':
@@ -583,6 +622,13 @@ const App: React.FC = () => {
         wallets={wallets}
         debts={debts}
         theme={theme}
+      />
+
+      <UpdateBalanceModal
+        isOpen={!!selectedWalletForUpdate}
+        onClose={() => setSelectedWalletForUpdate(null)}
+        wallet={selectedWalletForUpdate}
+        onUpdate={handleUpdateBalance}
       />
     </div>
   );

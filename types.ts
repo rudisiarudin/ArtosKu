@@ -48,7 +48,7 @@ export interface Wallet {
   color: string;
   icon: string;
   type: WalletType;
-  provider?: string;
+  code?: string; // Wallet code (e.g. BCA, GOPAY)
   detail?: string; // e.g. "Main Savings • **** 9012"
 }
 

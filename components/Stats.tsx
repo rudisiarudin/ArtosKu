@@ -236,7 +236,7 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
       </header>
 
       {/* Spacer for fixed header */}
-      <div className="h-[200px]"></div>
+      <div className="h-[220px]"></div>
 
       <section className="mt-4 mb-8">
         <div className="h-[260px] w-full px-2 relative">

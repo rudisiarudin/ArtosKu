@@ -78,7 +78,7 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
       </header>
 
       {/* Spacer for fixed header */}
-      <div className="h-[88px]"></div>
+      <div className="h-[140px]"></div>
 
       {/* Search & Filter Bar */}
       <div className="px-6 space-y-5 mb-8">

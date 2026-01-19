@@ -91,19 +91,25 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
     return wallets.map(w => {
       const walletTransactions = transactions.filter(t => t.walletId === w.id);
 
-      // Count only top-ups (INCOME transactions)
-      const topUpCount = walletTransactions.filter(t => t.type === TransactionType.INCOME).length;
+      // Backtrack baseline balance
+      const netFlow = walletTransactions.reduce((sum, t) => {
+        const isIncrease = t.type === TransactionType.INCOME || t.type === TransactionType.DEBT;
+        return sum + (isIncrease ? Number(t.amount) : -Number(t.amount));
+      }, 0);
+      const initialBalance = Number(w.balance) - netFlow;
 
-      // Calculate total top-ups
-      const totalTopUps = walletTransactions
-        .filter(t => t.type === TransactionType.INCOME)
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+      // Identify capital injections vs yields
+      const capitalNet = walletTransactions.reduce((sum, t) => {
+        const isCapital = t.category === 'Topup' || t.category === 'Transfer' || t.category === 'Loan';
+        const isIncrease = t.type === TransactionType.INCOME || t.type === TransactionType.DEBT;
+        if (isCapital) return sum + (isIncrease ? Number(t.amount) : -Number(t.amount));
+        return sum;
+      }, 0);
 
+      const totalBasis = initialBalance + capitalNet;
       const currentBalance = Number(w.balance);
-
-      // Calculate percentage based on top-ups
-      const topUpBase = Number(w.balance) + totalTopUps;
-      const growthPercent = topUpBase > 0 ? ((currentBalance - topUpBase) / topUpBase) * 100 : 0;
+      const profit = currentBalance - totalBasis;
+      const growthPercent = totalBasis !== 0 ? (profit / totalBasis) * 100 : 0;
 
       const getWalletIcon = (type: WalletType) => {
         if (w.icon) return w.icon;
@@ -118,7 +124,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       return {
         ...w,
         currentBalance,
-        topUps: totalTopUps,
+        topUps: profit, // We'll show the Profit/Loss in the 'TOP UP' column or rename it
         growthPercent,
         icon: getWalletIcon(w.type as WalletType),
         code: w.name.split(' ').map(s => s[0]).join('').toUpperCase().slice(0, 4)
@@ -162,7 +168,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       </header>
 
       {/* Spacer for fixed header */}
-      <div className="h-[120px]"></div>
+      <div className="h-[220px]"></div>
 
       {activeTab === 'PORTFOLIO' ? (
         <div className="px-5 pt-8 space-y-6">
@@ -276,8 +282,8 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
             <div className="space-y-1">
               <div className="grid grid-cols-12 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-600 border-b border-white/5 mb-2">
                 <div className="col-span-5">Wallet</div>
-                <div className="col-span-2 text-center">Top Up</div>
-                <div className="col-span-5 text-right">Balance</div>
+                <div className="col-span-3 text-center">Profit / Loss</div>
+                <div className="col-span-4 text-right">Balance</div>
               </div>
 
               {assetRanking.map((asset) => (
@@ -295,10 +301,10 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                         <p className="text-[9px] font-medium text-zinc-600 uppercase tracking-widest truncate max-w-[80px]">{asset.name}</p>
                       </div>
                     </div>
-                    <div className="col-span-2 text-center text-[10px] font-bold text-zinc-500 tabular-nums">
-                      {asset.topUps > 0 ? `Rp${formatIDR(asset.topUps)}` : '-'}
+                    <div className={`col-span-3 text-center text-[10px] font-bold tabular-nums ${asset.topUps > 0 ? 'text-emerald-500' : asset.topUps < 0 ? 'text-rose-500' : 'text-zinc-500'}`}>
+                      {asset.topUps > 0 ? '+' : ''}{formatIDR(asset.topUps)}
                     </div>
-                    <div className="col-span-5 text-right flex items-center justify-end gap-3">
+                    <div className="col-span-4 text-right flex items-center justify-end gap-3">
                       <div className="flex flex-col items-end">
                         <p className="text-[13px] font-black tracking-tight text-white mb-0.5">Rp{formatIDR(asset.currentBalance)}</p>
                         <div className={`text-[9px] font-bold tabular-nums ${asset.growthPercent >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
@@ -315,13 +321,14 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                             type: asset.type,
                             color: asset.color,
                             icon: asset.icon,
-                            detail: asset.detail
+                            code: asset.code
                           });
                           setShowAddForm(true);
                         }}
-                        className="w-7 h-7 rounded-lg bg-zinc-800 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 active:scale-75 transition-all"
+                        title="Edit Asset"
                       >
-                        <i className="fa-solid fa-pen text-[9px] text-zinc-500"></i>
+                        <i className="fa-solid fa-pen-to-square text-[10px]"></i>
                       </button>
                     </div>
                   </div>
@@ -460,9 +467,9 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                     type="text"
                     placeholder="BCA"
                     maxLength={4}
-                    value={newWallet.detail || ''}
+                    value={newWallet.code || ''}
                     className="w-full h-10 bg-black rounded-xl px-4 text-[12px] font-black text-white border border-white/5 focus:border-emerald-500/50 outline-none transition-all placeholder:text-zinc-800 uppercase tracking-widest"
-                    onChange={(e) => setNewWallet({ ...newWallet, detail: e.target.value.toUpperCase() })}
+                    onChange={(e) => setNewWallet({ ...newWallet, code: e.target.value.toUpperCase() })}
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -499,21 +506,19 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                 <button
                   onClick={() => {
                     if (newWallet.name && newWallet.balance !== undefined) {
-                      if (editingWallet) {
-                        // Update existing wallet
-                        onAdd({
-                          ...editingWallet,
-                          ...newWallet,
-                        } as Wallet);
-                      } else {
-                        // Add new wallet
-                        onAdd({
-                          ...newWallet,
-                          id: crypto.randomUUID(),
-                          color: '#00d293',
-                          icon: newWallet.type === WalletType.BANK ? 'fa-building-columns' : (newWallet.type === WalletType.CASH ? 'fa-money-bill-wave' : (newWallet.type === WalletType.INVESTMENT ? 'fa-chart-line' : 'fa-mobile-screen')),
-                        } as Wallet);
-                      }
+                      // Extract only database fields, excluding computed properties
+                      const dbWallet: Wallet = {
+                        id: editingWallet?.id || crypto.randomUUID(),
+                        name: newWallet.name,
+                        balance: newWallet.balance,
+                        type: newWallet.type || WalletType.BANK,
+                        color: newWallet.color || '#00d293',
+                        icon: newWallet.icon || (newWallet.type === WalletType.BANK ? 'fa-building-columns' : (newWallet.type === WalletType.CASH ? 'fa-money-bill-wave' : (newWallet.type === WalletType.INVESTMENT ? 'fa-chart-line' : 'fa-mobile-screen'))),
+                        code: newWallet.code,
+                        detail: newWallet.detail,
+                      };
+
+                      onAdd(dbWallet);
                       setShowAddForm(false);
                       setEditingWallet(null);
                       setNewWallet({ type: WalletType.BANK, color: '#00d293' });

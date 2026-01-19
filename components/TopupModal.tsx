@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { TransactionType, Category, Wallet } from '../types';
-import { getLocalIsoDate } from '../lib/utils';
+import { TransactionType, Category, Wallet, WalletType } from '../types';
+import { getLocalIsoDate, getCurrentTimestamp } from '../lib/utils';
 
 interface TopupModalProps {
     isOpen: boolean;
@@ -21,7 +21,7 @@ const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onA
         amount: '0',
         type: TransactionType.INCOME,
         category: 'Topup' as Category,
-        date: getLocalIsoDate(),
+        date: getCurrentTimestamp(),
         description: '',
         walletId: ''
     });
@@ -32,7 +32,7 @@ const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onA
                 amount: '0',
                 type: TransactionType.INCOME,
                 category: 'Topup' as Category,
-                date: getLocalIsoDate(),
+                date: getCurrentTimestamp(),
                 description: defaultDescription || '',
                 walletId: prefilledWalletId || wallets[0]?.id || ''
             });
@@ -149,7 +149,7 @@ const TopupModal: React.FC<TopupModalProps> = React.memo(({ isOpen, onClose, onA
                                     className={`min-w-[120px] p-4 rounded-xl border transition-all text-left relative overflow-hidden group ${sourceWalletId === w.id ? 'bg-[#18181b] border-emerald-500/50 text-white' : 'glass-morphism border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-emerald-500/30'}`}
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 mb-2 group-hover:text-emerald-500 transition-colors">
-                                        <i className={`fa-solid ${w.icon || (w.type === 'Bank' ? 'fa-building-columns' : 'fa-wallet')} text-xs`}></i>
+                                        <i className={`fa-solid ${w.icon || (w.type === WalletType.BANK ? 'fa-building-columns' : 'fa-wallet')} text-xs`}></i>
                                     </div>
                                     <p className="text-[7.5px] font-bold uppercase tracking-widest opacity-60 mb-1">{w.type}</p>
                                     <p className="text-[10px] font-bold uppercase tracking-tight truncate">{w.name}</p>

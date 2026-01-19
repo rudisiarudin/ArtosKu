@@ -9,9 +9,12 @@ interface DepositProps {
     transactions: Transaction[];
     onDeposit: () => void; // Trigger TopupModal (Transfer In)
     onWithdraw: () => void; // Trigger TransferModal (Transfer Out)
+    onUpdateBalance: (walletId: string, newBalance: number, diff: number) => void;
+    onUpdateBalanceRequest: (wallet: Wallet) => void;
 }
 
-const Deposit: React.FC<DepositProps> = ({ wallets, transactions, onDeposit, onWithdraw }) => {
+const Deposit: React.FC<DepositProps> = ({ wallets, transactions, onDeposit, onWithdraw, onUpdateBalance, onUpdateBalanceRequest }) => {
+
     // Filter only Investment wallets (which are treated as Deposits/Savings)
     const depositWallets = useMemo(() => {
         return wallets.filter(w => w.type === WalletType.INVESTMENT);
@@ -28,24 +31,41 @@ const Deposit: React.FC<DepositProps> = ({ wallets, transactions, onDeposit, onW
     const { totalDeposit, totalInvested, estimatedProfit, profitPercentage } = useMemo(() => {
         const currentTotal = depositWallets.reduce((sum, w) => sum + Number(w.balance), 0);
 
-        let invested = 0;
-        depositTransactions.forEach(t => {
-            if (t.type === TransactionType.INCOME) invested += Number(t.amount);
-            if (t.type === TransactionType.EXPENSE) invested -= Number(t.amount);
+        // To calculate "True Capital", we backtrack transactions.
+        // CAPITAL = Initial Balance + Sum of Topups (Income with category 'Topup' or 'Loan' etc)
+        // PROFIT = Growth beyond CAPITAL (Income from 'Investasi', 'Dividend', etc OR gains from Balance Updates)
+
+        let initialBalanceBacktracked = 0;
+        let capitalInjections = 0;
+
+        depositWallets.forEach(w => {
+            const walletTx = transactions.filter(t => t.walletId === w.id);
+            const netFlow = walletTx.reduce((sum, t) => {
+                const isIncrease = t.type === TransactionType.INCOME || t.type === TransactionType.DEBT;
+                return sum + (isIncrease ? Number(t.amount) : -Number(t.amount));
+            }, 0);
+            initialBalanceBacktracked += (Number(w.balance) - netFlow);
+
+            // Capital injections are Topups or Transfers into the account
+            walletTx.forEach(t => {
+                const isCapital = t.category === 'Topup' || t.category === 'Transfer' || t.category === 'Loan';
+                const isIncrease = t.type === TransactionType.INCOME || t.type === TransactionType.DEBT;
+                if (isCapital && isIncrease) capitalInjections += Number(t.amount);
+                if (isCapital && !isIncrease) capitalInjections -= Number(t.amount);
+            });
         });
 
-        // Simple Profit Calculation: Current Value - Net Cash Flow
-        const profit = currentTotal - invested;
-        // Avoid division by zero
-        const percent = invested !== 0 ? (profit / invested) * 100 : 0;
+        const totalCapital = initialBalanceBacktracked + capitalInjections;
+        const profit = currentTotal - totalCapital;
+        const percent = totalCapital !== 0 ? (profit / totalCapital) * 100 : 0;
 
         return {
             totalDeposit: currentTotal,
-            totalInvested: invested,
+            totalInvested: totalCapital,
             estimatedProfit: profit,
             profitPercentage: percent
         };
-    }, [depositWallets, depositTransactions]);
+    }, [depositWallets, transactions]);
 
     return (
         <div className="flex flex-col min-h-screen bg-black text-white pb-32 animate-in fade-in duration-500">
@@ -68,7 +88,10 @@ const Deposit: React.FC<DepositProps> = ({ wallets, transactions, onDeposit, onW
                                 {estimatedProfit >= 0 ? '+' : ''}{formatIDR(estimatedProfit)} ({profitPercentage.toFixed(1)}%)
                             </span>
                         </div>
-                        <p className="text-[9px] font-medium text-zinc-600 mt-2 uppercase tracking-widest">Net Capital: {formatIDR(totalInvested)}</p>
+                        <p className="text-[9px] font-medium text-zinc-600 mt-2 uppercase tracking-widest leading-relaxed">
+                            True Capital: {formatIDR(totalInvested)} <br />
+                            <span className="opacity-40">(Baseline + Net Topups)</span>
+                        </p>
                     </div>
 
                     <div className="mt-8 grid grid-cols-2 gap-4">
@@ -95,7 +118,7 @@ const Deposit: React.FC<DepositProps> = ({ wallets, transactions, onDeposit, onW
             </header>
 
             {/* Spacer for fixed header */}
-            <div className="h-[360px]"></div>
+            <div className="h-[380px]"></div>
 
             <section className="px-6 flex-1">
                 <div className="flex items-center justify-between mb-4">
@@ -109,17 +132,34 @@ const Deposit: React.FC<DepositProps> = ({ wallets, transactions, onDeposit, onW
                             <p className="text-[10px] uppercase tracking-widest text-zinc-500">No Deposit Assets Found</p>
                         </div>
                     ) : (
-                        depositWallets.map((w, i) => (
-                            <div key={w.id} className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-400">
-                                    <i className={`fa-solid ${w.icon || 'fa-wallet'} text-sm`}></i>
+                        depositWallets.map(w => (
+                            <div key={w.id} className="bg-zinc-900/40 border border-white/5 rounded-3xl p-4 flex items-center justify-between group active:scale-[0.98] transition-all">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-[var(--text-muted)] group-hover:text-emerald-500 transition-colors">
+                                        <i className={`fa-solid ${w.icon || 'fa-chart-line'} text-sm`}></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-[13px] font-black uppercase tracking-tight text-white mb-0.5">{w.name}</h4>
+                                        <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{w.type}</p>
+                                    </div>
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-[12px] font-bold text-white uppercase tracking-tight">{w.name}</p>
-                                    <p className="text-[9px] font-medium text-zinc-500 uppercase tracking-widest">{w.type}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-[12px] font-bold text-white tabular-nums">{formatIDR(w.balance)}</p>
+                                <div className="text-right flex flex-col items-end">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <p className="text-[15px] font-black tabular-nums text-white leading-none">
+                                            {formatIDR(w.balance)}
+                                        </p>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onUpdateBalanceRequest(w);
+                                            }}
+                                            className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all active:scale-90 relative z-20"
+                                            title="Update Balance"
+                                        >
+                                            <i className="fa-solid fa-pen-to-square text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                    <p className="text-[8px] font-bold text-zinc-700 uppercase tracking-[0.2em]">Live Balance</p>
                                 </div>
                             </div>
                         ))

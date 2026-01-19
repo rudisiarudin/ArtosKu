@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TransactionType, Category, Wallet } from '../types';
 import { CATEGORIES } from '../constants';
-import { getLocalIsoDate } from '../lib/utils';
+import { getLocalIsoDate, getCurrentTimestamp } from '../lib/utils';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
     amount: '0',
     type: TransactionType.EXPENSE,
     category: 'Makan' as Category,
-    date: getLocalIsoDate(),
+    date: getCurrentTimestamp(),
     description: '',
     walletId: wallets[0]?.id || ''
   });
@@ -30,7 +30,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
           amount: '0',
           type: prefilledData.type || TransactionType.EXPENSE,
           category: prefilledData.category || 'Makan',
-          date: getLocalIsoDate(),
+          date: getCurrentTimestamp(),
           description: prefilledData.description || '',
           walletId: prefilledData.walletId || wallets[0]?.id || ''
         });
@@ -103,9 +103,18 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
             <i className="fa-solid fa-xmark text-sm"></i>
           </button>
 
-          <div className="flex items-center gap-3 bg-rose-500/10 border border-rose-500/20 px-6 py-2.5 rounded-2xl">
-            <i className="fa-solid fa-circle-arrow-down text-rose-500 text-xs"></i>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-500">Record Expense</span>
+          <div
+            onClick={() => setFormData(prev => ({
+              ...prev,
+              type: prev.type === TransactionType.EXPENSE ? TransactionType.INCOME : TransactionType.EXPENSE,
+              category: prev.type === TransactionType.EXPENSE ? 'Gaji' : 'Makan'
+            }))}
+            className={`flex items-center gap-3 cursor-pointer transition-all duration-500 border px-6 py-2.5 rounded-2xl ${formData.type === TransactionType.INCOME ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'}`}
+          >
+            <i className={`fa-solid ${formData.type === TransactionType.INCOME ? 'fa-circle-arrow-up text-emerald-500' : 'fa-circle-arrow-down text-rose-500'} text-xs`}></i>
+            <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${formData.type === TransactionType.INCOME ? 'text-emerald-500' : 'text-rose-500'}`}>
+              Record {formData.type === TransactionType.INCOME ? 'Income' : 'Expense'}
+            </span>
           </div>
 
           <button onClick={handleSubmit} className="w-12 h-12 rounded-2xl bg-emerald-500 text-[#09090b] shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center">
@@ -115,9 +124,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
 
         <div className="flex-1 overflow-y-auto no-scrollbar px-6 space-y-8 pb-8 relative z-10">
           <div className="text-center py-6 group">
-            <p className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.2em] mb-3 opacity-100 dark:opacity-80">Expense Amount</p>
+            <p className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-3 transition-colors duration-500 ${formData.type === TransactionType.INCOME ? 'text-emerald-500' : 'text-rose-500'}`}>
+              {formData.type === TransactionType.INCOME ? 'Income' : 'Expense'} Amount
+            </p>
             <div className="flex items-center justify-center gap-2">
-              <span className="text-sm font-bold text-rose-500/40">IDR</span>
+              <span className={`text-sm font-bold opacity-40 transition-colors duration-500 ${formData.type === TransactionType.INCOME ? 'text-emerald-500' : 'text-rose-500'}`}>IDR</span>
               <input
                 type="text"
                 inputMode="numeric"
@@ -138,14 +149,15 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ is
           <section>
             <div className="flex justify-between items-center mb-8 px-2">
               <h3 className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em]">Select Category</h3>
-              <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest border border-rose-500/20 bg-rose-500/5 px-4 py-1.5 rounded-full elite-glow">{formData.category}</span>
+              <span className={`text-[9px] font-bold uppercase tracking-widest border px-4 py-1.5 rounded-full elite-glow transition-all duration-500 ${formData.type === TransactionType.INCOME ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-rose-500 border-rose-500/20 bg-rose-500/5'}`}>{formData.category}</span>
             </div>
 
             <div className="grid grid-cols-4 gap-y-7 gap-x-3 px-2">
               {Object.keys(CATEGORY_ICONS)
                 .filter(cat => {
                   const expenseCats = ['Makan', 'Transport', 'Tagihan', 'Hiburan', 'Shop', 'Kesehatan', 'Others'];
-                  return expenseCats.includes(cat);
+                  const incomeCats = ['Gaji', 'Investasi', 'Hadiah', 'Others'];
+                  return formData.type === TransactionType.INCOME ? incomeCats.includes(cat) : expenseCats.includes(cat);
                 })
                 .map(cat => (
                   <button
