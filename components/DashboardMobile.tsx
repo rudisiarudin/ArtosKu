@@ -239,12 +239,55 @@ const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
           </div>
         </section>
 
-        {/* RECENT TRANSACTIONS */}
+        {/* SHORTCUTS */}
+        <section>
+          <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest mb-6">Shortcuts</h3>
+          <div className="grid grid-cols-4 gap-4">
+            <div className="flex flex-col items-center gap-2">
+              <button 
+                onClick={() => onQuickAction('Log')}
+                className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)] active:scale-95 transition-transform"
+              >
+                <i className="fa-solid fa-plus text-sm"></i>
+              </button>
+              <span className="text-[10px] font-bold text-zinc-500">Log</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <button 
+                onClick={() => onQuickAction('Top Up')}
+                className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)] active:scale-95 transition-transform"
+              >
+                <i className="fa-solid fa-plus text-sm"></i>
+              </button>
+              <span className="text-[10px] font-bold text-zinc-500">Top Up</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <button 
+                onClick={() => onQuickAction('Loan')}
+                className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)] active:scale-95 transition-transform"
+              >
+                <i className="fa-solid fa-hand-holding-dollar text-sm"></i>
+              </button>
+              <span className="text-[10px] font-bold text-zinc-500">Loan</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <button 
+                onClick={() => onQuickAction('Send Money')}
+                className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.1)] active:scale-95 transition-transform"
+              >
+                <i className="fa-solid fa-paper-plane text-sm"></i>
+              </button>
+              <span className="text-[10px] font-bold text-zinc-500">Send Money</span>
+            </div>
+          </div>
+        </section>
+
+        {/* RECENT ACTIVITY */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Recent Transactions</h3>
-            <button onClick={onShowAll} className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest text-right">
-              View History
+            <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Recent Activity</h3>
+            <button onClick={onShowAll} className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-right hover:text-emerald-400">
+              See All
             </button>
           </div>
           
