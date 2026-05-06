@@ -70,18 +70,8 @@ const Deposit: React.FC<DepositProps> = ({ wallets, transactions, onDeposit, onW
     }, [depositWallets, transactions]);
 
     return (
-        <div className="flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] pb-32 page-enter">
-            <header className="fixed top-0 left-0 right-0 z-50 px-5 pt-[calc(2rem+env(safe-area-inset-top))] pb-2.5 bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-xl border-b border-[var(--border-subtle)] max-w-md mx-auto">
-                <div className="flex items-center justify-between">
-                    <div className="size-8 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--text-muted)] opacity-60">
-                        <i className="fa-solid fa-vault text-xs"></i>
-                    </div>
-                    <h2 className="text-[var(--text-secondary)] text-xs font-medium leading-tight flex-1 text-center">{t('savings.my_savings')}</h2>
-                    <div className="size-8"></div>
-                </div>
-            </header>
-
-            <div className="px-4 pb-6 pt-[calc(6.5rem+env(safe-area-inset-top))]">
+        <div className="flex flex-col pb-32 animate-fade-in">
+            <div className="px-4 pb-6">
                 <section className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-xl p-5 relative overflow-hidden animate-card-entrance">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
                     <div className="flex flex-col items-center text-center relative z-10">

@@ -129,7 +129,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
             }
         } else {
             const newDebt: Debt = {
-                id: crypto.randomUUID(),
+                id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
                 title: formData.title,
                 phone: formData.phone || undefined,
                 amount: parseFloat(formData.amount),

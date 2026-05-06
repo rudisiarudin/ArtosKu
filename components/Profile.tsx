@@ -146,7 +146,6 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
       </header>
 
       <div className="px-6 space-y-5">
-        {/* User Stats Grid */}
         <section className="grid grid-cols-3 gap-2.5">
           {[
             {

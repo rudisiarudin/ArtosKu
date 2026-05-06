@@ -136,12 +136,6 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
         />
       </div>
       <div className="hidden lg:block min-h-[calc(100vh-100px)]">
-        {/* HEADER */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-black tracking-tight mb-2">Analysis Hub</h1>
-          <p className="text-[var(--text-secondary)]">Deep dive into your financial metrics and spending patterns.</p>
-        </header>
-
         {/* TIME RANGE SELECTOR */}
         <div className="bg-[var(--bg-inner)] p-1.5 rounded-2xl inline-flex mb-8 border border-[var(--border-subtle)]">
           {['1D', '1W', '1M', '3M', 'YTD', 'All'].map(range => (

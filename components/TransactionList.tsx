@@ -83,35 +83,33 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
     , [groupedTransactions]);
 
   return (
-    <div className="flex flex-col min-h-screen pb-36 page-enter bg-[var(--bg-deep)]">
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-3 flex items-center justify-between bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-xl border-b border-[var(--border-subtle)] max-w-md mx-auto">
+    <div className="flex flex-col min-h-screen pb-36 animate-fade-in bg-[var(--bg-deep)]">
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-3 flex items-center justify-between bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-2xl border-b border-[var(--border-subtle)] max-w-md mx-auto">
         <div className="space-y-0.5">
-          <p className="text-[9px] font-semibold text-[var(--text-muted)] tracking-[0.2em] uppercase opacity-60">{t('history.ledger')}</p>
-          <h2 className="text-base font-semibold text-[var(--text-primary)] tracking-tight">{t('history.title')}</h2>
+          <p className="text-[9px] font-black text-emerald-500/80 tracking-[0.2em] uppercase">{t('history.ledger')}</p>
+          <h2 className="text-[17px] font-black text-[var(--text-primary)] tracking-tight">{t('history.title')}</h2>
         </div>
-        <div className="w-8 h-8 rounded-xl bg-[rgba(var(--bg-card-rgb),0.6)] border border-[var(--border-subtle)] flex items-center justify-center text-emerald-500/80 shadow-sm">
+        <div className="w-10 h-10 rounded-xl bg-[var(--bg-inner)] border border-[var(--border-subtle)] flex items-center justify-center text-emerald-500 shadow-sm">
           <i className="fa-solid fa-list-ul text-xs"></i>
         </div>
       </header>
 
-
-
       {/* Search & Filter Bar */}
-      <div className="px-5 space-y-3 mb-6 pt-[calc(5.5rem+env(safe-area-inset-top))]">
-        <div className="bg-[rgba(var(--bg-card-rgb),0.4)] rounded-2xl border border-[var(--border-subtle)] p-0.5 flex items-center gap-3 group focus-within:ring-2 focus-within:ring-emerald-500/10 transition-all">
-          <div className="w-9 h-9 flex items-center justify-center text-[var(--text-secondary)] group-focus-within:text-emerald-500 transition-colors">
-            <i className="fa-solid fa-magnifying-glass text-[10px]"></i>
+      <div className="px-5 space-y-4 mb-6 pt-[calc(5.5rem+env(safe-area-inset-top))]">
+        <div className="bg-[rgba(var(--bg-card-rgb),0.4)] rounded-[20px] border border-white/[0.05] p-1 flex items-center gap-3 group focus-within:ring-4 focus-within:ring-emerald-500/5 transition-all glass-morphism">
+          <div className="w-10 h-10 flex items-center justify-center text-[var(--text-muted)] group-focus-within:text-emerald-500 transition-colors">
+            <i className="fa-solid fa-magnifying-glass text-[11px]"></i>
           </div>
           <input
             type="text"
             placeholder={t('history.search_placeholder')}
-            className="flex-1 bg-transparent border-none outline-none text-[12px] font-semibold text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+            className="flex-1 bg-transparent border-none outline-none text-[13px] font-bold text-[var(--text-primary)] placeholder:text-[var(--text-muted)] opacity-80"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
 
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-2 -mx-5 px-5 select-none">
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-2 -mx-5 px-5 select-none">
           {[
             { id: 'ALL', label: t('history.filter_all'), icon: 'fa-layer-group' },
             { id: 'INCOME', label: t('history.filter_income'), icon: 'fa-circle-arrow-up' },
@@ -121,12 +119,12 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
             <button
               key={type.id}
               onClick={() => setFilterType(type.id as any)}
-              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap text-[8px] font-semibold tracking-[0.1em] transition-all duration-500 border ${filterType === type.id
-                ? 'bg-[#00d293] border-[#00d293] text-black shadow-lg shadow-emerald-500/10 active:scale-95'
-                : 'bg-[rgba(var(--bg-card-rgb),0.4)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] active:scale-95'
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap text-[9px] font-black tracking-[0.05em] transition-all duration-300 border ${filterType === type.id
+                ? 'bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/10'
+                : 'bg-[rgba(var(--bg-card-rgb),0.3)] border-white/[0.05] text-[var(--text-muted)] hover:text-[var(--text-primary)] glass-morphism'
                 }`}
             >
-              <i className={`fa-solid ${type.icon} ${filterType === type.id ? 'text-black/50' : 'text-zinc-600'} text-[9px]`}></i>
+              <i className={`fa-solid ${type.icon} text-[10px]`}></i>
               <span className="uppercase">{type.label}</span>
             </button>
           ))}
@@ -148,18 +146,22 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               {groupedTransactions[date].map((t, tIdx) => (
-                <div key={t.id} className={`relative animate-list-enter ${editingId === t.id ? 'z-50' : 'z-0'}`} style={{ animationDelay: `${tIdx * 50}ms` }}>
-                  <div className={`bg-[rgba(var(--bg-card-rgb),0.3)] border border-[var(--border-subtle)] p-3 flex items-center justify-between group rounded-xl transition-all card-press ${editingId === t.id ? 'bg-[var(--bg-card)] border-emerald-500/30' : 'active:bg-[var(--bg-inner)]'}`}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[var(--bg-inner)] flex items-center justify-center border border-[var(--border-subtle)] group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                        <i className={`fa-solid ${t.type === TransactionType.INCOME ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'} ${t.type === TransactionType.INCOME ? 'text-emerald-500 group-hover:text-white' : 'text-[var(--text-muted)] group-hover:text-white'} text-[10px]`}></i>
+                <div key={t.id} className={`relative animate-list-enter ${editingId === t.id ? 'z-50' : 'z-0'}`} style={{ animationDelay: `${tIdx * 80}ms` }}>
+                  <div className={`bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] p-4 flex items-center justify-between group rounded-[24px] transition-all card-press ${editingId === t.id ? 'bg-[var(--bg-card)] border-emerald-500/30' : ''}`}>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-white/[0.05] ${
+                        (t.type === TransactionType.INCOME || t.type === TransactionType.DEBT)
+                          ? 'bg-emerald-500/10 text-emerald-500'
+                          : 'bg-zinc-800 text-[var(--text-secondary)]'
+                      }`}>
+                        <i className={`fa-solid ${t.type === TransactionType.INCOME || t.type === TransactionType.DEBT ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'} text-xs`}></i>
                       </div>
                       <div className="space-y-0.5" onClick={() => setEditingId(editingId === t.id ? null : t.id)}>
-                        <h4 className="text-[12px] font-semibold text-[var(--text-primary)] tracking-tight line-clamp-1">{t.description}</h4>
+                        <h4 className="text-[13px] font-black text-[var(--text-primary)] leading-tight tracking-tight line-clamp-1">{t.description}</h4>
                         <div className="relative cursor-pointer group/cat">
-                          <p className="text-[8px] font-semibold text-[var(--text-muted)] tracking-[0.1em] flex items-center gap-1 group-hover/cat:text-emerald-500 transition-colors uppercase">
+                          <p className="text-[9px] font-black text-[var(--text-muted)] tracking-widest flex items-center gap-1 group-hover/cat:text-emerald-500 transition-colors uppercase opacity-60">
                             {translations[lang].transactions.categories[t.category.toLowerCase() as keyof typeof translations.en.transactions.categories] || t.category}
                             <i className="fa-solid fa-chevron-down text-[6px] opacity-0 group-hover/cat:opacity-100 transition-opacity"></i>
                           </p>
@@ -167,8 +169,8 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`text-[12px] font-bold tabular-nums tracking-tight ${t.type === TransactionType.INCOME || t.type === TransactionType.DEBT ? 'text-emerald-500' : 'text-rose-500'}`}>
-                        {t.type === TransactionType.INCOME || t.type === TransactionType.DEBT ? '+' : '-'}{formatCurrency(t.amount)}
+                      <p className={`text-[14px] font-black tabular-nums tracking-tighter ${t.type === TransactionType.INCOME || t.type === TransactionType.DEBT ? 'text-emerald-500' : 'text-[var(--text-primary)]'}`}>
+                        {t.type === TransactionType.INCOME || t.type === TransactionType.DEBT ? '+' : '-'}{formatCurrency(t.amount).replace('Rp', '')}
                       </p>
                     </div>
                   </div>

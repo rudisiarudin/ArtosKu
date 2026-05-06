@@ -858,3 +858,37 @@ a,
   width: 100%;
   margin: 1.5rem 0;
 }
+
+/* =====================
+   AI CHAT UTILITIES
+   ===================== */
+
+.scroll-momentum {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+}
+
+.ai-content {
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.ai-content strong {
+  font-weight: 700;
+  color: #10b981;
+}
+
+/* Smooth bounce for AI button */
+@keyframes aiBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.ai-float-bounce {
+  animation: aiBounce 2s ease-in-out infinite;
+}

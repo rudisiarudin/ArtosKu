@@ -9,6 +9,7 @@ import TransactionList from './components/TransactionList';
 import AddTransactionModal from './components/AddTransactionModal';
 import Navigation from './components/Navigation';
 import DesktopSidebar from './components/DesktopSidebar';
+import DesktopHeader from './components/DesktopHeader';
 import WalletManagement from './components/WalletManagement';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { cn } from './lib/utils';
@@ -24,6 +25,8 @@ import { supabase, getSession, getUserProfile, signOut } from './lib/supabase';
 import { fetchWallets, createWallet, updateWallet, deleteWallet, fetchTransactions, createTransaction, updateTransaction, deleteTransaction as deleteTransactionFromDB, fetchDebts, createDebt, updateDebt, deleteDebt, fetchNotifications } from './lib/database';
 import { Transaction, Wallet, TransactionType, WalletType, Debt, TabType, UserProfile, Budget } from './types';
 import { LanguageProvider } from './context/LanguageContext';
+import AiChat from './components/AiChat';
+import OfflineBanner from './components/OfflineBanner';
 
 const STORAGE_KEY_TX = 'artosku_transactions_v2';
 const STORAGE_KEY_WALLETS = 'artosku_wallets_v2';
@@ -58,9 +61,16 @@ const App: React.FC = () => {
   const [statsFocusCategory, setStatsFocusCategory] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const isMobile = !isDesktop;
+  useEffect(() => {
+    const handleOpenAiChat = () => setIsAiChatOpen(true);
+    document.addEventListener('open-ai-chat', handleOpenAiChat);
+    return () => document.removeEventListener('open-ai-chat', handleOpenAiChat);
+  }, []);
+
+  const isDesktop = false;
+  const isMobile = true;
 
   // PWA Install Prompt Listener
   useEffect(() => {
@@ -130,8 +140,32 @@ const App: React.FC = () => {
       setTransactions(transactionsData);
       setDebts(debtsData);
       setNotifications(notificationsData);
+
+      // Cache to localStorage for offline fallback
+      try {
+        localStorage.setItem('artosku_cache_wallets', JSON.stringify(walletsData));
+        localStorage.setItem('artosku_cache_transactions', JSON.stringify(transactionsData));
+        localStorage.setItem('artosku_cache_debts', JSON.stringify(debtsData));
+        localStorage.setItem('artosku_cache_timestamp', Date.now().toString());
+      } catch (e) {
+        // localStorage might be full — silently ignore
+      }
     } catch (error) {
       console.error('Error loading data:', error);
+      // Offline fallback: load from localStorage cache
+      if (!navigator.onLine) {
+        try {
+          const cachedWallets = localStorage.getItem('artosku_cache_wallets');
+          const cachedTx = localStorage.getItem('artosku_cache_transactions');
+          const cachedDebts = localStorage.getItem('artosku_cache_debts');
+          if (cachedWallets) setWallets(JSON.parse(cachedWallets));
+          if (cachedTx) setTransactions(JSON.parse(cachedTx));
+          if (cachedDebts) setDebts(JSON.parse(cachedDebts));
+          console.info('[Offline] Loaded data from cache');
+        } catch (e) {
+          console.error('[Offline] Failed to load cache:', e);
+        }
+      }
     }
   }, [session]);
 
@@ -451,11 +485,8 @@ const App: React.FC = () => {
             wallets={wallets}
             onAddDebt={async (d) => {
               if (!session?.user) return;
-
               try {
-                // Create debt in Supabase
                 const newDebt = await createDebt(session.user.id, d);
-                // Update local state
                 setDebts(prev => [...prev, newDebt]);
               } catch (error) {
                 console.error('Error adding debt:', error);
@@ -464,9 +495,7 @@ const App: React.FC = () => {
             }}
             onUpdateDebt={async (updated) => {
               try {
-                // Update debt in Supabase
                 const updatedDebt = await updateDebt(updated.id, updated);
-                // Update local state
                 setDebts(prev => prev.map(d => d.id === updated.id ? updatedDebt : d));
               } catch (error) {
                 console.error('Error updating debt:', error);
@@ -476,15 +505,11 @@ const App: React.FC = () => {
             onDeleteDebt={async (id) => {
               const debtToDelete = debts.find(d => d.id === id);
               if (!debtToDelete) return;
-
               if (!confirm(`Delete ${debtToDelete.title}? Wallet balance will be reverted.`)) return;
 
               try {
-                // 1. Revert wallet balance
                 const wallet = wallets.find(w => w.id === debtToDelete.walletId);
                 if (wallet) {
-                  // If it was DEBT (borrowing), balance was increased -> now decrease it
-                  // If it was RECEIVABLE (lending), balance was decreased -> now increase it
                   const isIncreasing = debtToDelete.type === TransactionType.DEBT;
                   const revertedBalance = isIncreasing
                     ? Number(wallet.balance) - Number(debtToDelete.initialAmount || debtToDelete.amount)
@@ -494,7 +519,6 @@ const App: React.FC = () => {
                   setWallets(prev => prev.map(w => w.id === wallet.id ? { ...w, balance: revertedBalance } : w));
                 }
 
-                // 2. Delete the specific "New Loan" transaction if it exists
                 const txDescriptionPrefix = `New ${debtToDelete.type === TransactionType.DEBT ? 'Hutang' : 'Piutang'}: ${debtToDelete.title}`;
                 const linkedTx = transactions.find(t => t.description === txDescriptionPrefix && t.category === 'Loan' && Number(t.amount) === Number(debtToDelete.initialAmount || debtToDelete.amount));
 
@@ -503,9 +527,7 @@ const App: React.FC = () => {
                   setTransactions(prev => prev.filter(t => t.id !== linkedTx.id));
                 }
 
-                // 3. Delete from Supabase
                 await deleteDebt(id);
-                // Update local state
                 setDebts(prev => prev.filter(d => d.id !== id));
               } catch (error) {
                 console.error('Error deleting debt:', error);
@@ -565,17 +587,10 @@ const App: React.FC = () => {
             theme={theme}
             onTopup={handleOpenTopup}
             onTransfer={() => setIsTransferModalOpen(true)}
-          />
-        );
-      case 'deposit':
-        return (
-          <Deposit
-            wallets={wallets}
-            transactions={transactions}
             onDeposit={() => handleOpenTopup(wallets[0]?.id, { title: 'New Deposit' })}
             onWithdraw={() => setIsTransferModalOpen(true)}
-            onUpdateBalance={(walletId, newBalance, diff) => {
-              handleUpdateBalance(walletId, newBalance, diff);
+            onUpdateBalance={async (walletId, newBalance, diff) => {
+              await handleUpdateBalance(walletId, newBalance, diff);
               setSelectedWalletForUpdate(null);
             }}
             onUpdateBalanceRequest={(w) => setSelectedWalletForUpdate(w)}
@@ -643,41 +658,29 @@ const App: React.FC = () => {
 
   return (
     <LanguageProvider>
-      <div className={cn(
-        "min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] transition-colors duration-500 font-sans overflow-clip relative selection:bg-emerald-500/10",
-        isDesktop && "pl-64"
-      )}>
+      <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] transition-colors duration-500 font-sans overflow-clip relative selection:bg-emerald-500/10">
+        {/* Offline Status Banner */}
+        <OfflineBanner />
         {/* Background blobs simplified for "Clean" look */}
         <div className="fixed inset-0 pointer-events-none pointer-events-none overflow-hidden z-0">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full -mr-64 -mt-64"></div>
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/[0.03] blur-[100px] rounded-full -ml-32 -mb-32"></div>
         </div>
 
-        {isDesktop && (
-          <DesktopSidebar 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            userName={userName} 
-          />
-        )}
-
-        <div className={cn(
-          "relative z-10 w-full min-h-screen flex flex-col",
-          isMobile ? "max-w-md mx-auto" : "px-6 lg:px-12 py-6 lg:py-10"
-        )}>
+        <div className="relative z-10 w-full min-h-screen flex flex-col max-w-md mx-auto bg-[var(--bg-deep)] shadow-[0_0_50px_rgba(0,0,0,0.3)]">
           <main className="flex-1 pb-32">
-            <div key={activeTab} className="page-enter">
+            <div className="h-full">
               {renderTabContent()}
             </div>
           </main>
-        </div>
 
-        {isMobile && (
+          {/* The AI Assistant FAB has been removed as it is now in the Quick Actions menu */}
+
           <Navigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
-        )}
+        </div>
 
         <AddTransactionModal
           isOpen={isModalOpen}
@@ -731,6 +734,15 @@ const App: React.FC = () => {
           onClose={() => setSelectedWalletForUpdate(null)}
           wallet={selectedWalletForUpdate}
           onUpdate={handleUpdateBalance}
+        />
+
+        <AiChat
+          isOpen={isAiChatOpen}
+          onClose={() => setIsAiChatOpen(false)}
+          transactions={transactions}
+          wallets={wallets}
+          debts={debts}
+          userName={userName}
         />
       </div>
     </LanguageProvider>

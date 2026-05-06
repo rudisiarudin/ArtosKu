@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { Wallet, WalletType, Transaction, TransactionType, Debt } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, PieChart, Pie, Cell } from 'recharts';
+import Deposit from './Deposit';
 
 interface WalletManagementProps {
   wallets: Wallet[];
@@ -13,10 +14,14 @@ interface WalletManagementProps {
   theme: 'light' | 'dark';
   onTopup: (walletId: string) => void;
   onTransfer: () => void;
+  onDeposit: () => void;
+  onWithdraw: () => void;
+  onUpdateBalance: (id: string, diff: number, isIncrease: boolean) => Promise<void>;
+  onUpdateBalanceRequest: (id: string, diff: number, isIncrease: boolean) => void;
 }
 
-const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets, transactions, debts, onAdd, onDelete, theme, onTopup, onTransfer }) => {
-  const [activeTab, setActiveTab] = useState<'PORTFOLIO' | 'ALLOCATION'>('PORTFOLIO');
+const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets, transactions, debts, onAdd, onDelete, theme, onTopup, onTransfer, onDeposit, onWithdraw, onUpdateBalance, onUpdateBalanceRequest }) => {
+  const [activeTab, setActiveTab] = useState<'PORTFOLIO' | 'ALOKASI' | 'INVESTASI'>('PORTFOLIO');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
@@ -144,43 +149,39 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
   }, [assetRanking]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] pb-32 page-enter">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 pt-[calc(2.5rem+env(safe-area-inset-top))] pb-3 bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-xl border-b border-[var(--border-subtle)] max-w-md mx-auto">
+    <div className="flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] pb-32 animate-fade-in">
+      {/* Header - Refined Premium Translucent */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 pt-[calc(2.5rem+env(safe-area-inset-top))] pb-3 bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-2xl border-b border-[var(--border-subtle)] max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <div className="size-9 rounded-full bg-[rgba(var(--bg-card-rgb),0.4)] flex items-center justify-center text-[var(--text-muted)]">
-            <i className="fa-solid fa-chart-line text-sm"></i>
+          <div className="size-10 rounded-xl bg-[var(--bg-inner)] border border-[var(--border-subtle)] flex items-center justify-center text-emerald-500 shadow-sm">
+            <i className="fa-solid fa-chart-line text-xs"></i>
           </div>
-          <h2 className="text-[var(--text-secondary)] text-sm font-medium leading-tight flex-1 text-center">{t('wallet.performance')}</h2>
+          <h2 className="text-[var(--text-primary)] text-sm font-bold tracking-widest uppercase flex-1 text-center">{t('wallet.performance')}</h2>
           <button
             onClick={onTransfer}
-            className="size-9 rounded-full bg-[rgba(var(--bg-card-rgb),0.4)] flex items-center justify-center text-emerald-500 active:scale-90 transition-all"
-            title="Transfer"
+            className="size-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 active:scale-90 transition-all hover:bg-emerald-500 hover:text-black"
           >
-            <i className="fa-solid fa-right-left text-sm"></i>
+            <i className="fa-solid fa-right-left text-xs"></i>
           </button>
         </div>
 
-        <div className="flex">
-          {['PORTFOLIO', 'ALLOCATION'].map((tab) => (
+        <div className="flex bg-black/40 rounded-xl p-1 border border-white/[0.05]">
+          {['PORTFOLIO', 'ALOKASI', 'INVESTASI'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`flex-1 py-3 text-[10px] font-bold tracking-[0.2em] transition-all relative ${activeTab === tab ? 'text-emerald-500' : 'text-[var(--text-muted)]'}`}
+              className={`flex-1 py-2 text-[10px] font-bold tracking-widest uppercase transition-all rounded-lg ${activeTab === tab ? 'bg-white text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
-              {t(`wallet.${tab.toLowerCase()}`)}
-              {activeTab === tab && <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-emerald-500 rounded-full" />}
+              {tab}
             </button>
           ))}
         </div>
       </header>
 
-
-
-      {activeTab === 'PORTFOLIO' ? (
-        <div className="px-5 pb-8 pt-[calc(11.5rem+env(safe-area-inset-top))] space-y-6">
-          {/* Summary Chart Card */}
-          <section className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-2xl p-5">
+      {activeTab === 'PORTFOLIO' && (
+        <div className="px-5 pb-8 pt-[calc(11.5rem+env(safe-area-inset-top))] space-y-8">
+          {/* Summary Chart Card - Premium Glass */}
+          <section className="premium-glass rounded-[32px] p-6 border border-white/[0.05] animate-card-entrance">
             <div className="flex items-center gap-2 mb-1.5 opacity-40">
               <span className="text-[9px] font-bold uppercase tracking-[0.2em]">{t('wallet.true_net_worth')}</span>
               <i className="fa-solid fa-shield-halved text-[9px] text-[var(--text-muted)]"></i>
@@ -286,11 +287,11 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                 <div className="shrink-0 w-[110px] text-right">{t('wallet.balance')}</div>
               </div>
 
-              {assetRanking.map((asset) => (
-                <div key={asset.id} className="group flex flex-col">
+              {assetRanking.map((asset, idx) => (
+                <div key={asset.id} className="group flex flex-col animate-list-enter" style={{ animationDelay: `${idx * 80}ms` }}>
                   <div
                     onClick={() => setSelectedAssetId(selectedAssetId === asset.id ? null : asset.id)}
-                    className={`flex items-center justify-between px-3 py-3.5 bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] hover:border-emerald-500/20 active:scale-[0.98] rounded-2xl transition-all group cursor-pointer ${selectedAssetId === asset.id ? 'border-emerald-500/30 bg-emerald-500/[0.03]' : ''}`}
+                    className={`flex items-center justify-between px-3 py-3.5 bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] hover:border-emerald-500/20 active:scale-[0.98] rounded-2xl transition-all group cursor-pointer glass-morphism ${selectedAssetId === asset.id ? 'border-emerald-500/30 bg-emerald-500/[0.03]' : ''}`}
                   >
                     <div className="flex-1 min-w-0 flex items-center gap-3 pr-2">
                       <div className="size-9 shrink-0 rounded-xl bg-[rgba(var(--bg-card-rgb),0.2)] flex items-center justify-center text-[var(--text-muted)] group-hover:text-emerald-500/80 transition-colors">
@@ -362,7 +363,9 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
             </div>
           </section>
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'ALOKASI' && (
         <div className="px-6 pb-32 pt-[calc(11.5rem+env(safe-area-inset-top))]">
           {/* Donut Chart for Allocation */}
           <section className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-2xl p-6 mb-8 flex flex-col items-center">
@@ -406,11 +409,11 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
             </div>
           </section>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {allocationData.map((item, i) => {
               const percent = (item.total / metrics.totalCurrent) * 100;
               return (
-                <div key={i} className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-2xl p-4 relative overflow-hidden group">
+                <div key={i} className="premium-glass rounded-[28px] p-5 border border-white/[0.05] animate-list-enter" style={{ animationDelay: `${i * 100}ms` }}>
                   <div className="flex justify-between items-center mb-3">
                     <div className="flex items-center gap-3">
                       <div className={`w-1 h-4 rounded-full ${i === 0 ? 'bg-[#10b981]' : i === 1 ? 'bg-[#3b82f6]' : i === 2 ? 'bg-[#f43f5e]' : 'bg-[#f59e0b]'}`} />
@@ -432,6 +435,19 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
               );
             })}
           </div>
+        </div>
+      )}
+
+      {activeTab === 'INVESTASI' && (
+        <div className="pt-[calc(11.5rem+env(safe-area-inset-top))]">
+           <Deposit
+              wallets={wallets}
+              transactions={transactions}
+              onDeposit={onDeposit}
+              onWithdraw={onWithdraw}
+              onUpdateBalance={onUpdateBalance}
+              onUpdateBalanceRequest={onUpdateBalanceRequest}
+           />
         </div>
       )}
 

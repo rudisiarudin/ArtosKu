@@ -104,40 +104,7 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
       
       <div className="hidden lg:flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)]">
         
-        {/* HEADER */}
-        <header className="sticky top-0 z-[40] bg-[var(--bg-deep)]/80 backdrop-blur-xl border-b border-[var(--border-subtle)] px-6 lg:px-8 py-4 mb-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
-            <div className="flex items-center gap-6">
-              <h2 className="text-xl font-black tracking-tight">{t('nav.dashboard')}</h2>
-              <div className="relative w-72 lg:w-96 hidden md:block">
-                <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-xs"></i>
-                <input 
-                  type="text" 
-                  placeholder="Search anything..." 
-                  className="w-full bg-[var(--bg-inner)] border border-[var(--border-subtle)] rounded-xl py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-all font-medium"
-                  onClick={onSearch}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <button onClick={onShowNotifications} className="w-10 h-10 rounded-xl bg-[var(--bg-inner)] flex items-center justify-center text-[var(--text-secondary)] hover:text-white transition-all relative border border-[var(--border-subtle)]">
-                <i className="fa-regular fa-bell"></i>
-                {hasUnreadNotifications && <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[var(--bg-deep)]"></span>}
-              </button>
-              <div className="h-6 w-[1px] bg-[var(--border-subtle)] mx-1 hidden sm:block" />
-              <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setActiveTab('profile')}>
-                <div className="text-right hidden sm:block">
-                  <p className="text-[13px] font-bold leading-none mb-1">{userName}</p>
-                  <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">Premium Member</p>
-                </div>
-                <img src={profile?.avatar_url || "https://avatar.stockbit.com/male/ToyFaces_Colored_BG_105-min.png"} alt="user" className="w-10 h-10 rounded-xl object-cover ring-2 ring-transparent group-hover:ring-emerald-500/30 transition-all border border-[var(--border-subtle)]" />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main className="max-w-7xl mx-auto w-full px-6 lg:px-8 pb-24 space-y-8">
+        <main className="max-w-7xl mx-auto w-full pb-24 space-y-8">
           
           {/* ROW 1: BALANCE & IN/OUT */}
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -164,7 +131,8 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
                 <div className="relative z-10 space-y-5">
                   {/* Chip & NFC */}
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-9 rounded-md bg-gradient-to-br from-[#FFD700]/80 to-[#B8860B]/80 border border-[#FFD700]/30 backdrop-blur-sm relative overflow-hidden">
+                    <div className="w-12 h-9 rounded-[4px] bg-gradient-to-br from-[#FFD700]/80 to-[#B8860B]/80 border border-[#FFD700]/30 backdrop-blur-sm relative overflow-hidden flex items-center justify-center shadow-inner">
+                      <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
                       <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/20" />
                       <div className="absolute inset-y-0 left-1/3 w-[1px] bg-black/20" />
                       <div className="absolute inset-y-0 right-1/3 w-[1px] bg-black/20" />
@@ -193,11 +161,11 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
 
             {/* Income & Expense */}
             <div className="lg:col-span-6 xl:col-span-7 grid grid-cols-2 gap-4 md:gap-6">
-              <div className="premium-glass rounded-[24px] p-5 md:p-8 flex flex-col justify-between border border-white/5 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="premium-glass rounded-[24px] p-5 md:p-8 flex flex-col justify-between border border-emerald-500/10 relative overflow-hidden group card-press">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 <div className="relative z-10 space-y-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
-                    <i className="fa-solid fa-arrow-down text-lg md:text-xl"></i>
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)] group-hover:scale-105 transition-transform">
+                    <i className="fa-solid fa-arrow-down text-xl md:text-2xl"></i>
                   </div>
                   <div>
                     <p className="text-[10px] md:text-[11px] font-bold text-white/40 uppercase tracking-widest mb-1 md:mb-2">Pemasukan</p>
@@ -206,11 +174,11 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
                 </div>
               </div>
 
-              <div className="premium-glass rounded-[24px] p-5 md:p-8 flex flex-col justify-between border border-white/5 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="premium-glass rounded-[24px] p-5 md:p-8 flex flex-col justify-between border border-rose-500/10 relative overflow-hidden group card-press">
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 <div className="relative z-10 space-y-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500">
-                    <i className="fa-solid fa-arrow-up text-lg md:text-xl"></i>
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.15)] group-hover:scale-105 transition-transform">
+                    <i className="fa-solid fa-arrow-up text-xl md:text-2xl"></i>
                   </div>
                   <div>
                     <p className="text-[10px] md:text-[11px] font-bold text-white/40 uppercase tracking-widest mb-1 md:mb-2">Pengeluaran</p>
@@ -228,12 +196,12 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
                 <button 
                   key={action.id}
                   onClick={action.action}
-                  className="flex flex-col items-center gap-3 min-w-[72px] md:min-w-[80px] snap-center group"
+                  className="flex flex-col items-center gap-3 min-w-[72px] md:min-w-[80px] snap-center group card-press"
                 >
-                  <div className={`w-12 h-12 md:w-14 md:h-14 rounded-[16px] md:rounded-[18px] ${action.bg} ${action.color} flex items-center justify-center text-lg md:text-xl transition-all duration-300 active:scale-95 border border-[var(--border-subtle)]`}>
+                  <div className={`w-14 h-14 md:w-16 md:h-16 rounded-[20px] md:rounded-[22px] ${action.bg} ${action.color} flex items-center justify-center text-xl md:text-2xl transition-all duration-300 border border-[var(--border-subtle)] group-hover:bg-white/10`}>
                     <i className={`fa-solid ${action.icon}`}></i>
                   </div>
-                  <span className="text-[10px] md:text-[11px] font-bold text-white/60 active:text-white tracking-wide">{action.label}</span>
+                  <span className="text-[11px] md:text-[12px] font-bold text-[var(--text-muted)] group-hover:text-white transition-colors">{action.label}</span>
                 </button>
               ))}
             </div>

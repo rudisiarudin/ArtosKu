@@ -38,6 +38,9 @@ export const translations = {
             loan: 'Loan',
             send_money: 'Send Money',
             no_data: 'No data to display',
+            no_activity: 'No recent activity',
+            weekly: 'Weekly',
+            monthly: 'Monthly',
         },
         stats: {
             expenses: 'Expenses',
@@ -321,6 +324,9 @@ export const translations = {
             loan: 'Hutang',
             send_money: 'Kirim Uang',
             no_data: 'Belum ada data',
+            no_activity: 'Belum ada aktivitas',
+            weekly: 'Mingguan',
+            monthly: 'Bulanan',
         },
         stats: {
             expenses: 'Pengeluaran',

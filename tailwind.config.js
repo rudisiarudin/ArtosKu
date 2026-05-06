@@ -21,7 +21,7 @@ export default {
                 "border-subtle": "var(--border-subtle)",
             },
             fontFamily: {
-                sans: ['Outfit', 'system-ui', 'sans-serif'],
+                sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
             },
         },
     },

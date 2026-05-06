@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useTransition } from 'react';
 import { TabType } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { vibrate } from '../lib/utils';
@@ -11,17 +10,18 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActiveTab }) => {
     const { t } = useLanguage();
+
     const tabs = [
-        { id: 'dashboard', icon: 'fa-house-chimney', label: t('nav.dashboard') },
-        { id: 'stats', icon: 'fa-chart-pie', label: t('nav.stats') },
-        { id: 'wallets', icon: 'fa-sack-dollar', label: t('nav.performance') },
-        { id: 'deposit', icon: 'fa-vault', label: t('nav.savings') },
-        { id: 'profile', icon: 'fa-circle-user', label: t('nav.profile') }
+        { id: 'dashboard', icon: 'fa-house', label: 'Home' },
+        { id: 'transactions', icon: 'fa-clock-rotate-left', label: 'History' },
+        { id: 'wallets', icon: 'fa-wallet', label: 'Budget' },
+        { id: 'stats', icon: 'fa-chart-pie', label: 'Reports' },
+        { id: 'profile', icon: 'fa-user', label: 'Profile' }
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 flex justify-center z-[100] px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pointer-events-none">
-            <nav className="w-full max-w-[360px] premium-glass rounded-[28px] px-2 py-1.5 flex items-center justify-between shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] border border-white/10 animate-glow-breath pointer-events-auto">
+        <div className="fixed bottom-0 left-0 right-0 flex justify-center z-[100] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pointer-events-none">
+            <nav className="w-full max-w-[400px] bg-[#161616] rounded-[32px] px-2 py-2 flex items-center justify-between border border-white/5 shadow-2xl pointer-events-auto">
                 {tabs.map((tab) => {
                     const isActive = activeTab === tab.id;
                     return (
@@ -31,24 +31,14 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
                                 setActiveTab(tab.id as TabType);
                                 vibrate(10);
                             }}
-                            className={`group relative flex items-center justify-center transition-all duration-500 rounded-2xl h-11 px-4 ${isActive
-                                ? 'bg-[#00fa9a] text-black shadow-lg shadow-[#00fa9a]/20 animate-nav-pop'
-                                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] active:scale-90'
-                                }`}
+                            className={`flex flex-col items-center justify-center w-[64px] h-[52px] rounded-[24px] transition-all duration-300 ${isActive ? 'bg-[#0A2E1F]' : 'active:opacity-70'}`}
                         >
-                            <i className={`fa-solid ${tab.icon} ${isActive ? 'text-[13px]' : 'text-[16px]'} transition-all duration-300`}></i>
-
-                            {isActive && (
-                                <span className="ml-2 text-[10px] font-bold tracking-[0.05em] animate-fade-in uppercase whitespace-nowrap">
-                                    {tab.label}
-                                </span>
-                            )}
-
-                            {!isActive && (
-                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[rgba(var(--bg-card-rgb),0.9)] backdrop-blur-md text-[var(--text-primary)] text-[10px] font-bold px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/10 pointer-events-none tracking-widest whitespace-nowrap shadow-xl transform translate-y-2 group-hover:translate-y-0">
-                                    {tab.label}
-                                </div>
-                            )}
+                            <div className={`mb-1 ${isActive ? 'text-[#10B981]' : 'text-white/40'}`}>
+                                <i className={`fa-solid ${tab.icon} text-[18px]`}></i>
+                            </div>
+                            <span className={`text-[10px] font-medium ${isActive ? 'text-[#10B981]' : 'text-white/40'}`}>
+                                {tab.label}
+                            </span>
                         </button>
                     );
                 })}
