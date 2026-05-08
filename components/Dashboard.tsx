@@ -104,139 +104,143 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)]">
-        
-        <main className="max-w-7xl mx-auto w-full pb-24 space-y-8">
+      <div className="hidden lg:flex flex-col min-h-screen bg-background text-foreground transition-all duration-500">
+        <main className="max-w-7xl mx-auto w-full pb-24 space-y-10">
           
-          {/* ROW 1: BALANCE & IN/OUT */}
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Credit Card View */}
+          {/* ─── ELITE HEADER SECTION ─── */}
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Master Asset Card */}
             <div className="lg:col-span-6 xl:col-span-5">
-              <div className="w-full aspect-[1.8/1] rounded-[24px] p-6 md:p-8 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black border border-white/10 relative overflow-hidden group shadow-2xl flex flex-col justify-between">
-                {/* Glow Effect */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 blur-[60px] rounded-full group-hover:bg-emerald-500/30 transition-all duration-700" />
+              <div className="w-full aspect-[1.7/1] rounded-[40px] p-10 bg-gradient-to-br from-zinc-800 via-zinc-950 to-black border border-white/10 relative overflow-hidden group shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col justify-between">
+                {/* Dynamic Aura */}
+                <div className="absolute -top-32 -right-32 w-80 h-80 bg-primary/10 blur-[100px] rounded-full group-hover:bg-primary/20 transition-all duration-1000" />
+                <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-primary/5 blur-[80px] rounded-full opacity-50" />
                 
                 <div className="relative z-10 flex justify-between items-start">
-                  <div>
-                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Total Balance</p>
-                    <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight flex items-baseline gap-1">
-                      <span className="text-lg text-white/60 font-medium">Rp</span>
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.4em] mb-2">Total Institutional Assets</p>
+                    <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-baseline gap-2">
+                      <span className="text-xl text-white/30 font-bold uppercase">Idr</span>
                       {formatIDR(totals.balance)}
                     </h1>
                   </div>
-                  <div className="flex bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-3 py-1.5 items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Active</span>
+                  <div className="bg-primary/10 backdrop-blur-2xl border border-primary/20 rounded-2xl px-4 py-2 flex items-center gap-2.5">
+                    <div className="size-2 rounded-full bg-primary animate-pulse shadow-[0_0_12px_#10b981]" />
+                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Verified Elite</span>
                   </div>
                 </div>
 
-                <div className="relative z-10 space-y-5">
-                  {/* Chip & NFC */}
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-9 rounded-[4px] bg-gradient-to-br from-[#FFD700]/80 to-[#B8860B]/80 border border-[#FFD700]/30 backdrop-blur-sm relative overflow-hidden flex items-center justify-center shadow-inner">
-                      <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-                      <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/20" />
-                      <div className="absolute inset-y-0 left-1/3 w-[1px] bg-black/20" />
-                      <div className="absolute inset-y-0 right-1/3 w-[1px] bg-black/20" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-6 mb-8 opacity-40 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="w-14 h-10 rounded-lg bg-gradient-to-br from-amber-400/80 to-amber-600/80 border border-amber-400/30 shadow-inner relative overflow-hidden">
+                       <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
                     </div>
-                    <i className="fa-solid fa-wifi rotate-90 text-white/40 text-lg"></i>
+                    <div className="flex gap-1.5">
+                      {[1,2,3].map(i => <div key={i} className="w-6 h-[1px] bg-white/20" />)}
+                    </div>
                   </div>
                   
-                  {/* Number & Info */}
                   <div className="flex items-end justify-between">
-                    <div className="space-y-1">
-                      <p className="text-[16px] md:text-[20px] font-mono font-bold tracking-[0.2em] text-white/90 drop-shadow-md">
+                    <div className="space-y-1.5">
+                      <p className="text-[22px] font-mono font-black tracking-[0.25em] text-white/90 drop-shadow-2xl">
                         **** **** **** 8421
                       </p>
-                      <p className="text-[11px] font-bold text-white/60 uppercase tracking-widest">
+                      <p className="text-[12px] font-black text-white/40 uppercase tracking-[0.3em] font-sans">
                         {userName}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Valid Thru</p>
-                      <p className="text-[13px] font-mono font-bold text-white/80">12/28</p>
+                      <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Tier Connection</p>
+                      <p className="text-[14px] font-mono font-black text-white/60">ACTIVE_X_72</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Income & Expense */}
-            <div className="lg:col-span-6 xl:col-span-7 grid grid-cols-2 gap-4 md:gap-6">
-              <div className="premium-glass rounded-[24px] p-5 md:p-8 flex flex-col justify-between border border-emerald-500/10 relative overflow-hidden group card-press">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="relative z-10 space-y-4">
-                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)] group-hover:scale-105 transition-transform">
-                    <i className="fa-solid fa-arrow-down text-xl md:text-2xl"></i>
+            {/* Performance Metrics */}
+            <div className="lg:col-span-6 xl:col-span-7 grid grid-cols-2 gap-6">
+              <div className="bg-card/40 backdrop-blur-3xl rounded-[40px] p-10 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:border-primary/20 transition-all duration-500">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="relative z-10 space-y-6">
+                  <div className="size-16 rounded-[24px] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-[0_20px_40px_rgba(16,185,129,0.1)] group-hover:scale-110 transition-transform duration-500">
+                    <i className="fa-solid fa-arrow-down-long text-2xl"></i>
                   </div>
                   <div>
-                    <p className="text-[10px] md:text-[11px] font-bold text-white/40 uppercase tracking-widest mb-1 md:mb-2">Pemasukan</p>
-                    <p className="text-xl md:text-3xl font-black text-white tracking-tight">Rp{formatIDR(totals.income)}</p>
+                    <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-3">Institutional Inflow</p>
+                    <p className="text-3xl xl:text-4xl font-black text-white tracking-tighter">Rp{formatIDR(totals.income)}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="premium-glass rounded-[24px] p-5 md:p-8 flex flex-col justify-between border border-rose-500/10 relative overflow-hidden group card-press">
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="relative z-10 space-y-4">
-                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-rose-500/15 border border-rose-500/20 flex items-center justify-center text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.15)] group-hover:scale-105 transition-transform">
-                    <i className="fa-solid fa-arrow-up text-xl md:text-2xl"></i>
+              <div className="bg-card/40 backdrop-blur-3xl rounded-[40px] p-10 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:border-rose-500/20 transition-all duration-500">
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="relative z-10 space-y-6">
+                  <div className="size-16 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shadow-[0_20px_40px_rgba(244,63,94,0.1)] group-hover:scale-110 transition-transform duration-500">
+                    <i className="fa-solid fa-arrow-up-long text-2xl"></i>
                   </div>
                   <div>
-                    <p className="text-[10px] md:text-[11px] font-bold text-white/40 uppercase tracking-widest mb-1 md:mb-2">Pengeluaran</p>
-                    <p className="text-xl md:text-3xl font-black text-white tracking-tight">Rp{formatIDR(totals.expense)}</p>
+                    <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-3">Operating Expense</p>
+                    <p className="text-3xl xl:text-4xl font-black text-white tracking-tighter">Rp{formatIDR(totals.expense)}</p>
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* ROW 2: HORIZONTAL MENU */}
-          <section className="bg-[var(--bg-inner)] rounded-[24px] p-4 md:p-6 border border-[var(--border-subtle)] -mx-6 md:mx-0 px-6 md:px-6">
-            <div className="flex items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar snap-x pb-2 md:pb-0">
+          {/* ─── QUICK COMMANDS ─── */}
+          <section className="bg-card/20 backdrop-blur-xl rounded-[40px] p-8 border border-white/5 shadow-2xl">
+            <div className="flex items-center gap-10 overflow-x-auto no-scrollbar py-2">
               {quickActions.map((action) => (
                 <button 
                   key={action.id}
                   onClick={action.action}
-                  className="flex flex-col items-center gap-3 min-w-[72px] md:min-w-[80px] snap-center group card-press"
+                  className="flex flex-col items-center gap-4 min-w-[90px] group transition-all"
                 >
-                  <div className={`w-14 h-14 md:w-16 md:h-16 rounded-[20px] md:rounded-[22px] ${action.bg} ${action.color} flex items-center justify-center text-xl md:text-2xl transition-all duration-300 border border-[var(--border-subtle)] group-hover:bg-white/10`}>
+                  <div className={`size-20 rounded-[28px] ${action.bg} ${action.color} flex items-center justify-center text-2xl transition-all duration-500 border border-white/5 group-hover:scale-110 group-hover:shadow-2xl group-active:scale-95`}>
                     <i className={`fa-solid ${action.icon}`}></i>
                   </div>
-                  <span className="text-[11px] md:text-[12px] font-bold text-[var(--text-muted)] group-hover:text-white transition-colors">{action.label}</span>
+                  <span className="text-[11px] font-black text-white/40 group-hover:text-white uppercase tracking-[0.2em] transition-colors">{action.label}</span>
                 </button>
               ))}
             </div>
           </section>
 
-          {/* ROW 3: ALLOCATION & TABLE */}
-          <section className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          {/* ─── DATA GRID ─── */}
+          <section className="grid grid-cols-1 xl:grid-cols-12 gap-10">
             
-            {/* Wallet Allocation */}
-            <div className="xl:col-span-4 flex flex-col gap-6">
-              <div className="premium-glass rounded-[24px] p-6 md:p-8 border border-white/5 flex-1">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-black tracking-tight text-white uppercase">Allocation</h3>
-                  <i className="fa-solid fa-wallet text-emerald-500"></i>
+            {/* Allocation Panel */}
+            <div className="xl:col-span-4">
+              <div className="bg-card/40 backdrop-blur-3xl rounded-[48px] p-10 border border-white/5 h-full shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 blur-[60px]" />
+                
+                <div className="flex items-center justify-between mb-10">
+                  <h3 className="text-[11px] font-black tracking-[0.4em] text-white/30 uppercase">Portfolio Allocation</h3>
+                  <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                    <i className="fa-solid fa-vault text-sm"></i>
+                  </div>
                 </div>
                 
-                <div className="space-y-5">
+                <div className="space-y-8">
                   {wallets.map((wallet) => {
                     const percent = totals.balance > 0 ? (Number(wallet.balance) / totals.balance) * 100 : 0;
                     return (
                       <div key={wallet.id} onClick={() => setActiveTab('wallets')} className="group cursor-pointer">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-[var(--bg-inner)] border border-[var(--border-subtle)] flex items-center justify-center text-white/50 group-active:text-emerald-500 transition-colors">
-                              <i className="fa-solid fa-building-columns text-[10px]"></i>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-4">
+                            <div className="size-10 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center text-white/30 group-hover:text-primary transition-colors">
+                              <i className="fa-solid fa-building-columns text-xs"></i>
                             </div>
-                            <p className="text-[12px] font-bold tracking-wide text-white/80 group-active:text-white transition-colors">{wallet.name}</p>
+                            <div>
+                              <p className="text-[14px] font-black text-white/80 group-hover:text-white transition-colors">{wallet.name}</p>
+                              <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">{percent.toFixed(1)}% Weight</p>
+                            </div>
                           </div>
-                          <p className="text-[12px] font-black tabular-nums">Rp{formatIDR(Number(wallet.balance))}</p>
+                          <p className="text-[14px] font-black tabular-nums text-white">Rp{formatIDR(Number(wallet.balance))}</p>
                         </div>
                         <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                            className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
                             style={{ width: `${percent}%` }}
                           />
                         </div>
@@ -246,77 +250,68 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
 
                   <button 
                     onClick={() => setActiveTab('wallets')}
-                    className="w-full mt-4 py-3 rounded-xl border border-dashed border-white/20 text-[11px] font-bold text-white/40 uppercase tracking-widest active:border-emerald-500 active:text-emerald-500 transition-all active:bg-emerald-500/5 group"
+                    className="w-full mt-6 py-5 rounded-3xl border-2 border-dashed border-white/5 text-[11px] font-black text-white/20 uppercase tracking-[0.3em] hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all duration-500"
                   >
-                    <i className="fa-solid fa-plus mr-2"></i>
-                    Manage Wallets
+                    <i className="fa-solid fa-plus-circle mr-3"></i>
+                    Expand Portfolio
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Transaction Table */}
+            {/* Ledger Panel */}
             <div className="xl:col-span-8">
-              <div className="premium-glass rounded-[24px] p-6 md:p-8 border border-white/5 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-black tracking-tight text-white uppercase">Recent Transactions</h3>
-                  <button onClick={onShowAll} className="text-[11px] font-bold text-emerald-500 active:text-emerald-400 tracking-wider">
-                    VIEW ALL
+              <div className="bg-card/40 backdrop-blur-3xl rounded-[48px] p-10 border border-white/5 h-full shadow-2xl">
+                <div className="flex items-center justify-between mb-10">
+                  <h3 className="text-[11px] font-black tracking-[0.4em] text-white/30 uppercase">Transaction Ledger</h3>
+                  <button onClick={onShowAll} className="px-6 py-2.5 rounded-full bg-primary/10 text-[10px] font-black text-primary hover:bg-primary hover:text-black tracking-[0.2em] transition-all uppercase">
+                    Audit All
                   </button>
                 </div>
 
-                <div className="overflow-x-auto flex-1 -mx-6 px-6 md:mx-0 md:px-0">
-                  <table className="w-full text-left border-collapse min-w-[300px]">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-white/5">
-                        <th className="py-4 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] w-full md:w-auto">Transaction</th>
-                        <th className="py-4 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] hidden sm:table-cell">Category</th>
-                        <th className="py-4 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] hidden md:table-cell">Date</th>
-                        <th className="py-4 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] text-right whitespace-nowrap pl-4">Amount</th>
+                        <th className="pb-6 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Signature</th>
+                        <th className="pb-6 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Classification</th>
+                        <th className="pb-6 text-[10px] font-black text-white/20 uppercase tracking-[0.3em] text-right">Settlement</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-white/5">
                       {recentTransactions.map((tx) => (
-                        <tr key={tx.id} className="border-b border-white/5 active:bg-white/[0.02] transition-colors group">
-                          <td className="py-4">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-white/5 ${
+                        <tr key={tx.id} className="group hover:bg-white/[0.02] transition-colors">
+                          <td className="py-6">
+                            <div className="flex items-center gap-5">
+                              <div className={`size-12 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 group-hover:scale-110 transition-transform ${
                                 (tx.type === TransactionType.INCOME || tx.type === TransactionType.DEBT)
-                                  ? 'bg-emerald-500/10 text-emerald-500'
-                                  : 'bg-rose-500/10 text-rose-500'
+                                  ? 'bg-primary/10 text-primary shadow-[0_0_20px_rgba(16,185,129,0.1)]'
+                                  : 'bg-rose-500/10 text-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.1)]'
                               }`}>
-                                <i className={`fa-solid ${getCategoryIcon(tx.category)} text-[13px]`}></i>
+                                <i className={`fa-solid ${getCategoryIcon(tx.category)} text-base`}></i>
                               </div>
                               <div>
-                                <p className="text-[13px] font-bold text-white">{tx.description}</p>
-                                <p className="text-[10px] font-medium text-white/40 block sm:hidden mt-0.5">{tx.category} • {new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                                <p className="text-[14px] font-black text-white group-hover:text-primary transition-colors">{tx.description}</p>
+                                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">
+                                  {new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </p>
                               </div>
                             </div>
                           </td>
-                          <td className="py-4 hidden sm:table-cell">
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-[var(--bg-inner)] border border-[var(--border-subtle)] text-[10px] font-bold text-white/60 tracking-wider">
+                          <td className="py-6">
+                            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-zinc-900 border border-white/5 text-[10px] font-black text-white/50 group-hover:text-white transition-colors uppercase tracking-widest">
                               {tx.category}
                             </span>
                           </td>
-                          <td className="py-4 hidden md:table-cell">
-                            <p className="text-[12px] font-medium text-white/50">{new Date(tx.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
-                          </td>
-                          <td className="py-4 text-right pl-4">
-                            <p className={`text-[13px] font-black tabular-nums tracking-tight whitespace-nowrap ${
-                              (tx.type === TransactionType.INCOME || tx.type === TransactionType.DEBT) ? 'text-emerald-500' : 'text-white/90'
+                          <td className="py-6 text-right">
+                            <p className={`text-[16px] font-black tabular-nums tracking-tighter ${
+                              (tx.type === TransactionType.INCOME || tx.type === TransactionType.DEBT) ? 'text-primary' : 'text-white/90'
                             }`}>
                               {(tx.type === TransactionType.INCOME || tx.type === TransactionType.DEBT) ? '+' : '-'}{formatIDR(tx.amount)}
                             </p>
                           </td>
                         </tr>
                       ))}
-                      {recentTransactions.length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="py-8 text-center text-white/30 text-[12px] font-medium italic">
-                            No transactions found
-                          </td>
-                        </tr>
-                      )}
                     </tbody>
                   </table>
                 </div>
@@ -326,6 +321,7 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
           </section>
         </main>
       </div>
+>
   );
 });
 
