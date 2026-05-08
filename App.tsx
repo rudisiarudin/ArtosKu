@@ -69,8 +69,8 @@ const App: React.FC = () => {
     return () => document.removeEventListener('open-ai-chat', handleOpenAiChat);
   }, []);
 
-  const isDesktop = false;
-  const isMobile = true;
+  const isMobile = useMediaQuery('(max-width: 1024px)');
+  const isDesktop = !isMobile;
 
   // PWA Install Prompt Listener
   useEffect(() => {
@@ -476,6 +476,7 @@ const App: React.FC = () => {
             onShowNotifications={() => setIsNotificationModalOpen(true)}
             onSetLimit={handleSetLimit}
             hasUnreadNotifications={hasNotifications}
+            isMobile={isMobile}
           />
         );
       case 'debt':
@@ -548,6 +549,7 @@ const App: React.FC = () => {
             theme={theme}
             initialCategoryFocus={statsFocusCategory as any}
             onFocusReset={() => setStatsFocusCategory(null)}
+            isMobile={isMobile}
           />
         );
       case 'transactions':

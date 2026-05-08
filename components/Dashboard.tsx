@@ -19,9 +19,10 @@ interface DashboardProps {
   onShowNotifications: () => void;
   onSetLimit?: (category: string) => void;
   hasUnreadNotifications?: boolean;
+  isMobile?: boolean;
 }
 
-const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, transactions, wallets, onShowAll, onTopup, onQuickAction, setActiveTab, onSearch, onShowNotifications, onSetLimit, hasUnreadNotifications }) => {
+const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, transactions, wallets, onShowAll, onTopup, onQuickAction, setActiveTab, onSearch, onShowNotifications, onSetLimit, hasUnreadNotifications, isMobile }) => {
   const [timeframe, setTimeframe] = React.useState<'weekly' | 'monthly'>('monthly');
   const { t } = useLanguage();
 
@@ -80,29 +81,30 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
     { id: 'budget', icon: 'fa-bullseye', label: 'Budget', action: () => setActiveTab('budget'), color: 'text-amber-500', bg: 'bg-amber-500/10' },
   ];
 
+  if (isMobile) {
+    return (
+      <DashboardMobile 
+        userName={userName}
+        profile={profile}
+        transactions={transactions}
+        wallets={wallets}
+        totals={totals}
+        recentTransactions={recentTransactions}
+        onShowAll={onShowAll}
+        onTopup={onTopup}
+        onQuickAction={onQuickAction}
+        setActiveTab={setActiveTab}
+        formatIDR={formatIDR}
+        getCategoryIcon={getCategoryIcon}
+        onSearch={onSearch}
+        onShowNotifications={onShowNotifications}
+        hasUnreadNotifications={hasUnreadNotifications}
+      />
+    );
+  }
+
   return (
-    <>
-      <div className="block lg:hidden">
-        <DashboardMobile 
-          userName={userName}
-          profile={profile}
-          transactions={transactions}
-          wallets={wallets}
-          totals={totals}
-          recentTransactions={recentTransactions}
-          onShowAll={onShowAll}
-          onTopup={onTopup}
-          onQuickAction={onQuickAction}
-          setActiveTab={setActiveTab}
-          formatIDR={formatIDR}
-          getCategoryIcon={getCategoryIcon}
-          onSearch={onSearch}
-          onShowNotifications={onShowNotifications}
-          hasUnreadNotifications={hasUnreadNotifications}
-        />
-      </div>
-      
-      <div className="hidden lg:flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)]">
+    <div className="flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)]">
         
         <main className="max-w-7xl mx-auto w-full pb-24 space-y-8">
           

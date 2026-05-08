@@ -16,9 +16,10 @@ interface StatsProps {
   theme: 'light' | 'dark';
   initialCategoryFocus?: Category;
   onFocusReset?: () => void;
+  isMobile?: boolean;
 }
 
-const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets, onUpdateBudget, theme, initialCategoryFocus, onFocusReset }) => {
+const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets, onUpdateBudget, theme, initialCategoryFocus, onFocusReset, isMobile }) => {
   const [timeRange, setTimeRange] = useState('1M');
   const { lang, t } = useLanguage();
 
@@ -124,18 +125,19 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
       .slice(0, 5);
   }, [transactions]);
 
+  if (isMobile) {
+    return (
+      <StatsMobile 
+        transactions={transactions}
+        wallets={wallets}
+        budgets={budgets}
+        formatIDR={formatIDR}
+      />
+    );
+  }
 
   return (
-    <>
-      <div className="block lg:hidden">
-        <StatsMobile 
-          transactions={transactions}
-          wallets={wallets}
-          budgets={budgets}
-          formatIDR={formatIDR}
-        />
-      </div>
-      <div className="hidden lg:block min-h-[calc(100vh-100px)]">
+    <div className="min-h-[calc(100vh-100px)]">
         {/* TIME RANGE SELECTOR */}
         <div className="bg-[var(--bg-inner)] p-1.5 rounded-2xl inline-flex mb-8 border border-[var(--border-subtle)]">
           {['1D', '1W', '1M', '3M', 'YTD', 'All'].map(range => (
