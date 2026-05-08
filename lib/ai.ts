@@ -2,7 +2,7 @@
 import { Transaction, TransactionType, Wallet, Debt } from '../types';
 
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
-const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const API_URL = 'https://aimurah.my.id/api/v1/chat/completions';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -182,12 +182,10 @@ ${financialContext}`;
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://artosku.vercel.app',
-        'X-Title': 'ArtosKu Finance'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-3.5-sonnet',
+        model: 'claude-sonnet-4.5-1m',
         messages: fullMessages,
         max_tokens: 1024,
         temperature: 0.7,
