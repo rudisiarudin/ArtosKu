@@ -178,13 +178,13 @@ ${financialContext}`;
   ];
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : '',
-        'X-Title': 'ArtosKu Financial AI'
+        'Content-Type': 'application/json',
+        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://artosku.vercel.app',
+        'X-Title': 'ArtosKu Finance'
       },
       body: JSON.stringify({
         model: 'google/gemini-2.0-flash-exp:free',

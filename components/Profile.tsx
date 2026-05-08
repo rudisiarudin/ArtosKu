@@ -124,7 +124,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
         className="hidden"
       />
 
-      <header className="px-6 pt-[calc(4rem+env(safe-area-inset-top))] pb-10 flex flex-col items-center">
+      <header className="px-6 pt-[calc(2.5rem+env(safe-area-inset-top,24px))] pb-10 flex flex-col items-center">
         <div className="relative group mb-8" onClick={handleAvatarClick}>
           {/* High-End Avatar Glow */}
           <div className="absolute -inset-4 bg-primary/5 blur-[32px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />

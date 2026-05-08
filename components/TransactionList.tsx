@@ -75,7 +75,7 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
 
   return (
     <div className="flex flex-col min-h-screen pb-36 bg-background animate-in fade-in duration-500">
-      <header className="sticky top-0 left-0 right-0 z-50 px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-4 bg-background/95 backdrop-blur-sm border-b border-border/50">
+      <header className="sticky top-0 left-0 right-0 z-50 px-6 pt-[calc(1.5rem+env(safe-area-inset-top,24px))] pb-4 bg-background/95 backdrop-blur-sm border-b border-border/50">
         <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="space-y-0.5">
             <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{t('history.ledger')}</p>

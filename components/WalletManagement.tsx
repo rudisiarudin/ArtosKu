@@ -168,7 +168,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground pb-32">
       {/* Institutional Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 max-w-md mx-auto px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-4">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 max-w-md mx-auto px-6 pt-[calc(1.5rem+env(safe-area-inset-top,24px))] pb-4">
         <div className="flex items-center justify-between mb-6">
           <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
             <TrendingUp size={18} />
@@ -204,7 +204,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       </header>
 
       {activeTab === 'PORTFOLIO' && (
-        <div className="px-5 pb-8 pt-[calc(11.5rem+env(safe-area-inset-top))] space-y-8">
+        <div className="px-5 pb-8 pt-[calc(10rem+env(safe-area-inset-top,24px))] space-y-8">
           {/* Summary Performance Card */}
           <section className="bg-gradient-to-br from-card via-card to-muted/30 rounded-[32px] p-7 border border-border/10 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
@@ -396,7 +396,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       )}
 
       {activeTab === 'ALOKASI' && (
-        <div className="px-6 pb-32 pt-[calc(11.5rem+env(safe-area-inset-top))]">
+        <div className="px-6 pb-32 pt-[calc(10rem+env(safe-area-inset-top,24px))]">
           {/* Donut Chart for Allocation */}
           <section className="bg-muted/10 border border-border/10 rounded-[32px] p-8 mb-8 flex flex-col items-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[40px] pointer-events-none" />
@@ -470,7 +470,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       )}
 
       {activeTab === 'INVESTASI' && (
-        <div className="pt-[calc(11.5rem+env(safe-area-inset-top))]">
+        <div className="pt-[calc(10rem+env(safe-area-inset-top,24px))]">
           <Deposit
             wallets={wallets}
             transactions={transactions}

@@ -213,7 +213,7 @@ const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
     <div className="w-full font-sans pb-24 bg-background min-h-screen text-foreground transition-colors duration-300">
 
       {/* ─── INSTITUTIONAL HEADER ─── */}
-      <header className="px-5 pt-[calc(2rem+env(safe-area-inset-top))] pb-4 flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-sm z-40 border-b border-border/40">
+      <header className="px-5 pt-[calc(1.5rem+env(safe-area-inset-top,24px))] pb-4 flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-sm z-40 border-b border-border/40">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('profile')}>
           <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
             {profile?.avatar_url ? (
