@@ -168,7 +168,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground pb-32">
       {/* Institutional Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 max-w-md mx-auto px-6 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-4">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 max-w-md mx-auto px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-4">
         <div className="flex items-center justify-between mb-6">
           <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
             <TrendingUp size={18} />
