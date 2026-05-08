@@ -22,9 +22,20 @@ interface DashboardProps {
   isMobile?: boolean;
 }
 
-const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, transactions, wallets, onShowAll, onTopup, onQuickAction, setActiveTab, onSearch, onShowNotifications, onSetLimit, hasUnreadNotifications, isMobile }) => {
+const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, transactions, wallets, onShowAll, onTopup, onQuickAction, setActiveTab, onSearch, onShowNotifications, onSetLimit, hasUnreadNotifications, isMobile: isMobileProp }) => {
   const [timeframe, setTimeframe] = React.useState<'weekly' | 'monthly'>('monthly');
+  const [internalIsMobile, setInternalIsMobile] = React.useState(isMobileProp || window.innerWidth < 1280);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const handleResize = () => {
+      setInternalIsMobile(isMobileProp || window.innerWidth < 1280);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMobileProp]);
+
+  const isMobile = internalIsMobile;
 
   const formatIDR = (val: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -111,47 +122,47 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Master Asset Card */}
             <div className="lg:col-span-6 xl:col-span-5">
-              <div className="w-full aspect-[1.7/1] rounded-[40px] p-10 bg-gradient-to-br from-zinc-800 via-zinc-950 to-black border border-white/10 relative overflow-hidden group shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col justify-between">
+              <div className="w-full aspect-[1.7/1] rounded-[24px] md:rounded-[40px] p-6 md:p-10 bg-gradient-to-br from-zinc-800 via-zinc-950 to-black border border-white/10 relative overflow-hidden group shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col justify-between">
                 {/* Dynamic Aura */}
                 <div className="absolute -top-32 -right-32 w-80 h-80 bg-primary/10 blur-[100px] rounded-full group-hover:bg-primary/20 transition-all duration-1000" />
                 <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-primary/5 blur-[80px] rounded-full opacity-50" />
                 
                 <div className="relative z-10 flex justify-between items-start">
                   <div className="space-y-1">
-                    <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.4em] mb-2">Total Institutional Assets</p>
-                    <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-baseline gap-2">
-                      <span className="text-xl text-white/30 font-bold uppercase">Idr</span>
+                    <p className="text-[9px] md:text-[11px] font-black text-white/40 uppercase tracking-[0.4em] mb-1 md:mb-2">Total Institutional Assets</p>
+                    <h1 className="text-2xl md:text-4xl xl:text-5xl font-black text-white tracking-tighter flex items-baseline gap-2">
+                      <span className="text-sm md:text-xl text-white/30 font-bold uppercase">Idr</span>
                       {formatIDR(totals.balance)}
                     </h1>
                   </div>
-                  <div className="bg-primary/10 backdrop-blur-2xl border border-primary/20 rounded-2xl px-4 py-2 flex items-center gap-2.5">
-                    <div className="size-2 rounded-full bg-primary animate-pulse shadow-[0_0_12px_#10b981]" />
-                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Verified Elite</span>
+                  <div className="bg-primary/10 backdrop-blur-2xl border border-primary/20 rounded-xl md:rounded-2xl px-3 py-1 md:px-4 md:py-2 flex items-center gap-2 md:gap-2.5">
+                    <div className="size-1.5 md:size-2 rounded-full bg-primary animate-pulse shadow-[0_0_12px_#10b981]" />
+                    <span className="text-[8px] md:text-[10px] font-black text-primary uppercase tracking-[0.2em]">Verified Elite</span>
                   </div>
                 </div>
 
                 <div className="relative z-10">
-                  <div className="flex items-center gap-6 mb-8 opacity-40 group-hover:opacity-100 transition-opacity duration-700">
-                    <div className="w-14 h-10 rounded-lg bg-gradient-to-br from-amber-400/80 to-amber-600/80 border border-amber-400/30 shadow-inner relative overflow-hidden">
+                  <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-8 opacity-40 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="w-10 h-7 md:w-14 md:h-10 rounded-lg bg-gradient-to-br from-amber-400/80 to-amber-600/80 border border-amber-400/30 shadow-inner relative overflow-hidden">
                        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
                     </div>
-                    <div className="flex gap-1.5">
-                      {[1,2,3].map(i => <div key={i} className="w-6 h-[1px] bg-white/20" />)}
+                    <div className="flex gap-1">
+                      {[1,2,3].map(i => <div key={i} className="w-4 md:w-6 h-[1px] bg-white/20" />)}
                     </div>
                   </div>
                   
                   <div className="flex items-end justify-between">
-                    <div className="space-y-1.5">
-                      <p className="text-[22px] font-mono font-black tracking-[0.25em] text-white/90 drop-shadow-2xl">
+                    <div className="space-y-1">
+                      <p className="text-[16px] md:text-[22px] font-mono font-black tracking-[0.2em] md:tracking-[0.25em] text-white/90 drop-shadow-2xl">
                         **** **** **** 8421
                       </p>
-                      <p className="text-[12px] font-black text-white/40 uppercase tracking-[0.3em] font-sans">
+                      <p className="text-[10px] md:text-[12px] font-black text-white/40 uppercase tracking-[0.3em] font-sans">
                         {userName}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Tier Connection</p>
-                      <p className="text-[14px] font-mono font-black text-white/60">ACTIVE_X_72</p>
+                    <div className="text-right hidden sm:block">
+                      <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">Tier Connection</p>
+                      <p className="text-[12px] md:text-[14px] font-mono font-black text-white/60">ACTIVE_X_72</p>
                     </div>
                   </div>
                 </div>
@@ -159,29 +170,29 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
             </div>
 
             {/* Performance Metrics */}
-            <div className="lg:col-span-6 xl:col-span-7 grid grid-cols-2 gap-6">
-              <div className="bg-card/40 backdrop-blur-3xl rounded-[40px] p-10 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:border-primary/20 transition-all duration-500">
+            <div className="lg:col-span-6 xl:col-span-7 grid grid-cols-2 gap-4 md:gap-6">
+              <div className="bg-card/40 backdrop-blur-3xl rounded-[32px] md:rounded-[40px] p-6 md:p-10 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:border-primary/20 transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="relative z-10 space-y-6">
-                  <div className="size-16 rounded-[24px] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-[0_20px_40px_rgba(16,185,129,0.1)] group-hover:scale-110 transition-transform duration-500">
-                    <i className="fa-solid fa-arrow-down-long text-2xl"></i>
+                <div className="relative z-10 space-y-4 md:space-y-6">
+                  <div className="size-12 md:size-16 rounded-[20px] md:rounded-[24px] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-[0_20px_40px_rgba(16,185,129,0.1)] group-hover:scale-110 transition-transform duration-500">
+                    <i className="fa-solid fa-arrow-down-long text-xl md:text-2xl"></i>
                   </div>
                   <div>
-                    <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-3">Institutional Inflow</p>
-                    <p className="text-3xl xl:text-4xl font-black text-white tracking-tighter">Rp{formatIDR(totals.income)}</p>
+                    <p className="text-[9px] md:text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-1 md:mb-3">Institutional Inflow</p>
+                    <p className="text-xl md:text-3xl xl:text-4xl font-black text-white tracking-tighter">Rp{formatIDR(totals.income)}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-card/40 backdrop-blur-3xl rounded-[40px] p-10 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:border-rose-500/20 transition-all duration-500">
+              <div className="bg-card/40 backdrop-blur-3xl rounded-[32px] md:rounded-[40px] p-6 md:p-10 flex flex-col justify-between border border-white/5 relative overflow-hidden group hover:border-rose-500/20 transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="relative z-10 space-y-6">
-                  <div className="size-16 rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shadow-[0_20px_40px_rgba(244,63,94,0.1)] group-hover:scale-110 transition-transform duration-500">
-                    <i className="fa-solid fa-arrow-up-long text-2xl"></i>
+                <div className="relative z-10 space-y-4 md:space-y-6">
+                  <div className="size-12 md:size-16 rounded-[20px] md:rounded-[24px] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shadow-[0_20px_40px_rgba(244,63,94,0.1)] group-hover:scale-110 transition-transform duration-500">
+                    <i className="fa-solid fa-arrow-up-long text-xl md:text-2xl"></i>
                   </div>
                   <div>
-                    <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-3">Operating Expense</p>
-                    <p className="text-3xl xl:text-4xl font-black text-white tracking-tighter">Rp{formatIDR(totals.expense)}</p>
+                    <p className="text-[9px] md:text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-1 md:mb-3">Operating Expense</p>
+                    <p className="text-xl md:text-3xl xl:text-4xl font-black text-white tracking-tighter">Rp{formatIDR(totals.expense)}</p>
                   </div>
                 </div>
               </div>

@@ -69,7 +69,20 @@ const App: React.FC = () => {
     return () => document.removeEventListener('open-ai-chat', handleOpenAiChat);
   }, []);
 
-  const isMobile = useMediaQuery('(max-width: 1279px)') || (typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobileSize = window.innerWidth < 1280;
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(isMobileSize || isMobileUA);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const isDesktop = !isMobile;
 
   // PWA Install Prompt Listener
