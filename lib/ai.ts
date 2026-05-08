@@ -129,21 +129,29 @@ export async function sendAiMessage(
 ): Promise<string> {
   const financialContext = buildFinancialContext(transactions, wallets, debts, userName, lang);
 
-  const systemPrompt = `Kamu adalah "Artos AI", asisten keuangan pribadi yang cerdas dan profesional di dalam aplikasi ArtosKu.
+  if (!OPENROUTER_API_KEY) {
+    console.error('Missing OpenRouter API Key in environment variables.');
+    return lang === 'id' 
+      ? 'Konfigurasi AI belum lengkap. Harap cek API Key.'
+      : 'AI Configuration incomplete. Please check API Key.';
+  }
+
+  const systemPrompt = `Kamu adalah "Artos AI", asisten keuangan pribadi yang asik, santai, tapi tetep pinter di dalam aplikasi ArtosKu.
 
 KEPRIBADIAN:
-- Ramah, suportif, tapi tetap data-driven
-- Berikan insight spesifik berdasarkan DATA NYATA pengguna
-- Gunakan emoji secukupnya
-- Jawab dalam bahasa ${lang === 'id' ? 'Indonesia' : 'Inggris'}
-- Berikan saran yang actionable dan konkret
+- Gaya bahasa SANTAI, GAUL, dan FRIENDLY (pake kata-kata kaya "oke", "siap", "mantap", "nih", "yuk").
+- Jangan terlalu kaku atau formal kaya bot bank. Jadilah seperti teman curhat keuangan yang suportif.
+- Berikan insight spesifik berdasarkan DATA NYATA pengguna dengan cara yang ringan.
+- Gunakan emoji yang relevan supaya chatnya hidup.
+- UTAMAKAN menjawab dalam Bahasa Indonesia yang santai dan akrab (meskipun user nanya pake bahasa Inggris, jawabnya tetep pake bahasa Indonesia yang asik).
+- Berikan saran yang actionable dan konkret.
 
 KEMAMPUAN KHUSUS: PENCATATAN TRANSAKSI
-Kamu bisa membantu pengguna mencatat transaksi melalui chat. 
-1. Jika pengguna ingin mencatat transaksi (misal: "makan siang 15rb pake qris bca"):
-   - Identifikasi: Amount, Description, Category (pilih yang paling cocok), Wallet, dan Type (Income/Expense).
-   - Jika DOMPET (Wallet) tidak disebutkan, KAMU HARUS BERTANYA: "Pake duit dari mana?" atau "Pakai dompet yang mana?". JANGAN membuat asumsi dompet.
-   - Jika semua data lengkap, sertakan blok JSON berikut di AKHIR jawabanmu:
+Kamu bisa bantu catat transaksi lewat chat.
+1. Kalau user mau catat transaksi (misal: "tadi makan bakso 20rb"):
+   - Tanya/Identifikasi: Amount, Description, Category, Wallet, dan Type.
+   - Kalau DOMPET (Wallet) nggak disebutin, KAMU WAJIB TANYA: "Pake dompet yang mana nih?" atau "Duitnya dari mana?". JANGAN asal tebak dompet.
+   - Kalau data udah lengkap, kasih blok JSON ini di PALING BAWAH jawabanmu:
      :::RECORD_TRANSACTION:::
      {
        "amount": number,
@@ -175,11 +183,11 @@ ${financialContext}`;
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': window.location.origin,
+        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : '',
         'X-Title': 'ArtosKu Financial AI'
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-120b:free',
+        model: 'google/gemini-2.0-flash-exp:free',
         messages: fullMessages,
         max_tokens: 1024,
         temperature: 0.7,
@@ -187,15 +195,24 @@ ${financialContext}`;
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('OpenRouter API error:', errorData);
+      const errorText = await response.text();
+      console.error('OpenRouter API error text:', errorText);
       throw new Error(`API Error: ${response.status}`);
     }
 
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa memproses permintaan ini saat ini.';
+    const content = data.choices?.[0]?.message?.content;
+    
+    if (!content) {
+      console.warn('AI Response empty or missing choices:', data);
+      return lang === 'id' 
+        ? 'Maaf, saya tidak menerima jawaban dari server AI. Silakan coba lagi.'
+        : 'Sorry, I did not receive a response from the AI server. Please try again.';
+    }
+
+    return content;
   } catch (error) {
-    console.error('AI request failed:', error);
+    console.error('AI request failed with error:', error);
     throw error;
   }
 }

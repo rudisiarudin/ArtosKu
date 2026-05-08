@@ -83,12 +83,13 @@ const AiChat: React.FC<AiChatProps> = ({
       } else {
         setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('AiChat handleSend error:', error);
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: lang === 'id'
-          ? '⚠️ Maaf, terjadi kesalahan. Silakan coba lagi.'
-          : '⚠️ Sorry, an error occurred. Please try again.'
+          ? `⚠️ Terjadi kesalahan: ${error.message || 'Gagal terhubung ke AI'}. Silakan coba lagi.`
+          : `⚠️ Error occurred: ${error.message || 'Failed to connect to AI'}. Please try again.`
       }]);
     } finally {
       setIsLoading(false);
@@ -129,12 +130,21 @@ const AiChat: React.FC<AiChatProps> = ({
                 </div>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="size-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-all active:scale-90"
-            >
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { setMessages([]); setShowQuickPrompts(true); }}
+                className="size-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-all active:scale-90"
+                title="Clear Chat"
+              >
+                <Loader2 size={16} className={isLoading ? 'animate-spin' : ''} />
+              </button>
+              <button
+                onClick={onClose}
+                className="size-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-all active:scale-90"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
         </div>
 
