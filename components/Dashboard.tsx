@@ -326,7 +326,6 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
           </section>
         </main>
       </div>
-    </>
   );
 });
 

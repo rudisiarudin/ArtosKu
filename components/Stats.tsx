@@ -354,7 +354,6 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
         </div>
 
       </div>
-    </>
   );
 });
 
