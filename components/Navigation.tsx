@@ -20,7 +20,7 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 flex justify-center z-[100] px-4 pb-[calc(1rem+env(safe-area-inset-top))] pointer-events-none">
+        <div className="fixed bottom-0 left-0 right-0 flex justify-center z-[100] px-4 pb-[calc(1rem+env(safe-area-inset-bottom,20px))] pointer-events-none">
             <nav className="w-full max-w-[400px] bg-[var(--navbar-bg)]/80 backdrop-blur-xl rounded-[32px] px-2 py-2 flex items-center justify-between shadow-2xl pointer-events-auto transition-all duration-300">
                 {tabs.map((tab) => {
                     const isActive = activeTab === tab.id;
