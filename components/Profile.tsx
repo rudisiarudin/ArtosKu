@@ -1,9 +1,27 @@
+
 import React, { useState } from 'react';
 import { UserProfile, Wallet } from '../types';
 import { updateSecurityPin, signOut, uploadAvatar } from '../lib/supabase';
 import ChangePasswordModal from './ChangePasswordModal';
 import TelegramConnect from './TelegramConnect';
 import { useLanguage } from '../context/LanguageContext';
+import { 
+  Camera, 
+  Check, 
+  ShieldCheck, 
+  Crown, 
+  Globe, 
+  Moon, 
+  Sun, 
+  Key, 
+  ChevronRight, 
+  Fingerprint, 
+  Smartphone, 
+  LogOut, 
+  ShieldAlert,
+  Zap,
+  RefreshCw
+} from 'lucide-react';
 
 interface ProfileProps {
   userName: string;
@@ -97,7 +115,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
   };
 
   return (
-    <div className="flex flex-col min-h-screen pb-32 page-enter selection:bg-emerald-500/20 bg-[var(--bg-deep)]">
+    <div className="flex flex-col min-h-screen pb-32 animate-in fade-in duration-500 selection:bg-primary/20 bg-background">
       <input
         type="file"
         ref={fileInputRef}
@@ -106,206 +124,182 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
         className="hidden"
       />
 
-      {/* Profile Header */}
-      <header className="px-6 pb-2 pt-[calc(3rem+env(safe-area-inset-top))] mb-4">
-        <div className="bg-[rgba(var(--bg-card-rgb),0.5)] border border-[var(--border-subtle)] rounded-2xl p-5 relative overflow-hidden text-center glass-morphism">
-          <div className="absolute -top-24 -left-24 w-64 h-64 bg-emerald-500/[0.03] blur-[80px] rounded-full pointer-events-none"></div>
-
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-              <div className="w-16 h-16 rounded-xl p-0.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] mb-3 shadow-xl group-active:scale-95 transition-all">
-                <div className="w-full h-full rounded-xl overflow-hidden bg-[var(--bg-inner)] flex items-center justify-center relative">
-                  {isUploading ? (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                      <div className="w-6 h-6 border-2 border-[#00d293]/20 border-t-[#00d293] rounded-full animate-spin"></div>
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                      <i className="fa-solid fa-camera text-white text-xs"></i>
-                    </div>
-                  )}
-                  <img
-                    src={profile?.avatar_url || "https://avatar.stockbit.com/male/ToyFaces_Colored_BG_105-min.png"}
-                    alt="profile"
-                    className="w-full h-full object-cover"
-                  />
+      <header className="px-6 pt-[calc(4rem+env(safe-area-inset-top))] pb-10 flex flex-col items-center">
+        <div className="relative group mb-8" onClick={handleAvatarClick}>
+          {/* High-End Avatar Glow */}
+          <div className="absolute -inset-4 bg-primary/5 blur-[32px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          
+          <div className="size-24 rounded-full p-1 bg-gradient-to-tr from-primary/20 via-transparent to-transparent relative z-10 group-active:scale-95 transition-transform duration-500">
+            <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 flex items-center justify-center relative border border-white/5 shadow-2xl">
+              {isUploading ? (
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-10">
+                  <RefreshCw className="size-6 text-primary animate-spin" />
                 </div>
-              </div>
-              <div className="absolute bottom-3 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-[3px] border-zinc-900 flex items-center justify-center text-black shadow-lg">
-                <i className="fa-solid fa-check text-[8px]"></i>
-              </div>
-            </div>
-
-            <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight mb-1">{userName}</h2>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/10">
-              <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
-              <span className="text-[8px] font-bold text-emerald-500 tracking-wider uppercase">Elite Member</span>
+              ) : (
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                  <Camera className="text-white" size={20} strokeWidth={1.5} />
+                </div>
+              )}
+              <img
+                src={profile?.avatar_url || "https://avatar.stockbit.com/male/ToyFaces_Colored_BG_105-min.png"}
+                alt="profile"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
+          
+          {/* Institutional Badge */}
+          <div className="absolute -bottom-0.5 -right-0.5 size-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-xl shadow-primary/20 z-20 border-[3px] border-background">
+            <Check size={12} strokeWidth={4} />
+          </div>
+        </div>
+
+        <h2 className="text-[28px] font-black text-foreground tracking-tight mb-2 uppercase text-center">{userName}</h2>
+        <div className="flex items-center gap-2 group cursor-default">
+          <div className="size-1.5 rounded-full bg-primary animate-pulse" />
+          <span className="text-[10px] font-black text-primary tracking-[0.4em] uppercase">{t('profile.elite_member')}</span>
         </div>
       </header>
 
-      <div className="px-6 space-y-5">
-        <section className="grid grid-cols-3 gap-2.5">
+      <div className="px-6 space-y-12">
+        <section className="grid grid-cols-3 gap-0 px-2">
           {[
             {
-              label: 'Assets',
-              val: `Rp${(wallets.reduce((sum, w) => sum + Number(w.balance), 0) / 1000000).toFixed(1)}M`,
-              icon: 'fa-shield-halved',
-              color: 'text-[#00d293]'
+              label: 'Institutional Assets',
+              val: `${(wallets.reduce((sum, w) => sum + Number(w.balance), 0) / 1000000).toFixed(1)}M`,
+              icon: ShieldCheck,
+              color: 'text-emerald-500'
             },
-            { label: 'Reliability', val: '99%', icon: 'fa-check-double', color: 'text-blue-500' },
-            { label: 'Tier', val: 'Elite', icon: 'fa-crown', color: 'text-amber-500' },
+            { label: 'Uptime Connection', val: '100%', icon: Check, color: 'text-blue-500' },
+            { label: 'Security Tier', val: 'Elite', icon: Crown, color: 'text-amber-500' },
           ].map((stat, i) => (
-            <div key={i} className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-2xl p-3 flex flex-col items-center gap-2 hover:bg-[rgba(var(--bg-card-rgb),0.6)] transition-all group">
-              <div className={`w-7 h-7 rounded-lg bg-[rgba(var(--bg-deep-rgb),0.4)] border border-[var(--border-subtle)] flex items-center justify-center ${stat.color} group-hover:scale-110 transition-transform`}>
-                <i className={`fa-solid ${stat.icon} text-[9px]`}></i>
-              </div>
-              <div className="text-center min-w-0 w-full">
-                <p className="text-[12px] font-bold text-[var(--text-primary)] tracking-tight mb-0.5 truncate">{stat.val}</p>
-                <p className="text-[7px] font-semibold text-[var(--text-muted)] tracking-widest uppercase truncate">{stat.label}</p>
-              </div>
+            <div key={i} className="flex flex-col items-center py-4 border-r border-white/5 last:border-0">
+              <p className="text-[18px] font-bold text-foreground tabular-nums tracking-tighter mb-0.5">{stat.val}</p>
+              <p className="text-[8px] font-black text-muted-foreground/20 tracking-[0.2em] uppercase text-center leading-tight">{stat.label}</p>
             </div>
           ))}
         </section>
 
-        {/* Account Settings */}
-        <section className="space-y-4">
-          <div className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden glass-morphism">
-            <div className="px-5 py-2.5 border-b border-[var(--border-subtle)] bg-white/[0.01]">
-              <h3 className="text-[7.5px] font-semibold text-[var(--text-muted)] tracking-[0.25em] uppercase">{t('profile.general')}</h3>
-            </div>
-
+        <section className="space-y-0.5">
+          <h3 className="text-[9px] font-black text-muted-foreground/20 tracking-[0.5em] uppercase px-6 mb-4">{t('profile.general')}</h3>
+          
+          <div className="space-y-0.5">
             {/* Language Toggle */}
-            <div className="px-5 py-3 flex items-center justify-between border-b border-[var(--border-subtle)] active:bg-white/5 transition-colors group" onClick={() => setLanguage(lang === 'id' ? 'en' : 'id')}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[rgba(var(--bg-inner-rgb),0.5)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] group-active:scale-95 transition-transform text-[9px]">
-                  <i className="fa-solid fa-earth-asia"></i>
+            <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={() => setLanguage(lang === 'id' ? 'en' : 'id')}>
+              <div className="flex items-center gap-5">
+                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                  <Globe size={18} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight leading-none mb-1">{t('profile.language')}</p>
-                  <p className="text-[8px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t('profile.select_language')}</p>
+                  <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">{t('profile.language')}</p>
+                  <p className="text-[9px] font-black text-muted-foreground/20 uppercase tracking-[0.1em]">{t('profile.select_language')}</p>
                 </div>
               </div>
-              <div className="flex items-center bg-[rgba(var(--bg-deep-rgb),0.3)] p-0.5 rounded-full border border-[var(--border-subtle)]">
-                <button
-                  className={`px-3 py-1 rounded-full text-[8px] font-semibold transition-all ${lang === 'id' ? 'bg-[#00d293] text-black shadow-sm' : 'text-zinc-600'}`}
-                  onClick={(e) => { e.stopPropagation(); setLanguage('id'); }}
-                >
-                  ID
-                </button>
-                <button
-                  className={`px-3 py-1 rounded-full text-[8px] font-semibold transition-all ${lang === 'en' ? 'bg-[#00d293] text-black shadow-sm' : 'text-zinc-600'}`}
-                  onClick={(e) => { e.stopPropagation(); setLanguage('en'); }}
-                >
-                  EN
-                </button>
+              <div className="flex items-center bg-zinc-900 p-1 rounded-xl">
+                <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all ${lang === 'id' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground/30'}`}>ID</div>
+                <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all ${lang === 'en' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground/30'}`}>EN</div>
               </div>
             </div>
 
             {/* Theme Toggle */}
-            <div className="px-5 py-3 flex items-center justify-between border-b border-[var(--border-subtle)] active:bg-white/5 transition-colors group" onClick={() => setTheme(isDark ? 'light' : 'dark')}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[rgba(var(--bg-inner-rgb),0.5)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] group-active:scale-95 transition-transform text-[9px]">
-                  <i className={`fa-solid ${isDark ? 'fa-moon' : 'fa-sun text-amber-500'}`}></i>
+            <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={() => setTheme(isDark ? 'light' : 'dark')}>
+              <div className="flex items-center gap-5">
+                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                  {isDark ? <Moon size={18} strokeWidth={1.5} /> : <Sun size={18} strokeWidth={1.5} className="text-amber-500" />}
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight leading-none mb-1">{t('profile.appearance')}</p>
-                  <p className="text-[8px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t('profile.interface_style')}</p>
+                  <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">{t('profile.appearance')}</p>
+                  <p className="text-[9px] font-black text-muted-foreground/20 uppercase tracking-[0.1em]">{t('profile.interface_style')}</p>
                 </div>
               </div>
-              <div className={`w-8 h-4 rounded-full transition-all duration-300 relative ${isDark ? 'bg-emerald-500/50' : 'bg-zinc-300'}`}>
-                <div className={`absolute top-0.5 w-3 h-3 rounded-full transition-all duration-300 ${isDark ? 'left-4.5 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'left-0.5 bg-white'}`}></div>
+              <div className={`w-10 h-5.5 rounded-full transition-all duration-500 relative ${isDark ? 'bg-primary/40' : 'bg-muted/40'}`}>
+                <div className={`absolute top-1 size-3.5 rounded-full transition-all duration-500 shadow-lg ${isDark ? 'left-5.5 bg-primary' : 'left-1 bg-white'}`}></div>
               </div>
             </div>
 
             {/* Change Password */}
-            <div className="px-5 py-3 flex items-center justify-between active:bg-white/5 transition-colors group" onClick={() => setIsPasswordModalOpen(true)}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[rgba(var(--bg-inner-rgb),0.5)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] group-active:scale-95 transition-transform text-[9px]">
-                  <i className="fa-solid fa-key"></i>
+            <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={() => setIsPasswordModalOpen(true)}>
+              <div className="flex items-center gap-5">
+                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                  <Key size={18} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight leading-none mb-1">{t('profile.password')}</p>
-                  <p className="text-[8px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t('profile.auth_credentials')}</p>
+                  <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">{t('profile.password')}</p>
+                  <p className="text-[9px] font-black text-muted-foreground/20 uppercase tracking-[0.1em]">{t('profile.auth_credentials')}</p>
                 </div>
               </div>
-              <i className="fa-solid fa-chevron-right text-[8px] text-[var(--text-muted)] mr-1 group-hover:text-[var(--text-primary)] transition-colors"></i>
+              <ChevronRight size={18} className="text-muted-foreground/20" />
             </div>
           </div>
+        </section>
 
-          <div className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden glass-morphism">
-            <div className="px-5 py-2.5 border-b border-[var(--border-subtle)] bg-[rgba(var(--text-primary-rgb),0.01)]">
-              <h3 className="text-[7.5px] font-semibold text-[var(--text-muted)] tracking-[0.25em] uppercase opacity-50">{t('profile.security')}</h3>
-            </div>
-
+        <section className="space-y-0.5">
+          <h3 className="text-[9px] font-black text-muted-foreground/20 tracking-[0.5em] uppercase px-6 mb-4">{t('profile.security')}</h3>
+          
+          <div className="space-y-0.5">
             {/* PIN Security */}
-            <div className="px-5 py-3 flex items-center justify-between border-b border-[var(--border-subtle)] active:bg-[rgba(var(--text-primary-rgb),0.05)] transition-colors group" onClick={handleTogglePin}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[rgba(var(--bg-inner-rgb),0.5)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] group-active:scale-95 transition-transform text-[9px]">
-                  <i className="fa-solid fa-shield-cat"></i>
+            <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={handleTogglePin}>
+              <div className="flex items-center gap-5">
+                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                  <ShieldCheck size={18} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight leading-none mb-1">{t('profile.security_pin')}</p>
-                  <p className="text-[8px] font-semibold text-[var(--text-muted)] uppercase tracking-wider opacity-60">
+                  <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">{t('profile.security_pin')}</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.1em] text-primary">
                     {profile?.pin_enabled ? t('profile.active') : t('profile.disabled')}
                   </p>
                 </div>
               </div>
-              <div className={`w-8 h-4 rounded-full transition-all duration-300 relative ${profile?.pin_enabled ? 'bg-emerald-500/50' : 'bg-[var(--bg-inner)]'}`}>
-                <div className={`absolute top-0.5 w-3 h-3 rounded-full transition-all duration-300 ${profile?.pin_enabled ? 'left-4.5 bg-emerald-400' : 'left-0.5 bg-[var(--text-muted)] opacity-50'}`}></div>
+              <div className={`w-10 h-5.5 rounded-full transition-all duration-500 relative ${profile?.pin_enabled ? 'bg-primary/40' : 'bg-muted/40'}`}>
+                <div className={`absolute top-1 size-3.5 rounded-full transition-all duration-500 shadow-lg ${profile?.pin_enabled ? 'left-5.5 bg-primary' : 'left-1 bg-muted-foreground/30'}`}></div>
               </div>
             </div>
 
             {/* Biometric Security */}
-            <div className="px-5 py-3 flex items-center justify-between active:bg-[rgba(var(--text-primary-rgb),0.05)] transition-colors group"
+            <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group"
               onClick={(e) => {
                 e.stopPropagation();
                 const current = localStorage.getItem('biometric_enabled') === 'true';
                 localStorage.setItem('biometric_enabled', (!current).toString());
                 onUpdateProfile();
               }}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[rgba(var(--bg-inner-rgb),0.5)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] group-active:scale-95 transition-transform text-[9px]">
-                  <i className="fa-solid fa-fingerprint"></i>
+              <div className="flex items-center gap-5">
+                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                  <Fingerprint size={18} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[var(--text-primary)] tracking-tight leading-none mb-1">{t('profile.biometric')}</p>
-                  <p className="text-[8px] font-semibold text-[var(--text-muted)] uppercase tracking-wider opacity-60">
+                  <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">{t('profile.biometric')}</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.1em] text-primary">
                     {localStorage.getItem('biometric_enabled') === 'true' ? t('profile.active') : t('profile.disabled')}
                   </p>
                 </div>
               </div>
-              <div className={`w-8 h-4 rounded-full transition-all duration-300 relative ${localStorage.getItem('biometric_enabled') === 'true' ? 'bg-emerald-500/50' : 'bg-[var(--bg-inner)]'}`}>
-                <div className={`absolute top-0.5 w-3 h-3 rounded-full transition-all duration-300 ${localStorage.getItem('biometric_enabled') === 'true' ? 'left-4.5 bg-emerald-400' : 'left-0.5 bg-[var(--text-muted)] opacity-50'}`}></div>
+              <div className={`w-10 h-5.5 rounded-full transition-all duration-500 relative ${localStorage.getItem('biometric_enabled') === 'true' ? 'bg-primary/40' : 'bg-muted/40'}`}>
+                <div className={`absolute top-1 size-3.5 rounded-full transition-all duration-500 shadow-lg ${localStorage.getItem('biometric_enabled') === 'true' ? 'left-5.5 bg-primary' : 'left-1 bg-muted-foreground/30'}`}></div>
               </div>
             </div>
           </div>
+        </section>
 
-          {/* App Experience */}
+          {/* App Experience & Integrations */}
+        <section className="space-y-8">
           {deferredPrompt && (
-            <div className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-emerald-500/20 rounded-2xl overflow-hidden glass-morphism animate-fade-up">
-              <div className="px-5 py-2.5 border-b border-emerald-500/10 bg-emerald-500/5">
-                <h3 className="text-[7.5px] font-semibold text-emerald-500 tracking-[0.25em] uppercase">{t('profile.experience')}</h3>
-              </div>
-              <div className="px-5 py-4 flex items-center justify-between active:bg-emerald-500/5 transition-colors group" onClick={handleInstallApp}>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 group-active:scale-95 transition-transform text-lg shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                    <i className="fa-solid fa-mobile-screen-button"></i>
+            <div className="px-2">
+              <div className="bg-primary/10 rounded-[32px] p-6 flex items-center justify-between group active:scale-95 transition-all" onClick={handleInstallApp}>
+                <div className="flex items-center gap-5">
+                  <div className="size-12 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+                    <Smartphone size={24} />
                   </div>
                   <div>
-                    <p className="text-[12px] font-bold text-[var(--text-primary)] tracking-tight leading-none mb-1">{t('profile.install_app')}</p>
-                    <p className="text-[9px] font-semibold text-emerald-500/60 uppercase tracking-wider">{t('profile.install_desc')}</p>
+                    <p className="text-[15px] font-black text-foreground tracking-tight mb-0.5">{t('profile.install_app')}</p>
+                    <p className="text-[10px] font-black text-primary tracking-widest uppercase">{t('profile.install_desc')}</p>
                   </div>
                 </div>
-                <div className="bg-emerald-500 text-black px-3 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-90 transition-all cursor-pointer">
-                  {t('common.install')}
-                </div>
+                <ChevronRight size={20} className="text-primary/40" />
               </div>
             </div>
           )}
 
-          {/* Telegram Integration */}
           <TelegramConnect
             profile={profile}
             onUpdateProfile={onUpdateProfile}
@@ -314,7 +308,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
 
           <button
             onClick={() => setIsLogoutModalOpen(true)}
-            className="w-full py-4 text-[10px] font-semibold text-rose-500/60 tracking-[0.3em] uppercase hover:text-rose-500 transition-colors active:scale-95 transition-all"
+            className="w-full py-8 text-[11px] font-black text-rose-500/40 tracking-[0.4em] uppercase hover:text-rose-500 transition-all active:scale-95"
           >
             {t('profile.sign_out')}
           </button>
@@ -329,37 +323,37 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
 
       {/* PIN Setup Modal */}
       {isPinModalOpen && (
-        <div className="fixed inset-0 z-[1100] bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-300">
-          <div className="w-full max-w-[320px] bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-8 shadow-2xl overflow-hidden relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00d293]/50 to-transparent"></div>
+        <div className="fixed inset-0 z-[1100] bg-background/80 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-500">
+          <div className="w-full max-w-[340px] bg-card rounded-[32px] p-8 shadow-2xl relative animate-in zoom-in-95 duration-300 shadow-black/40">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
 
-            <h3 className="text-lg font-bold text-white mb-2 text-center">Set Security PIN</h3>
-            <p className="text-[10px] font-semibold text-zinc-500 tracking-widest text-center mb-8 uppercase">Choose a 6-digit access key</p>
+            <h3 className="text-xl font-black text-foreground mb-2 text-center uppercase">Secure Access</h3>
+            <p className="text-[10px] font-black text-muted-foreground/30 tracking-[0.2em] text-center mb-8 uppercase">Choose your 6-digit signature key</p>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               <input
                 type="text"
                 maxLength={6}
                 value={newPin}
                 onChange={(e) => setNewPin(e.target.value.replace(/[^0-9]/g, ''))}
-                className="w-full h-16 bg-black rounded-2xl text-center text-3xl font-bold tracking-[0.4em] text-[#00d293] border border-white/5 focus:border-[#00d293]/40 outline-none transition-all tabular-nums placeholder:text-zinc-900"
+                className="w-full h-20 bg-muted/20 rounded-[24px] text-center text-4xl font-black tracking-[0.4em] text-primary border border-border/10 focus:border-primary/50 outline-none transition-all tabular-nums placeholder:text-muted/10"
                 placeholder="••••••"
                 autoFocus
               />
 
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <button
                   onClick={() => { setIsPinModalOpen(false); setNewPin(''); }}
-                  className="flex-1 h-12 rounded-xl text-[10px] font-semibold text-zinc-500 tracking-widest hover:text-white transition-colors uppercase"
+                  className="flex-1 h-14 rounded-2xl text-[11px] font-black text-muted-foreground/40 tracking-widest hover:text-foreground transition-all uppercase"
                 >
                   Dismiss
                 </button>
                 <button
                   onClick={handleUpdatePin}
                   disabled={loading || newPin.length !== 6}
-                  className="flex-1 h-12 bg-[#00d293] text-black rounded-xl text-[10px] font-semibold tracking-widest shadow-lg shadow-[#00d293]/20 disabled:opacity-50 transition-all active:scale-95 uppercase"
+                  className="flex-1 h-14 bg-primary text-primary-foreground rounded-2xl text-[11px] font-black tracking-widest shadow-xl shadow-primary/20 disabled:opacity-30 transition-all active:scale-95 uppercase"
                 >
-                  {loading ? 'Securing...' : 'Verify'}
+                  {loading ? 'Encrypting...' : 'Verify'}
                 </button>
               </div>
             </div>
@@ -369,34 +363,33 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
 
       {/* Logout Confirmation Modal */}
       {isLogoutModalOpen && (
-        <div className="fixed inset-0 z-[1100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="w-full max-w-[340px] bg-zinc-900 border border-white/10 rounded-2xl p-8 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300">
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-rose-500 to-transparent"></div>
-            <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-40 bg-rose-500/20 blur-[80px] rounded-full pointer-events-none"></div>
-
-            <div className="text-center mb-8 relative z-10">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-600/20 border border-rose-500/30 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-rose-500/10 active:scale-95 transition-transform">
-                <i className="fa-solid fa-right-from-bracket text-3xl text-rose-500"></i>
+        <div className="fixed inset-0 z-[1100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="absolute inset-0" onClick={() => setIsLogoutModalOpen(false)} />
+          
+          <div className="relative w-full max-w-[320px] bg-zinc-950 border border-white/5 rounded-[28px] p-8 shadow-2xl animate-in zoom-in-95 duration-500">
+            <div className="text-center mb-8">
+              <div className="size-16 rounded-2xl bg-rose-500/10 flex items-center justify-center mx-auto mb-6">
+                <LogOut size={24} className="text-rose-500" strokeWidth={1.5} />
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-3 tracking-tight">Sign Out Account?</h3>
-              <p className="text-[12px] font-semibold text-zinc-400 leading-relaxed px-2">
-                Are you sure you want to end your <span className="text-emerald-500 font-bold">ArtosKu</span> session?
+              <h3 className="text-lg font-black text-foreground mb-2 tracking-tight uppercase">Security Terminal</h3>
+              <p className="text-[10px] font-black text-muted-foreground/30 leading-relaxed px-4 uppercase tracking-[0.2em]">
+                Terminate active <span className="text-primary/40">ArtosKu</span> session?
               </p>
             </div>
 
-            <div className="flex gap-3 relative z-10">
-              <button
-                onClick={() => setIsLogoutModalOpen(false)}
-                className="flex-1 h-12 rounded-xl bg-zinc-800 border border-white/5 text-[11px] font-semibold text-zinc-300 tracking-widest hover:bg-zinc-700 hover:text-white transition-all active:scale-95 uppercase"
-              >
-                Cancel
-              </button>
+            <div className="flex flex-col gap-2">
               <button
                 onClick={handleLogout}
-                className="flex-1 h-12 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl text-[11px] font-semibold tracking-widest shadow-xl shadow-rose-500/30 hover:from-rose-600 hover:to-rose-700 transition-all active:scale-95 uppercase"
+                className="w-full h-12 bg-rose-500 text-white rounded-xl text-[11px] font-black tracking-[0.2em] shadow-lg shadow-rose-500/20 active:scale-95 transition-all uppercase"
               >
-                Ya, Logout
+                Sign Out
+              </button>
+              <button
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="w-full h-12 rounded-xl text-[10px] font-black text-muted-foreground/30 tracking-[0.2em] hover:text-muted-foreground transition-all uppercase"
+              >
+                Cancel
               </button>
             </div>
           </div>

@@ -1,8 +1,8 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Transaction, Wallet, Debt } from '../types';
 import { sendAiMessage, ChatMessage, QUICK_PROMPTS } from '../lib/ai';
 import { useLanguage } from '../context/LanguageContext';
+import { Sparkles, X, Shield, Send, Loader2, Sparkle } from 'lucide-react';
 
 interface AiChatProps {
   isOpen: boolean;
@@ -11,10 +11,11 @@ interface AiChatProps {
   wallets: Wallet[];
   debts: Debt[];
   userName: string;
+  onAddTransaction?: (t: Omit<any, 'id'>) => void;
 }
 
 const AiChat: React.FC<AiChatProps> = ({
-  isOpen, onClose, transactions, wallets, debts, userName
+  isOpen, onClose, transactions, wallets, debts, userName, onAddTransaction
 }) => {
   const { lang } = useLanguage();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -58,7 +59,30 @@ const AiChat: React.FC<AiChatProps> = ({
         userName,
         lang as 'id' | 'en'
       );
-      setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+
+      if (reply.includes(':::RECORD_TRANSACTION:::')) {
+        const parts = reply.split(':::RECORD_TRANSACTION:::');
+        const textContent = parts[0].trim();
+        const jsonPart = parts[1].split(':::END_RECORD:::')[0].trim();
+
+        try {
+          const txData = JSON.parse(jsonPart);
+          if (onAddTransaction) {
+            onAddTransaction({
+              ...txData,
+              date: new Date().toISOString()
+            });
+            setMessages(prev => [...prev, {
+              role: 'assistant',
+              content: textContent + '\n\n✅ **Transaction recorded successfully!**'
+            }]);
+          }
+        } catch (e) {
+          setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+        }
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+      }
     } catch (error) {
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -71,94 +95,77 @@ const AiChat: React.FC<AiChatProps> = ({
     }
   };
 
-  const handleReset = () => {
-    setMessages([]);
-    setShowQuickPrompts(true);
-  };
-
   const quickPrompts = QUICK_PROMPTS[lang as 'id' | 'en'] || QUICK_PROMPTS.id;
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[300] flex flex-col">
+    <div className="fixed inset-0 z-[300] flex flex-col font-sans">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-backdrop"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Chat Panel - Full screen bottom sheet */}
-      <div className="relative mt-auto w-full max-w-md mx-auto h-[92vh] bg-[var(--bg-deep)] rounded-t-[32px] flex flex-col overflow-hidden border-t border-white/[0.08] shadow-[0_-20px_60px_rgba(0,0,0,0.5)] animate-modal-slide">
-
-        {/* Handle + Header */}
-        <div className="shrink-0">
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 rounded-full bg-white/10" />
+      {/* Chat Panel */}
+      <div className="relative mt-auto w-full max-w-md mx-auto h-[90vh] bg-[#0c0c0e] rounded-t-[2.5rem] flex flex-col overflow-hidden border-t border-white/5 shadow-2xl animate-in slide-in-from-bottom-full duration-500">
+        
+        {/* Header */}
+        <div className="shrink-0 pt-2 pb-1 border-b border-white/5">
+          <div className="flex justify-center mb-2">
+            <div className="w-10 h-1 rounded-full bg-zinc-800" />
           </div>
 
-          <div className="flex items-center justify-between px-6 py-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <i className="fa-solid fa-brain text-white text-sm" />
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-4">
+              <div className="size-10 rounded-2xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                <Sparkles className="size-5 text-black" strokeWidth={2.5} />
               </div>
-              <div>
-                <h2 className="text-[15px] font-bold text-[var(--text-primary)] tracking-tight">Artos AI</h2>
-                <p className="text-[9px] font-semibold text-emerald-500 uppercase tracking-[0.15em]">
-                  {lang === 'id' ? 'Asisten Keuangan' : 'Financial Assistant'}
-                </p>
+              <div className="space-y-0.5">
+                <h2 className="text-[16px] font-bold text-white tracking-tight">Artos Intelligence</h2>
+                <div className="flex items-center gap-1.5">
+                  <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active System</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {messages.length > 0 && (
-                <button
-                  onClick={handleReset}
-                  className="w-9 h-9 rounded-xl bg-[var(--bg-inner)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)] active:scale-90 transition-all hover:text-rose-400"
-                  title="Reset"
-                >
-                  <i className="fa-solid fa-arrows-rotate text-[10px]" />
-                </button>
-              )}
-              <button
-                onClick={onClose}
-                className="w-9 h-9 rounded-xl bg-[var(--bg-inner)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)] active:scale-90 transition-all hover:text-[var(--text-primary)]"
-              >
-                <i className="fa-solid fa-xmark text-xs" />
-              </button>
-            </div>
+            <button
+              onClick={onClose}
+              className="size-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition-all active:scale-90"
+            >
+              <X size={18} />
+            </button>
           </div>
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 scroll-momentum">
-          {/* Welcome / Quick Prompts */}
+        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 scroll-momentum">
           {showQuickPrompts && messages.length === 0 && (
-            <div className="animate-card-entrance">
-              {/* Welcome Card */}
-              <div className="text-center mb-8 mt-4">
-                <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-                  <i className="fa-solid fa-wand-magic-sparkles text-emerald-500 text-xl" />
+            <div className="space-y-12 py-4">
+              {/* Welcome Hero */}
+              <div className="text-center space-y-4">
+                <div className="size-16 rounded-3xl bg-zinc-900 border border-white/5 flex items-center justify-center mx-auto shadow-2xl">
+                  <Shield className="size-7 text-emerald-500" />
                 </div>
-                <h3 className="text-[18px] font-bold text-[var(--text-primary)] tracking-tight mb-2">
-                  {lang === 'id' ? 'Halo! Saya Artos AI 👋' : 'Hi! I\'m Artos AI 👋'}
-                </h3>
-                <p className="text-[12px] text-[var(--text-muted)] leading-relaxed max-w-[260px] mx-auto">
-                  {lang === 'id'
-                    ? 'Saya bisa menganalisis keuangan Anda dan memberikan saran cerdas berdasarkan data transaksi Anda.'
-                    : 'I can analyze your finances and provide smart advice based on your transaction data.'}
-                </p>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-white tracking-tight">
+                    {lang === 'id' ? 'Apa yang bisa saya bantu?' : 'How can I assist you?'}
+                  </h3>
+                  <p className="text-[12px] font-medium text-zinc-500 leading-relaxed max-w-[260px] mx-auto uppercase tracking-wider">
+                    Analyze patterns or record data instantly.
+                  </p>
+                </div>
               </div>
 
-              {/* Quick Prompt Buttons */}
+              {/* Quick Prompts */}
               <div className="grid grid-cols-2 gap-3">
                 {quickPrompts.map((qp, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSend(qp.prompt)}
-                    className="flex flex-col items-start gap-2 p-4 bg-[rgba(var(--bg-card-rgb),0.5)] border border-[var(--border-subtle)] rounded-2xl text-left active:scale-[0.97] transition-all hover:border-emerald-500/20 group"
+                    className="flex flex-col items-start gap-2 p-4 bg-zinc-900/50 border border-white/5 rounded-2xl text-left hover:bg-zinc-900 hover:border-emerald-500/20 transition-all active:scale-[0.98] group"
                   >
-                    <span className="text-lg">{qp.icon}</span>
-                    <span className="text-[11px] font-bold text-[var(--text-primary)] tracking-tight group-hover:text-emerald-500 transition-colors">
+                    <span className="text-[11px] font-bold text-zinc-400 group-hover:text-emerald-500 uppercase tracking-wide leading-snug">
                       {qp.label}
                     </span>
                   </button>
@@ -171,78 +178,66 @@ const AiChat: React.FC<AiChatProps> = ({
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-up`}
-              style={{ animationDelay: `${idx * 50}ms` }}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {msg.role === 'assistant' && (
-                <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shrink-0 mr-2.5 mt-1 shadow-sm">
-                  <i className="fa-solid fa-brain text-white text-[9px]" />
-                </div>
-              )}
               <div
-                className={`max-w-[82%] px-4 py-3 text-[13px] leading-relaxed ${
+                className={`max-w-[85%] px-5 py-3.5 text-[13px] leading-relaxed tracking-tight ${
                   msg.role === 'user'
-                    ? 'bg-emerald-500 text-black rounded-[20px] rounded-tr-md font-medium'
-                    : 'bg-[rgba(var(--bg-card-rgb),0.6)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-[20px] rounded-tl-md'
+                    ? 'bg-emerald-500 text-black rounded-3xl rounded-tr-sm font-bold shadow-xl shadow-emerald-500/10'
+                    : 'bg-zinc-900 border border-white/5 text-zinc-200 rounded-3xl rounded-tl-sm shadow-sm'
                 }`}
               >
-                <div className="whitespace-pre-wrap break-words ai-content">
+                <div className="whitespace-pre-wrap break-words">
                   {formatAiMessage(msg.content)}
                 </div>
               </div>
             </div>
           ))}
 
-          {/* Loading Indicator */}
           {isLoading && (
-            <div className="flex justify-start animate-fade-up">
-              <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shrink-0 mr-2.5 mt-1">
-                <i className="fa-solid fa-brain text-white text-[9px] animate-pulse" />
-              </div>
-              <div className="bg-[rgba(var(--bg-card-rgb),0.6)] border border-[var(--border-subtle)] rounded-[20px] rounded-tl-md px-5 py-4">
+            <div className="flex justify-start">
+              <div className="bg-zinc-900 border border-white/5 rounded-3xl rounded-tl-sm px-6 py-4">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="size-1 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="size-1 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="size-1 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             </div>
           )}
-
           <div ref={messagesEndRef} />
         </div>
 
         {/* Input Area */}
-        <div className="shrink-0 px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3 border-t border-[var(--border-subtle)] bg-[rgba(var(--bg-deep-rgb),0.95)] backdrop-blur-xl">
-          <div className="flex items-center gap-2.5">
-            <div className="flex-1 flex items-center bg-[rgba(var(--bg-card-rgb),0.5)] border border-[var(--border-subtle)] rounded-2xl px-4 py-1 focus-within:border-emerald-500/30 transition-all">
+        <div className="shrink-0 px-6 pb-10 pt-4 bg-[#0c0c0e] border-t border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 flex items-center bg-zinc-950 border border-white/5 rounded-2xl px-4 h-14 focus-within:border-emerald-500/20 transition-all">
+              <Sparkle className="size-4 text-zinc-600 shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder={lang === 'id' ? 'Tanya soal keuanganmu...' : 'Ask about your finances...'}
-                className="flex-1 bg-transparent border-none outline-none text-[13px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] py-2.5"
+                placeholder={lang === 'id' ? 'Tanya sesuatu...' : 'Ask anything...'}
+                className="flex-1 bg-transparent pl-3 text-sm text-white placeholder:text-zinc-800 outline-none"
                 disabled={isLoading}
               />
             </div>
             <button
               onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-all active:scale-90 ${
+              className={`size-14 rounded-2xl flex items-center justify-center shrink-0 transition-all active:scale-90 ${
                 input.trim() && !isLoading
-                  ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/25'
-                  : 'bg-[var(--bg-inner)] text-[var(--text-muted)] border border-[var(--border-subtle)]'
+                  ? 'bg-emerald-500 text-black shadow-xl shadow-emerald-500/10'
+                  : 'bg-zinc-900 text-zinc-800 border border-white/5'
               }`}
             >
-              <i className={`fa-solid ${isLoading ? 'fa-spinner animate-spin' : 'fa-paper-plane'} text-xs`} />
+              {isLoading ? <Loader2 className="size-5 animate-spin" /> : <Send size={20} strokeWidth={2.5} />}
             </button>
           </div>
-
-          {/* Powered by label */}
-          <p className="text-center text-[8px] font-semibold text-[var(--text-muted)] mt-2.5 uppercase tracking-[0.2em] opacity-30">
-            Powered by Artos AI • OpenRouter
+          <p className="text-center text-[9px] font-black text-zinc-800 mt-4 uppercase tracking-[0.4em]">
+            Artos Intelligence Standard
           </p>
         </div>
       </div>
@@ -250,24 +245,16 @@ const AiChat: React.FC<AiChatProps> = ({
   );
 };
 
-/**
- * Format AI message content — handle markdown-like formatting
- */
 function formatAiMessage(content: string): React.ReactNode {
-  // Split by newlines and process each line
   const lines = content.split('\n');
-
   return lines.map((line, i) => {
-    // Bold text: **text**
     let formatted: React.ReactNode = line;
-
     if (typeof formatted === 'string') {
       const parts: React.ReactNode[] = [];
       let remaining = formatted;
       let boldMatch;
       const boldRegex = /\*\*(.*?)\*\*/g;
       let lastIndex = 0;
-
       while ((boldMatch = boldRegex.exec(remaining)) !== null) {
         if (boldMatch.index > lastIndex) {
           parts.push(remaining.slice(lastIndex, boldMatch.index));
@@ -284,7 +271,6 @@ function formatAiMessage(content: string): React.ReactNode {
       }
       formatted = parts.length > 0 ? parts : remaining;
     }
-
     return (
       <React.Fragment key={i}>
         {formatted}

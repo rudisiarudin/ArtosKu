@@ -74,9 +74,9 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
 
   const quickActions = [
     { id: 'transfer', icon: 'fa-arrow-right-arrow-left', label: 'Transfer', action: () => onQuickAction('Transfer'), color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { id: 'topup', icon: 'fa-wallet', label: 'Top Up', action: () => onTopup(wallets[0]?.id), color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
     { id: 'pay', icon: 'fa-qrcode', label: 'Pay', action: () => onQuickAction('Pay'), color: 'text-purple-500', bg: 'bg-purple-500/10' },
     { id: 'stats', icon: 'fa-chart-pie', label: 'Stats', action: () => setActiveTab('stats'), color: 'text-rose-500', bg: 'bg-rose-500/10' },
+    { id: 'ai', icon: 'fa-robot', label: 'Artos AI', action: () => document.dispatchEvent(new CustomEvent('open-ai-chat')), color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
     { id: 'budget', icon: 'fa-bullseye', label: 'Budget', action: () => setActiveTab('budget'), color: 'text-amber-500', bg: 'bg-amber-500/10' },
   ];
 

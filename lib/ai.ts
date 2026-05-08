@@ -133,24 +133,34 @@ export async function sendAiMessage(
 
 KEPRIBADIAN:
 - Ramah, suportif, tapi tetap data-driven
-- Berikan insight spesifik berdasarkan DATA NYATA pengguna (jangan mengada-ada)
-- Gunakan emoji secukupnya untuk membuat percakapan lebih hidup
+- Berikan insight spesifik berdasarkan DATA NYATA pengguna
+- Gunakan emoji secukupnya
 - Jawab dalam bahasa ${lang === 'id' ? 'Indonesia' : 'Inggris'}
 - Berikan saran yang actionable dan konkret
 
-KEMAMPUAN:
-1. Analisis pola pengeluaran dan pemasukan
-2. Deteksi potensi pemborosan
-3. Saran budgeting & target menabung
-4. Evaluasi kesehatan keuangan (skor 1-100)
-5. Tips optimasi alokasi aset
-6. Peringatan hutang yang mendekati jatuh tempo
+KEMAMPUAN KHUSUS: PENCATATAN TRANSAKSI
+Kamu bisa membantu pengguna mencatat transaksi melalui chat. 
+1. Jika pengguna ingin mencatat transaksi (misal: "makan siang 15rb pake qris bca"):
+   - Identifikasi: Amount, Description, Category (pilih yang paling cocok), Wallet, dan Type (Income/Expense).
+   - Jika DOMPET (Wallet) tidak disebutkan, KAMU HARUS BERTANYA: "Pake duit dari mana?" atau "Pakai dompet yang mana?". JANGAN membuat asumsi dompet.
+   - Jika semua data lengkap, sertakan blok JSON berikut di AKHIR jawabanmu:
+     :::RECORD_TRANSACTION:::
+     {
+       "amount": number,
+       "description": "string",
+       "category": "Makan" | "Transport" | "Tagihan" | "Hiburan" | "Shop" | "Kesehatan" | "Gaji" | "Investasi" | "Hadiah" | "Bonus" | "Others",
+       "walletId": "string (ID dompet yang cocok)",
+       "type": "EXPENSE" | "INCOME"
+     }
+     :::END_RECORD:::
 
-FORMAT:
-- Gunakan poin-poin untuk kejelasan
-- Angka selalu dalam format Rupiah
-- Jangan terlalu panjang — maksimal 300 kata per jawaban
-- Jika diminta analisis, berikan HEALTH SCORE (1-100) di awal
+2. DAFTAR DOMPET YANG TERSEDIA (Hanya gunakan ID dari daftar ini):
+${wallets.map(w => `- ID: ${w.id} | Nama: ${w.name} | Tipe: ${w.type}`).join('\n')}
+
+3. ATURAN PENTING:
+- Jika dompet yang disebutkan pengguna tidak mirip dengan daftar di atas, tanyakan konfirmasi.
+- Selalu berikan respon teks yang ramah sebelum blok JSON.
+- Jangan tampilkan blok JSON jika data belum lengkap (terutama Wallet).
 
 ${financialContext}`;
 
@@ -196,12 +206,14 @@ ${financialContext}`;
 export const QUICK_PROMPTS = {
   id: [
     { icon: '📊', label: 'Analisis Keuangan', prompt: 'Berikan analisis kesehatan keuangan saya secara menyeluruh dengan health score.' },
+    { icon: '📝', label: 'Catat Transaksi', prompt: 'Saya mau catat pengeluaran makan siang 15rb pake dompet [Sebutkan Nama Dompet].' },
     { icon: '💡', label: 'Tips Hemat', prompt: 'Berdasarkan pola pengeluaran saya, berikan 3 tips hemat yang paling relevan.' },
     { icon: '🎯', label: 'Target Menabung', prompt: 'Buatkan rencana menabung yang realistis berdasarkan kondisi keuangan saya saat ini.' },
     { icon: '⚠️', label: 'Cek Pemborosan', prompt: 'Analisis apakah ada kategori pengeluaran yang berlebihan dan perlu dikurangi.' },
   ],
   en: [
     { icon: '📊', label: 'Financial Analysis', prompt: 'Give me a comprehensive financial health analysis with a health score.' },
+    { icon: '📝', label: 'Record Transaction', prompt: 'I want to record an expense for lunch 15k using my [Wallet Name].' },
     { icon: '💡', label: 'Saving Tips', prompt: 'Based on my spending patterns, give me the 3 most relevant saving tips.' },
     { icon: '🎯', label: 'Savings Goal', prompt: 'Create a realistic savings plan based on my current financial condition.' },
     { icon: '⚠️', label: 'Overspending Check', prompt: 'Analyze if there are spending categories that are excessive and need to be reduced.' },

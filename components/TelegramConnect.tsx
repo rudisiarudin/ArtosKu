@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { UserProfile } from '../types';
+import { CheckCircle2, RefreshCw, ChevronRight, ExternalLink, Zap } from 'lucide-react';
 
 interface TelegramConnectProps {
     profile: UserProfile | null;
@@ -14,7 +16,6 @@ const TelegramConnect: React.FC<TelegramConnectProps> = ({ profile, onUpdateProf
     const [connectUrl, setConnectUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        // Check if connected via telegram_chat_id in profiles
         if (profile) {
             checkConnection();
         }
@@ -36,22 +37,15 @@ const TelegramConnect: React.FC<TelegramConnectProps> = ({ profile, onUpdateProf
         setConnectUrl(null);
 
         try {
-            // Generate unique token
             const token = crypto.randomUUID();
-
-            // Save token to profile
             const { error } = await supabase
                 .from('profiles')
                 .update({ telegram_connect_token: token })
                 .eq('id', profile.id);
 
             if (error) throw error;
-
-            // Build deep link to bot
             const url = `https://t.me/${botUsername}?start=${token}`;
             setConnectUrl(url);
-
-            // Open the link
             window.open(url, '_blank');
         } catch (err) {
             console.error('Error generating connect token:', err);
@@ -83,31 +77,36 @@ const TelegramConnect: React.FC<TelegramConnectProps> = ({ profile, onUpdateProf
     };
 
     return (
-        <div className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-2xl overflow-hidden glass-morphism">
-            {/* Header */}
-            <div className="px-5 py-3 border-b border-[var(--border-subtle)] bg-[rgba(var(--text-primary-rgb),0.01)] flex items-center justify-between">
-                <h3 className="text-[8px] font-black text-[var(--text-muted)] tracking-[0.2em] uppercase opacity-50">Integrasi</h3>
+        <section className="space-y-1">
+            <div className="flex items-center justify-between px-6 mb-6">
+                <h3 className="text-[10px] font-black text-muted-foreground/20 tracking-[0.5em] uppercase">Integrations</h3>
                 {isConnected && (
-                    <span className="flex items-center gap-1 text-[8px] font-black text-emerald-500 tracking-wider">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Terhubung
-                    </span>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10">
+                        <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span className="text-[9px] font-black text-emerald-500 tracking-widest uppercase">Sync Active</span>
+                    </div>
                 )}
             </div>
 
-            {/* Telegram Row */}
-            <div className="px-5 py-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3.5">
-                        {/* Telegram Icon */}
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[10px] shrink-0"
-                            style={{ background: 'linear-gradient(135deg, #29b6f6, #0288d1)' }}>
-                            <i className="fa-brands fa-telegram text-white text-sm"></i>
+            <div className="space-y-0.5">
+                <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group">
+                    <div className="flex items-center gap-5">
+                        <div className="relative">
+                            <div className="size-12 rounded-2xl bg-[#0088cc] flex items-center justify-center shadow-[0_12px_24px_-8px_rgba(0,136,204,0.6)] group-hover:scale-105 transition-all duration-500">
+                                <svg viewBox="0 0 24 24" className="size-6 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18.721-2.43 10.32-2.43 10.32-.12.48-.3.6-.54.6-.3 0-.54-.12-.84-.36l-3.3-2.43-1.62 1.56c-.18.18-.3.3-.48.3s-.18-.06-.18-.24v-4.32l6.36-5.76c.3-.24-.06-.36-.42-.12l-7.86 4.92-3.9-1.26c-.84-.24-.84-.84.18-1.2l15.18-5.82c.72-.24 1.32.18 1.14 1.38z"/>
+                                </svg>
+                            </div>
+                            {isConnected && (
+                                <div className="absolute -top-1 -right-1 size-5 rounded-full bg-emerald-500 border-[2px] border-[#09090b] flex items-center justify-center text-white shadow-xl">
+                                    <CheckCircle2 size={10} strokeWidth={4} />
+                                </div>
+                            )}
                         </div>
                         <div>
-                            <p className="text-[11px] font-bold text-[var(--text-primary)] tracking-tight">Telegram</p>
-                            <p className="text-[9px] font-bold text-[var(--text-muted)] opacity-50">
-                                {isConnected ? 'Catat transaksi via chat' : 'Belum terhubung'}
+                            <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">Telegram Bot</p>
+                            <p className="text-[9px] font-black text-muted-foreground/20 uppercase tracking-[0.1em]">
+                                {isConnected ? 'Active Command Center' : 'Remote Entry Link'}
                             </p>
                         </div>
                     </div>
@@ -116,77 +115,75 @@ const TelegramConnect: React.FC<TelegramConnectProps> = ({ profile, onUpdateProf
                         <button
                             onClick={handleDisconnect}
                             disabled={loading}
-                            className="text-[9px] font-black text-rose-500/70 hover:text-rose-500 transition-colors disabled:opacity-50"
+                            className="h-9 px-4 rounded-xl bg-rose-500/5 text-rose-500 text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all active:scale-95 disabled:opacity-50"
                         >
-                            Putuskan
+                            Disconnect
                         </button>
                     ) : (
                         <button
                             onClick={handleConnect}
                             disabled={loading}
-                            className="px-3 py-1.5 rounded-xl bg-[#0288d1]/10 border border-[#0288d1]/20 text-[9px] font-black text-[#29b6f6] hover:bg-[#0288d1]/20 transition-all active:scale-95 disabled:opacity-50"
+                            className="h-10 px-6 rounded-xl bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all"
                         >
-                            {loading ? '...' : 'Hubungkan'}
+                            {loading ? <RefreshCw size={12} className="animate-spin" /> : 'Connect'}
                         </button>
                     )}
                 </div>
 
-                {/* Fitur list jika sudah connect */}
                 {isConnected && (
-                    <div className="mt-4 space-y-2">
-                        {[
-                            { icon: 'fa-circle-check', text: 'Catat pengeluaran & pemasukan' },
-                            { icon: 'fa-circle-check', text: 'Cek saldo bulanan (/saldo)' },
-                            { icon: 'fa-circle-check', text: 'Laporan keuangan (/laporan)' },
-                        ].map((f, i) => (
-                            <div key={i} className="flex items-center gap-2">
-                                <i className={`fa-solid ${f.icon} text-[9px] text-emerald-500`}></i>
-                                <span className="text-[10px] font-bold text-[var(--text-muted)] opacity-70">{f.text}</span>
-                            </div>
-                        ))}
+                    <div className="mx-6 mt-4 p-8 rounded-[40px] bg-zinc-900/40 space-y-8 animate-in slide-in-from-top-4 duration-700">
+                        <div className="grid grid-cols-1 gap-6">
+                            {[
+                                { text: 'Automated income tracking', icon: Zap },
+                                { text: 'Voice command recognition', icon: Zap },
+                                { text: 'Realtime balance updates', icon: Zap },
+                            ].map((f, i) => (
+                                <div key={i} className="flex items-center gap-5">
+                                    <div className="size-6 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                                        <f.icon size={12} className="text-emerald-500" />
+                                    </div>
+                                    <span className="text-[11px] font-black text-muted-foreground/40 uppercase tracking-[0.1em]">{f.text}</span>
+                                </div>
+                            ))}
+                        </div>
 
-                        <div className="mt-3 p-3 rounded-xl bg-[rgba(var(--bg-inner-rgb),0.5)] border border-[var(--border-subtle)]">
-                            <p className="text-[9px] font-black text-[var(--text-muted)] tracking-wider mb-1.5 uppercase opacity-40">Contoh perintah</p>
-                            <div className="space-y-1">
-                                {[
-                                    'keluar 50000 makan',
-                                    'masuk 3000000 gaji',
-                                    '/saldo',
-                                    '/laporan',
-                                ].map((cmd, i) => (
-                                    <code key={i} className="block text-[10px] font-mono text-emerald-400">
-                                        {cmd}
-                                    </code>
+                        <div className="pt-8 border-t border-white/[0.02]">
+                            <p className="text-[9px] font-black text-muted-foreground/20 tracking-[0.4em] mb-5 uppercase">System Commands</p>
+                            <div className="grid grid-cols-2 gap-3">
+                                {['/saldo', '/laporan', 'out 50k', 'in 1m'].map((cmd, i) => (
+                                    <div key={i} className="px-4 py-3 rounded-2xl bg-black/40 flex items-center justify-center">
+                                        <code className="text-[12px] font-mono text-emerald-500/60 font-bold">{cmd}</code>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Pending connect state */}
                 {!isConnected && connectUrl && (
-                    <div className="mt-3 p-3 rounded-xl bg-[#0288d1]/5 border border-[#0288d1]/20">
-                        <p className="text-[9px] font-bold text-[var(--text-muted)] mb-2 opacity-70">
-                            Klik link di bawah untuk buka Telegram, lalu tekan <b className="text-[var(--text-primary)]">START</b>:
+                    <div className="mx-6 mt-4 p-8 rounded-[48px] bg-primary/5 space-y-6 animate-in zoom-in-95 duration-700 relative overflow-hidden border border-primary/10">
+                        <div className="flex items-center gap-5">
+                            <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                <ExternalLink size={24} className="text-primary" />
+                            </div>
+                            <div>
+                                <p className="text-[14px] font-black text-foreground uppercase tracking-tight">Handshake Pending</p>
+                                <p className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest">Awaiting Verification</p>
+                            </div>
+                        </div>
+                        <p className="text-[12px] font-black text-muted-foreground/40 uppercase leading-relaxed tracking-tight">
+                            Open the bot and tap <span className="text-primary">START</span> to complete the link.
                         </p>
-                        <a
-                            href={connectUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[10px] font-bold text-[#29b6f6] underline break-all"
-                        >
-                            {connectUrl}
-                        </a>
                         <button
                             onClick={checkConnection}
-                            className="mt-3 w-full py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-400 tracking-wider"
+                            className="w-full h-14 rounded-2xl bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-primary/40 active:scale-95 transition-all"
                         >
-                            Saya sudah klik START ✓
+                            Verify Link ✓
                         </button>
                     </div>
                 )}
             </div>
-        </div>
+        </section>
     );
 };
 

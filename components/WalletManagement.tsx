@@ -2,7 +2,24 @@
 import React, { useState, useMemo } from 'react';
 import { Wallet, WalletType, Transaction, TransactionType, Debt } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, PieChart, Pie, Cell } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, PieChart as RePieChart, Pie, Cell } from 'recharts';
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  ShieldCheck, 
+  Plus, 
+  ArrowLeftRight, 
+  LayoutGrid, 
+  PieChart as LucidePieChart, 
+  Gem, 
+  ChevronDown, 
+  Pencil,
+  Trash2,
+  Building2,
+  Smartphone,
+  Coins,
+  Wallet as WalletIcon
+} from 'lucide-react';
 import Deposit from './Deposit';
 
 interface WalletManagementProps {
@@ -149,30 +166,38 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
   }, [assetRanking]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] pb-32 animate-fade-in">
-      {/* Header - Refined Premium Translucent */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 pt-[calc(2.5rem+env(safe-area-inset-top))] pb-3 bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-2xl border-b border-[var(--border-subtle)] max-w-md mx-auto">
+    <div className="flex flex-col min-h-screen bg-background text-foreground pb-32">
+      {/* Institutional Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 max-w-md mx-auto px-6 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-4">
         <div className="flex items-center justify-between mb-6">
-          <div className="size-10 rounded-xl bg-[var(--bg-inner)] border border-[var(--border-subtle)] flex items-center justify-center text-emerald-500 shadow-sm">
-            <i className="fa-solid fa-chart-line text-xs"></i>
+          <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+            <TrendingUp size={18} />
           </div>
-          <h2 className="text-[var(--text-primary)] text-sm font-bold tracking-widest uppercase flex-1 text-center">{t('wallet.performance')}</h2>
+          <h2 className="text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground">{t('wallet.performance')}</h2>
           <button
             onClick={onTransfer}
-            className="size-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 active:scale-90 transition-all hover:bg-emerald-500 hover:text-black"
+            className="size-10 rounded-2xl bg-muted/30 flex items-center justify-center text-foreground active:scale-90 transition-all border border-border/10 hover:bg-muted"
           >
-            <i className="fa-solid fa-right-left text-xs"></i>
+            <ArrowLeftRight size={18} />
           </button>
         </div>
 
-        <div className="flex bg-black/40 rounded-xl p-1 border border-white/[0.05]">
-          {['PORTFOLIO', 'ALOKASI', 'INVESTASI'].map((tab) => (
+        <div className="flex bg-muted/30 rounded-2xl p-1 border border-border/10">
+          {[
+            { id: 'PORTFOLIO', label: 'Porto' },
+            { id: 'ALOKASI', label: 'Alokasi' },
+            { id: 'INVESTASI', label: 'Investasi' }
+          ].map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab as any)}
-              className={`flex-1 py-2 text-[10px] font-bold tracking-widest uppercase transition-all rounded-lg ${activeTab === tab ? 'bg-white text-black shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex-1 py-2 text-[10px] font-black tracking-widest uppercase transition-all rounded-xl ${
+                activeTab === tab.id 
+                  ? 'bg-primary text-primary-foreground shadow-lg' 
+                  : 'text-muted-foreground/50 hover:text-foreground'
+              }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -180,21 +205,28 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
 
       {activeTab === 'PORTFOLIO' && (
         <div className="px-5 pb-8 pt-[calc(11.5rem+env(safe-area-inset-top))] space-y-8">
-          {/* Summary Chart Card - Premium Glass */}
-          <section className="premium-glass rounded-[32px] p-6 border border-white/[0.05] animate-card-entrance">
-            <div className="flex items-center gap-2 mb-1.5 opacity-40">
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em]">{t('wallet.true_net_worth')}</span>
-              <i className="fa-solid fa-shield-halved text-[9px] text-[var(--text-muted)]"></i>
+          {/* Summary Performance Card */}
+          <section className="bg-gradient-to-br from-card via-card to-muted/30 rounded-[32px] p-7 border border-border/10 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50">{t('wallet.true_net_worth')}</span>
+              <ShieldCheck size={10} className="text-primary opacity-50" />
             </div>
-            <div className="mb-8 flex items-end justify-between">
+            <div className="mb-10 flex items-end justify-between">
               <div>
-                <h1 className={`text-3xl font-bold tracking-tighter tabular-nums ${metrics.trueNetWorth >= 0 ? 'text-[var(--text-primary)]' : 'text-rose-500'}`}>
+                <h1 className={`text-3xl font-black tracking-tighter tabular-nums ${metrics.trueNetWorth >= 0 ? 'text-foreground' : 'text-rose-500'}`}>
                   Rp{formatIDR(metrics.trueNetWorth)}
                 </h1>
-                <p className="text-[10px] font-medium text-[var(--text-muted)] tracking-widest mt-1">{t('wallet.assets_minus_liabilities')}</p>
+                <p className="text-[10px] font-bold text-muted-foreground/60 tracking-widest mt-1 uppercase">{t('wallet.assets_minus_liabilities')}</p>
               </div>
-              <div className={`px-2 py-1 rounded-lg bg-emerald-500/10 text-[10px] font-bold tabular-nums flex items-center gap-1 ${metrics.growth >= 0 ? 'text-emerald-500' : 'text-rose-500 bg-rose-500/10'}`}>
-                {metrics.growth >= 0 ? '+' : ''}{metrics.growthPercent.toFixed(1)}%
+              <div className={`px-2 py-1 rounded-full text-[10px] font-black tabular-nums flex items-center gap-1 border ${
+                metrics.growth >= 0 
+                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
+                  : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
+              }`}>
+                {metrics.growth >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                {Math.abs(metrics.growthPercent).toFixed(1)}%
               </div>
             </div>
 
@@ -238,23 +270,23 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
               </ResponsiveContainer>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-[var(--border-subtle)] space-y-4">
+            <div className="mt-8 pt-6 border-t border-border/40 space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">{t('wallet.initial_value')}</span>
-                <span className="text-[12px] font-bold tabular-nums">Rp{formatIDR(metrics.totalInitial)}</span>
+                <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">{t('wallet.initial_value')}</span>
+                <span className="text-[12px] font-black tabular-nums text-foreground/80">Rp{formatIDR(metrics.totalInitial)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">{t('wallet.net_growth')}</span>
-                <span className={`text-[12px] font-bold tabular-nums flex items-center gap-1.5 ${metrics.growth >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                  {metrics.growth >= 0 ? <i className="fa-solid fa-arrow-trend-up"></i> : <i className="fa-solid fa-arrow-trend-down"></i>}
+                <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">{t('wallet.net_growth')}</span>
+                <span className={`text-[12px] font-black tabular-nums flex items-center gap-1.5 ${metrics.growth >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  {metrics.growth >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                   Rp{formatIDR(Math.abs(metrics.growth))}
                 </span>
               </div>
 
               {metrics.unpaidReceivable > 0 && (
-                <div className="pt-4 border-t border-[var(--border-subtle)]">
+                <div className="pt-4 border-t border-border/20">
                   <div className="flex justify-between items-center">
-                    <span className="text-[9px] font-bold text-[var(--text-muted)] opacity-50 uppercase tracking-widest">{t('wallet.unrealized_piutang')}</span>
+                    <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest">{t('wallet.unrealized_piutang')}</span>
                     <span className="text-[11px] font-bold text-emerald-500/50 tabular-nums">Rp{formatIDR(metrics.unpaidReceivable)}</span>
                   </div>
                 </div>
@@ -265,8 +297,8 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
           {/* Asset List Section */}
           <section className="mt-8">
             <div className="flex items-center justify-between mb-5 px-1">
-              <h3 className="text-[11px] font-bold tracking-[0.2em] text-[var(--text-muted)] uppercase flex items-center gap-2">
-                {t('wallet.top_assets')} <i className="fa-solid fa-chevron-down text-[8px] opacity-30"></i>
+              <h3 className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase flex items-center gap-2">
+                {t('wallet.top_assets')} <ChevronDown size={10} className="opacity-30" />
               </h3>
               <button
                 onClick={() => {
@@ -274,42 +306,42 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                   setNewWallet({ type: WalletType.BANK, color: '#00d293' });
                   setShowAddForm(true);
                 }}
-                className="size-8 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center active:scale-90 transition-all border border-emerald-500/20"
+                className="size-9 rounded-full bg-primary/10 text-primary flex items-center justify-center active:scale-90 transition-all border border-primary/20 hover:bg-primary hover:text-primary-foreground"
               >
-                <i className="fa-solid fa-plus text-[10px]"></i>
+                <Plus size={16} />
               </button>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-4 py-2 text-[9px] font-bold tracking-[0.2em] text-[var(--text-muted)] opacity-60 uppercase border-b border-[var(--border-subtle)] mb-3">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-4 py-2 text-[9px] font-black tracking-[0.2em] text-muted-foreground opacity-30 uppercase border-b border-border/20 mb-2">
                 <div className="flex-1 min-w-0 pr-2">{t('wallet.wallet_code')}</div>
                 <div className="shrink-0 w-[80px] text-center">{t('wallet.profit')}</div>
                 <div className="shrink-0 w-[110px] text-right">{t('wallet.balance')}</div>
               </div>
 
               {assetRanking.map((asset, idx) => (
-                <div key={asset.id} className="group flex flex-col animate-list-enter" style={{ animationDelay: `${idx * 80}ms` }}>
+                <div key={asset.id} className="group flex flex-col">
                   <div
                     onClick={() => setSelectedAssetId(selectedAssetId === asset.id ? null : asset.id)}
-                    className={`flex items-center justify-between px-3 py-3.5 bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] hover:border-emerald-500/20 active:scale-[0.98] rounded-2xl transition-all group cursor-pointer glass-morphism ${selectedAssetId === asset.id ? 'border-emerald-500/30 bg-emerald-500/[0.03]' : ''}`}
+                    className={`flex items-center justify-between px-4 py-4 bg-muted/20 hover:bg-muted/30 active:scale-[0.98] rounded-3xl transition-all group cursor-pointer backdrop-blur-sm ${selectedAssetId === asset.id ? 'bg-primary/[0.05]' : ''}`}
                   >
-                    <div className="flex-1 min-w-0 flex items-center gap-3 pr-2">
-                      <div className="size-9 shrink-0 rounded-xl bg-[rgba(var(--bg-card-rgb),0.2)] flex items-center justify-center text-[var(--text-muted)] group-hover:text-emerald-500/80 transition-colors">
-                        <i className={`fa-solid ${asset.icon || 'fa-vault'} text-sm`}></i>
+                    <div className="flex-1 min-w-0 flex items-center gap-4 pr-2">
+                      <div className="size-11 shrink-0 rounded-2xl bg-muted/40 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
+                        {asset.type === WalletType.BANK ? <Building2 size={20} /> : asset.type === WalletType.EWALLET ? <Smartphone size={20} /> : asset.type === WalletType.CASH ? <Coins size={20} /> : <WalletIcon size={20} />}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-[11px] font-bold tracking-tight text-[var(--text-primary)] opacity-80 uppercase truncate">{asset.code || 'ASST'}</h4>
-                        <p className="text-[8px] font-bold text-[var(--text-muted)] opacity-40 tracking-widest truncate">{asset.name}</p>
+                        <h4 className="text-[12px] font-black tracking-tight text-foreground/90 uppercase truncate">{asset.code || 'ASST'}</h4>
+                        <p className="text-[9px] font-bold text-muted-foreground/40 tracking-widest truncate uppercase">{asset.name}</p>
                       </div>
                     </div>
-                    <div className={`shrink-0 w-[80px] text-center text-[10px] font-bold tabular-nums truncate ${asset.topUps > 0 ? 'text-emerald-500' : asset.topUps < 0 ? 'text-rose-500' : 'text-[var(--text-muted)] opacity-50'}`}>
-                      {asset.topUps !== 0 && (asset.topUps > 0 ? '+' : '')}
-                      {asset.topUps !== 0 ? formatIDR(asset.topUps) : '—'}
+                    <div className={`shrink-0 w-[80px] text-center text-[11px] font-black tabular-nums truncate ${asset.topUps > 0 ? 'text-emerald-500' : asset.topUps < 0 ? 'text-rose-500' : 'text-muted-foreground/30'}`}>
+                      {asset.topUps !== 0 && (asset.topUps > 0 ? '↑' : '↓')}
+                      {asset.topUps !== 0 ? formatIDR(Math.abs(asset.topUps)) : '—'}
                     </div>
-                    <div className="shrink-0 w-[110px] text-right flex items-center justify-end gap-2.5">
+                    <div className="shrink-0 w-[110px] text-right flex items-center justify-end gap-3">
                       <div className="flex flex-col items-end min-w-0">
-                        <p className="text-[12px] font-bold tracking-tight text-[var(--text-primary)] mb-0.5 truncate max-w-full">Rp{formatIDR(asset.currentBalance)}</p>
-                        <div className={`text-[8px] font-bold tabular-nums ${asset.growthPercent >= 0 ? 'text-emerald-500/50' : 'text-rose-500/50'}`}>
+                        <p className="text-[13px] font-black tracking-tight text-foreground mb-0.5 truncate max-w-full">Rp{formatIDR(asset.currentBalance)}</p>
+                        <div className={`text-[9px] font-black tabular-nums ${asset.growthPercent >= 0 ? 'text-emerald-500/60' : 'text-rose-500/60'}`}>
                           {asset.growthPercent >= 0 ? '+' : ''}{asset.growthPercent.toFixed(1)}%
                         </div>
                       </div>
@@ -327,15 +359,13 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                           });
                           setShowAddForm(true);
                         }}
-                        className="size-7 shrink-0 rounded-lg bg-[rgba(var(--bg-card-rgb),0.2)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-muted)] active:scale-75 transition-all hover:text-[var(--text-primary)]"
-                        title="Edit Asset"
+                        className="size-8 shrink-0 rounded-xl bg-muted/30 border border-border/10 flex items-center justify-center text-muted-foreground active:scale-75 transition-all hover:text-foreground hover:bg-muted"
                       >
-                        <i className="fa-solid fa-pen text-[8px]"></i>
+                        <Pencil size={12} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Asset-Specific Quick History Mini list */}
                   {selectedAssetId === asset.id && (
                     <div className="mx-2 mt-2 mb-4 p-4 rounded-2xl bg-[rgba(var(--bg-card-rgb),0.2)] border border-[var(--border-subtle)] animate-in slide-in-from-top-2 duration-300">
                       <p className="text-[8px] font-bold text-[var(--text-muted)] opacity-50 tracking-[0.2em] mb-4 uppercase">{t('wallet.recent_activity')}</p>
@@ -368,17 +398,18 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       {activeTab === 'ALOKASI' && (
         <div className="px-6 pb-32 pt-[calc(11.5rem+env(safe-area-inset-top))]">
           {/* Donut Chart for Allocation */}
-          <section className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] rounded-2xl p-6 mb-8 flex flex-col items-center">
-            <p className="text-[9px] font-bold text-[var(--text-muted)] opacity-50 tracking-[0.2em] mb-6 text-center w-full uppercase">{t('wallet.portfolio_distribution')}</p>
+          <section className="bg-muted/10 border border-border/10 rounded-[32px] p-8 mb-8 flex flex-col items-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[40px] pointer-events-none" />
+            <p className="text-[10px] font-black text-muted-foreground/30 tracking-[0.2em] mb-8 text-center w-full uppercase">{t('wallet.portfolio_distribution')}</p>
             <div className="h-[220px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <RePieChart>
                   <Pie
                     data={allocationData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
+                    innerRadius={65}
+                    outerRadius={85}
                     paddingAngle={8}
                     dataKey="total"
                   >
@@ -387,23 +418,23 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '16px', fontSize: '10px' }}
-                    itemStyle={{ color: '#10b981' }}
+                    contentStyle={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '16px', fontSize: '10px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                    itemStyle={{ color: '#10b981', fontWeight: 'bold' }}
                     formatter={(val_item: number) => `Rp${formatIDR(val_item)}`}
                   />
-                </PieChart>
+                </RePieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-[9px] font-bold text-[var(--text-muted)] tracking-widest uppercase">{t('wallet.net_value')}</span>
-                <span className="text-[14px] font-bold text-[var(--text-primary)] px-2">Rp{formatIDR(metrics.totalCurrent)}</span>
+                <span className="text-[9px] font-black text-muted-foreground/30 tracking-widest uppercase">{t('wallet.net_value')}</span>
+                <span className="text-[15px] font-black text-foreground tabular-nums tracking-tighter">Rp{formatIDR(metrics.totalCurrent)}</span>
               </div>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4 mt-4">
+            <div className="flex flex-wrap justify-center gap-5 mt-6">
               {allocationData.map((item, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div className={`size-2 rounded-full ${i === 0 ? 'bg-[#10b981]' : i === 1 ? 'bg-[#3b82f6]' : i === 2 ? 'bg-[#f43f5e]' : 'bg-[#f59e0b]'}`} />
-                  <span className="text-[9px] font-bold text-white/20 tracking-widest uppercase">{t(`wallet.${item.type.toLowerCase()}`)}</span>
+                <div key={i} className="flex items-center gap-2.5">
+                  <div className={`size-1.5 rounded-full ${i === 0 ? 'bg-[#10b981]' : i === 1 ? 'bg-[#3b82f6]' : i === 2 ? 'bg-[#f43f5e]' : 'bg-[#f59e0b]'}`} />
+                  <span className="text-[9px] font-black text-muted-foreground tracking-widest uppercase">{t(`wallet.${item.type.toLowerCase()}`)}</span>
                 </div>
               ))}
             </div>
@@ -440,61 +471,61 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
 
       {activeTab === 'INVESTASI' && (
         <div className="pt-[calc(11.5rem+env(safe-area-inset-top))]">
-           <Deposit
-              wallets={wallets}
-              transactions={transactions}
-              onDeposit={onDeposit}
-              onWithdraw={onWithdraw}
-              onUpdateBalance={onUpdateBalance}
-              onUpdateBalanceRequest={onUpdateBalanceRequest}
-           />
+          <Deposit
+            wallets={wallets}
+            transactions={transactions}
+            onDeposit={onDeposit}
+            onWithdraw={onWithdraw}
+            onUpdateBalance={(id, val, diff) => onUpdateBalance(id, diff, diff > 0)}
+            onUpdateBalanceRequest={(w) => onUpdateBalanceRequest(w.id, 0, true)}
+          />
         </div>
       )}
 
       {/* Add Wallet Form Modal */}
       {showAddForm && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-md" onClick={() => setShowAddForm(false)}></div>
-          <div className="bg-[var(--bg-card)] w-full max-w-[320px] p-6 rounded-2xl border border-[var(--border-subtle)] relative z-10 animate-in zoom-in duration-300 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-[10px] font-bold tracking-[0.2em] text-[var(--text-muted)] uppercase px-1">{editingWallet ? t('wallet.edit_asset') : t('wallet.link_new_asset')}</h3>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={() => setShowAddForm(false)}></div>
+          <div className="bg-card w-full max-w-[340px] p-8 rounded-[32px] border border-border/40 relative z-10 animate-in zoom-in duration-300 shadow-2xl">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase">{editingWallet ? t('wallet.edit_asset') : t('wallet.link_new_asset')}</h3>
               <button
                 onClick={() => setShowAddForm(false)}
-                className="size-8 rounded-full bg-[rgba(var(--bg-card-rgb),0.2)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                className="size-9 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors border border-border/10"
               >
-                <i className="fa-solid fa-times text-[10px]"></i>
+                <Plus size={16} className="rotate-45" />
               </button>
             </div>
-            <div className="space-y-5">
-              <div className="space-y-2">
-                <p className="text-[9px] font-bold text-[var(--text-muted)] opacity-50 uppercase tracking-[0.2em] px-1">{t('wallet.asset_label')}</p>
+            <div className="space-y-6">
+              <div className="space-y-2.5">
+                <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] px-1">{t('wallet.asset_label')}</p>
                 <input
                   type="text"
                   placeholder={t('wallet.asset_placeholder')}
                   value={newWallet.name || ''}
-                  className="w-full h-11 bg-[var(--bg-inner)] rounded-xl px-4 text-[13px] font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] focus:border-emerald-500/50 outline-none transition-all placeholder:text-[var(--text-muted)]"
+                  className="w-full h-12 bg-muted/20 rounded-2xl px-4 text-[13px] font-bold text-foreground border border-border/10 focus:border-primary/50 outline-none transition-all placeholder:text-muted-foreground/30"
                   onChange={(e) => setNewWallet({ ...newWallet, name: e.target.value })}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <p className="text-[9px] font-bold text-[var(--text-muted)] opacity-50 uppercase tracking-[0.2em] px-1">{t('wallet.code')}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2.5">
+                  <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] px-1">{t('wallet.code')}</p>
                   <input
                     type="text"
                     placeholder="BCA"
                     maxLength={4}
                     value={newWallet.code || ''}
-                    className="w-full h-11 bg-[var(--bg-inner)] rounded-xl px-4 text-[13px] font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] focus:border-emerald-500/50 outline-none transition-all placeholder:text-[var(--text-muted)] opacity-30 uppercase tracking-widest"
+                    className="w-full h-12 bg-muted/20 rounded-2xl px-4 text-[13px] font-black text-foreground border border-border/10 focus:border-primary/50 outline-none transition-all placeholder:text-muted-foreground/30 uppercase tracking-widest"
                     onChange={(e) => setNewWallet({ ...newWallet, code: e.target.value.toUpperCase() })}
                   />
                 </div>
-                <div className="space-y-2">
-                  <p className="text-[9px] font-bold text-[var(--text-muted)] opacity-50 uppercase tracking-[0.2em] px-1">{t('wallet.type')}</p>
+                <div className="space-y-2.5">
+                  <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] px-1">{t('wallet.type')}</p>
                   <select
                     value={newWallet.type || WalletType.BANK}
-                    className="w-full h-11 bg-[var(--bg-inner)] rounded-xl px-4 text-[12px] font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] focus:border-emerald-500/50 outline-none appearance-none transition-all"
-                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%23333\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center', backgroundSize: '10px' }}
+                    className="w-full h-12 bg-muted/20 rounded-2xl px-4 text-[12px] font-black text-foreground border border-border/10 focus:border-primary/50 outline-none appearance-none transition-all"
+                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%23666\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center', backgroundSize: '10px' }}
                     onChange={(e) => setNewWallet({ ...newWallet, type: e.target.value as WalletType })}
                   >
                     <option value={WalletType.BANK}>{t('wallet.bank')}</option>
@@ -505,10 +536,10 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <p className="text-[9px] font-bold text-[var(--text-muted)] opacity-50 uppercase tracking-[0.2em] px-1">{editingWallet ? t('wallet.current_balance') : t('wallet.initial_balance_label')}</p>
+              <div className="space-y-2.5">
+                <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] px-1">{editingWallet ? t('wallet.current_balance') : t('wallet.initial_balance_label')}</p>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[var(--text-muted)] opacity-30">Rp</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground/30 uppercase">Rp</span>
                   <input
                     type="text"
                     placeholder="0"
@@ -517,12 +548,12 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                       const value = e.target.value.replace(/\D/g, '');
                       setNewWallet({ ...newWallet, balance: value ? Number(value) : 0 });
                     }}
-                    className="w-full h-11 bg-[var(--bg-inner)] rounded-xl pl-9 pr-4 text-[14px] font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] focus:border-emerald-500/50 outline-none transition-all placeholder:text-[var(--text-muted)] opacity-30 tabular-nums"
+                    className="w-full h-12 bg-muted/20 rounded-2xl pl-10 pr-4 text-[14px] font-black text-foreground border border-border/10 focus:border-primary/50 outline-none transition-all placeholder:text-muted-foreground/30 tabular-nums"
                   />
                 </div>
               </div>
 
-              <div className="mt-6 flex gap-3">
+              <div className="mt-8 flex gap-3">
                 {editingWallet && (
                   <button
                     onClick={() => {
@@ -534,9 +565,9 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                       setShowAddForm(false);
                       setEditingWallet(null);
                     }}
-                    className="size-11 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center active:scale-95 transition-all"
+                    className="size-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center active:scale-95 transition-all hover:bg-rose-500 hover:text-white"
                   >
-                    <i className="fa-solid fa-trash-can text-sm"></i>
+                    <Trash2 size={20} />
                   </button>
                 )}
                 <button
@@ -559,7 +590,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                       setNewWallet({ type: WalletType.BANK, color: '#00d293' });
                     }
                   }}
-                  className="flex-1 h-11 bg-emerald-500 text-black rounded-xl text-[10px] font-bold tracking-[0.2em] uppercase shadow-[0_10px_30px_rgba(16,185,129,0.3)] active:scale-[0.98] transition-all"
+                  className="flex-1 h-12 bg-primary text-primary-foreground rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase shadow-lg shadow-primary/20 active:scale-[0.98] transition-all"
                 >
                   {editingWallet ? t('wallet.update_asset') : t('wallet.link_asset')}
                 </button>

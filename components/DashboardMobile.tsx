@@ -2,6 +2,10 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { Transaction, TransactionType, Wallet, UserProfile } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Bell, Settings, User, Eye, EyeOff, Plus, Send, Landmark, Zap, ChevronRight, TrendingUp, TrendingDown, Wallet as WalletIcon } from 'lucide-react';
 
 export interface DashboardViewProps {
   userName: string;
@@ -20,6 +24,20 @@ export interface DashboardViewProps {
   onShowNotifications: () => void;
   hasUnreadNotifications?: boolean;
 }
+
+const CATEGORY_DATA: Record<string, { icon: string; label: string }> = {
+  'Makan': { icon: 'fa-utensils', label: 'Food' },
+  'Transport': { icon: 'fa-car', label: 'Transport' },
+  'Tagihan': { icon: 'fa-file-invoice-dollar', label: 'Bills' },
+  'Hiburan': { icon: 'fa-gamepad', label: 'Play' },
+  'Shop': { icon: 'fa-shopping-bag', label: 'Shop' },
+  'Kesehatan': { icon: 'fa-heart-pulse', label: 'Health' },
+  'Gaji': { icon: 'fa-money-bill-wave', label: 'Salary' },
+  'Investasi': { icon: 'fa-chart-line', label: 'Invest' },
+  'Hadiah': { icon: 'fa-gift', label: 'Gift' },
+  'Bonus': { icon: 'fa-bolt', label: 'Bonus' },
+  'Others': { icon: 'fa-receipt', label: 'Misc' }
+};
 
 const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
   userName, profile, transactions, wallets, totals, recentTransactions,
@@ -167,239 +185,232 @@ const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
     };
   }, [transactions]);
 
+  // Frequently used wallets
+  const frequentlyUsedWallets = useMemo(() => {
+    const usageCount: Record<string, number> = {};
+    transactions.forEach(t => {
+      usageCount[t.walletId] = (usageCount[t.walletId] || 0) + 1;
+    });
+    
+    return [...wallets].sort((a, b) => (usageCount[b.id] || 0) - (usageCount[a.id] || 0));
+  }, [wallets, transactions]);
+
   const filterLabels: Record<string, string> = {
     TODAY: lang === 'id' ? 'Hari Ini' : 'Today',
     WEEKLY: lang === 'id' ? '7 Hari' : '7 Days',
     MONTHLY: lang === 'id' ? '30 Hari' : '30 Days'
   };
 
-  return (
-    <div className="w-full font-sans pb-24 bg-[var(--bg-deep)] min-h-screen text-[var(--text-primary)] transition-colors duration-300">
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 11) return lang === 'id' ? 'Selamat Pagi' : 'Good Morning';
+    if (hour < 15) return lang === 'id' ? 'Selamat Siang' : 'Good Afternoon';
+    if (hour < 19) return lang === 'id' ? 'Selamat Sore' : 'Good Evening';
+    return lang === 'id' ? 'Selamat Malam' : 'Good Night';
+  };
 
-      {/* ─── HEADER ─── */}
-      <header className="sticky top-0 z-50 pt-[calc(1rem+env(safe-area-inset-top))] pb-4 px-5 flex items-center justify-between bg-[var(--bg-deep)]/90 backdrop-blur-md border-b border-[var(--border-subtle)] transition-colors duration-300">
-        <div className="flex items-center gap-3.5 cursor-pointer" onClick={() => setActiveTab('profile')}>
-          <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--border-subtle)]">
-            <img
-              src={profile?.avatar_url || "https://avatar.stockbit.com/male/ToyFaces_Colored_BG_105-min.png"}
-              alt="avatar"
-              className="w-full h-full object-cover"
-            />
+  return (
+    <div className="w-full font-sans pb-24 bg-background min-h-screen text-foreground transition-colors duration-300">
+
+      {/* ─── INSTITUTIONAL HEADER ─── */}
+      <header className="px-5 pt-8 pb-4 flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-sm z-40 border-b border-border/40">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('profile')}>
+          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-4 h-4 text-muted-foreground" />
+            )}
           </div>
-          <div className="flex flex-col justify-center">
-            <p className="text-[12px] font-medium text-[var(--text-muted)] mb-0.5 leading-none">{greeting},</p>
-            <h2 className="text-[15px] font-bold tracking-tight text-[var(--text-primary)] leading-none">{userName.split(' ')[0]}</h2>
+          <div>
+            <h2 className="text-[14px] font-semibold text-foreground tracking-tight">{userName || 'Rudi Siarudin'}</h2>
+            <p className="text-[10px] font-medium text-primary uppercase tracking-wider">{getGreeting()}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={onSearch} className="w-9 h-9 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--text-secondary)] active:scale-95 transition-all border border-[var(--border-subtle)]">
-            <i className="fa-solid fa-magnifying-glass text-[13px]" />
-          </button>
-          <button onClick={onShowNotifications} className="w-9 h-9 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--text-secondary)] relative active:scale-95 transition-all border border-[var(--border-subtle)]">
-            <i className="fa-regular fa-bell text-[14px]" />
-            {hasUnreadNotifications && <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-[1.5px] border-[var(--bg-deep)]" />}
-          </button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={onShowNotifications} className="w-9 h-9 rounded-lg relative">
+            <Bell className="w-4 h-4 text-muted-foreground" />
+            {hasUnreadNotifications && <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-primary rounded-full" />}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => setActiveTab('profile')} className="w-9 h-9 rounded-lg">
+            <Settings className="w-4 h-4 text-muted-foreground" />
+          </Button>
         </div>
       </header>
 
-      <main className="px-5 space-y-7">
-
-        {/* ─── BALANCE CARD ─── */}
-        <section className="relative w-full rounded-[28px] p-6 overflow-hidden bg-gradient-to-br from-[#0A1F16] via-[#121212] to-[#050505] border border-emerald-500/20 shadow-[0_15px_40px_-15px_rgba(16,185,129,0.25)]">
-          {/* Faint radial glow instead of blurry blob */}
-          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-emerald-500/10 rounded-full blur-[60px] pointer-events-none -translate-y-1/2 translate-x-1/4" />
-
-          <div className="relative z-10 flex flex-col h-full">
+      <main className="px-5 space-y-6 pt-6 pb-24">
+        <section>
+          <Card className="border-none bg-gradient-to-br from-card via-card to-muted/30 shadow-2xl rounded-[32px] overflow-hidden relative group">
+            {/* ELITE MESH GLOWS */}
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none" />
             
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <p className="text-[12px] font-semibold text-white/70">Total Balance</p>
-                <button onClick={() => setHideBalance(!hideBalance)} className="active:scale-90 transition-transform">
-                  <i className={`fa-solid ${hideBalance ? 'fa-eye-slash' : 'fa-eye'} text-white/40 hover:text-white/70 text-[11px]`} />
-                </button>
+            {/* MONEY ICON WATERMARK */}
+            <div className="absolute left-[-10%] top-[-10%] opacity-[0.03] pointer-events-none transform rotate-[15deg]">
+              <WalletIcon className="w-64 h-64 text-foreground" />
+            </div>
+            
+            <CardContent className="p-8 relative">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em]">Net Worth Value</span>
+                <Badge variant="outline" className="text-[9px] font-semibold px-2 py-0.5 h-auto border-border/50 text-muted-foreground rounded-full">
+                  REALTIME
+                </Badge>
               </div>
-              <button className="w-9 h-9 rounded-[14px] bg-white/5 border border-white/5 flex items-center justify-center active:scale-95 transition-all shadow-inner">
-                <i className="fa-solid fa-chart-simple text-emerald-500 text-[13px]" />
-              </button>
-            </div>
 
-            <div className="mb-6">
-              <h1 className="text-[38px] font-bold tracking-tight leading-none text-white flex items-baseline gap-1.5">
-                <span className="text-[18px] font-bold text-white/40">Rp</span>
-                {hideBalance ? '••••••••' : formatIDR(totals.balance)}
-              </h1>
-            </div>
+              <div className="flex items-baseline gap-2 mb-8">
+                <span className="text-[18px] font-medium text-muted-foreground">IDR</span>
+                <h1 className="text-[36px] font-bold tabular-nums text-foreground tracking-tight">
+                  {hideBalance ? '••••••••' : formatIDR(totals.balance)}
+                </h1>
+                <Button variant="ghost" size="icon" onClick={() => setHideBalance(!hideBalance)} className="h-6 w-6 text-muted-foreground ml-1">
+                  {hideBalance ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </Button>
+              </div>
 
-            <div className="w-full h-px bg-gradient-to-r from-emerald-500/20 via-white/5 to-transparent mb-5" />
-
-            <div className="flex items-center">
-              {/* Income */}
-              <div className="flex-1 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#0A2E1F] flex items-center justify-center shrink-0">
-                  <i className="fa-solid fa-arrow-down text-emerald-500 text-[11px]" />
-                </div>
-                <div>
-                  <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest block mb-1">Income</span>
-                  <p className="text-[15px] font-bold tabular-nums text-white leading-none">
-                    <span className="text-white/40 text-[11px] font-bold mr-1">Rp</span>
-                    {formatIDR(metrics.inc)}
+              <div className="grid grid-cols-2 gap-4 pt-5 border-t border-border/40">
+                <div className="space-y-2.5">
+                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-50">
+                    {summaryFilter === 'TODAY' ? 'Daily' : summaryFilter === 'WEEKLY' ? 'Weekly' : 'Monthly'} Inflow
                   </p>
-                  <span className={`text-[10px] font-bold mt-1.5 flex items-center gap-0.5 ${metrics.incPct >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                    <i className={`fa-solid ${metrics.incPct >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'}`} />
-                    {Math.abs(metrics.incPct).toFixed(1)}%
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-bold text-foreground tabular-nums tracking-tighter">
+                      {formatIDR(metrics.inc)}
+                    </span>
+                    <div className={`px-1.5 py-0.5 rounded-lg text-[8px] font-bold tracking-tight ${metrics.incPct >= 0 ? 'bg-[#10B981]/15 text-[#10B981]' : 'bg-[#EF4444]/15 text-[#EF4444]'}`}>
+                      {metrics.incPct >= 0 ? '↑' : '↓'} {Math.abs(metrics.incPct).toFixed(1)}%
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="w-px h-8 bg-white/5 mx-2" />
-
-              {/* Expense */}
-              <div className="flex-1 flex items-center gap-3 pl-2">
-                <div className="w-9 h-9 rounded-full bg-[#3F1D24] flex items-center justify-center shrink-0">
-                  <i className="fa-solid fa-arrow-up text-rose-500 text-[11px]" />
-                </div>
-                <div>
-                  <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest block mb-1">Expense</span>
-                  <p className="text-[15px] font-bold tabular-nums text-white leading-none">
-                    <span className="text-white/40 text-[11px] font-bold mr-1">Rp</span>
-                    {formatIDR(metrics.exp)}
+                <div className="space-y-2.5">
+                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-50">
+                    {summaryFilter === 'TODAY' ? 'Daily' : summaryFilter === 'WEEKLY' ? 'Weekly' : 'Monthly'} Outflow
                   </p>
-                  <span className={`text-[10px] font-bold mt-1.5 flex items-center gap-0.5 ${metrics.expPct <= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                    <i className={`fa-solid ${metrics.expPct <= 0 ? 'fa-arrow-down' : 'fa-arrow-up'}`} />
-                    {Math.abs(metrics.expPct).toFixed(1)}%
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-bold text-foreground tabular-nums tracking-tighter">
+                      {formatIDR(metrics.exp)}
+                    </span>
+                    <div className={`px-1.5 py-0.5 rounded-lg text-[8px] font-bold tracking-tight ${metrics.expPct <= 0 ? 'bg-[#10B981]/15 text-[#10B981]' : 'bg-[#EF4444]/15 text-[#EF4444]'}`}>
+                      {metrics.expPct > 0 ? '↑' : '↓'} {Math.abs(metrics.expPct).toFixed(1)}%
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+
+              {/* ULTRA-MINIMALIST TIME FILTER - MATCHES REALTIME BADGE STYLE */}
+              <div className="mt-8 flex justify-end gap-1.5">
+                {[
+                  { id: 'TODAY', label: 'Today' },
+                  { id: 'WEEKLY', label: '7D' },
+                  { id: 'MONTHLY', label: '30D' }
+                ].map((period) => (
+                  <button
+                    key={period.id}
+                    onClick={() => setSummaryFilter(period.id as any)}
+                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full border transition-all h-auto ${
+                      summaryFilter === period.id 
+                        ? 'bg-foreground text-background border-foreground shadow-lg' 
+                        : 'bg-transparent border-border/50 text-muted-foreground opacity-40 hover:opacity-100 hover:border-border'
+                    }`}
+                  >
+                    {period.label}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </section>
 
-        {/* Period toggle */}
-        <div className="flex items-center justify-center mt-2">
-          <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-[20px] p-1 flex items-center w-max shadow-sm">
-            <button onClick={() => setSummaryFilter('TODAY')} className={`px-6 py-2.5 rounded-[16px] text-[12px] font-bold transition-all duration-300 ${summaryFilter === 'TODAY' ? 'bg-[#10b981] text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>Today</button>
-            <button onClick={() => setSummaryFilter('WEEKLY')} className={`px-6 py-2.5 rounded-[16px] text-[12px] font-bold transition-all duration-300 ${summaryFilter === 'WEEKLY' ? 'bg-[#10b981] text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>7 Days</button>
-            <button onClick={() => setSummaryFilter('MONTHLY')} className={`px-6 py-2.5 rounded-[16px] text-[12px] font-bold transition-all duration-300 ${summaryFilter === 'MONTHLY' ? 'bg-[#10b981] text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>30 Days</button>
-          </div>
-        </div>
-
-        {/* ─── QUICK ACTIONS ─── */}
-        <section className="flex gap-3 overflow-x-auto no-scrollbar snap-x pb-2 mt-4">
+        {/* QUICK ACTIONS ─── CLEAN GRID */}
+        <section className="grid grid-cols-4 gap-4">
           {[
-            { label: 'Log', icon: 'fa-plus', action: 'Log', isPrimary: true },
-            { label: 'Transfer', icon: 'fa-right-left', action: 'Send Money', isPrimary: false },
-            { label: 'Top Up', icon: 'fa-wallet', action: 'Top Up', isPrimary: false },
-            { label: 'Loan', icon: 'fa-hand-holding-dollar', action: 'Loan', isPrimary: false },
-            { label: 'AI', icon: 'fa-robot', action: 'AI Agent', isPrimary: false }
+            { label: 'Log', icon: Plus, action: 'Log' },
+            { label: 'Send', icon: Send, action: 'Transfer' },
+            { label: 'Loan', icon: Landmark, action: 'Loan' },
+            { label: 'Agent', icon: Zap, action: 'AI Agent' }
           ].map((btn, idx) => (
             <button 
               key={idx}
               onClick={() => {
                 if (btn.action === 'Log') onQuickAction('Log');
-                else if (btn.action === 'Top Up') onTopup(wallets[0]?.id || '');
-                else if (btn.action === 'Send Money') onQuickAction('Transfer');
-                else if (btn.action === 'Loan') setActiveTab('debt');
+                else if (btn.action === 'Transfer') onQuickAction('Transfer');
+                else if (btn.action === 'Loan') onQuickAction('Loan');
                 else if (btn.action === 'AI Agent') document.dispatchEvent(new CustomEvent('open-ai-chat'));
               }}
-              className={`min-w-[76px] aspect-square rounded-[20px] flex flex-col items-center justify-center gap-2 transition-all active:scale-95 snap-center shrink-0 ${btn.isPrimary ? 'bg-[#10b981] border border-emerald-500/30 shadow-[0_8px_20px_rgba(16,185,129,0.3)]' : 'bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:bg-[var(--bg-inner)]'}`}
+              className="flex flex-col items-center gap-2 group"
             >
-              <i className={`fa-solid ${btn.icon} text-[16px] ${btn.isPrimary ? 'text-white' : 'text-[var(--text-secondary)]'}`} />
-              <span className={`text-[11px] font-bold ${btn.isPrimary ? 'text-white' : 'text-[var(--text-primary)]'}`}>{btn.label}</span>
+              <div className="w-full aspect-square rounded-2xl bg-card border border-border flex items-center justify-center transition-all group-active:scale-95 group-hover:bg-primary/10">
+                <btn.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{btn.label}</span>
             </button>
           ))}
         </section>
 
-        {/* ─── SPENDING OVERVIEW ─── */}
+        {/* ─── INSTITUTIONAL ASSETS ─── */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[16px] font-semibold text-[var(--text-primary)] tracking-tight">This Month's Spending</h3>
-            <button onClick={() => setActiveTab('stats')} className="text-[13px] font-medium text-emerald-500 flex items-center gap-1 active:opacity-70">
-              View Details <i className="fa-solid fa-chevron-right text-[10px]" />
-            </button>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h3 className="text-[14px] font-bold text-foreground tracking-tight">Portfolio Assets</h3>
+            <Button 
+              variant="link" 
+              size="sm" 
+              onClick={() => setActiveTab('profile')}
+              className="text-[10px] font-semibold text-primary uppercase tracking-wider h-auto p-0"
+            >
+              Details
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {frequentlyUsedWallets.slice(0, 3).map((w) => (
+              <div key={w.id} className="flex items-center justify-between p-4 rounded-[24px] bg-card hover:bg-muted/50 transition-all group active:scale-[0.99] border border-border shadow-sm">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
+                    <i className={`fa-solid ${w.icon} text-sm`} />
+                  </div>
+                  <div>
+                    <h4 className="text-[13px] font-semibold text-foreground leading-tight">{w.name}</h4>
+                    <p className="text-[9px] font-medium text-muted-foreground uppercase tracking-widest mt-0.5">{w.type}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[14px] font-bold text-foreground tabular-nums tracking-tight">Rp {formatIDR(Number(w.balance))}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ─── SPENDING OVERVIEW ─── */}
+        {/* ─── CLEAN ACTIVITY FEED ─── */}
+        <section>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h3 className="text-[14px] font-bold text-foreground tracking-tight">Activity Feed</h3>
+            <Button variant="link" size="sm" onClick={() => setActiveTab('transactions')} className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider h-auto p-0">
+              History
+            </Button>
           </div>
 
-          <div className="bg-[var(--bg-card)] rounded-[24px] p-5 border border-[var(--border-subtle)] shadow-sm">
-            <div className="flex flex-col mb-4">
-              <p className="text-[12px] font-medium text-[var(--text-muted)] mb-1">Total Spending</p>
-              <p className="text-[28px] font-semibold tabular-nums text-[var(--text-primary)] leading-none tracking-tight mb-2">
-                <span className="text-[18px] mr-1 font-medium text-[var(--text-secondary)]">Rp</span>{formatIDR(categoryStats.totalSpend)}
-              </p>
-              {true && (
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-[13px] font-semibold ${metrics.expPct > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
-                    <i className={`fa-solid ${metrics.expPct > 0 ? 'fa-arrow-up' : 'fa-arrow-down'} text-[11px] mr-0.5`} />
-                    {Math.abs(metrics.expPct).toFixed(0)}%
-                  </span>
-                  <span className="text-[13px] text-[var(--text-muted)]">vs last month</span>
-                </div>
-              )}
-            </div>
-
-            {/* Layout: Donut Chart on Left/Center, Legend on Right */}
-            <div className="flex items-center justify-between mb-6">
-              {/* Donut Chart */}
-              <div className="relative w-[130px] h-[130px] shrink-0">
-                {categoryStats.topCats.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={categoryStats.topCats}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={45}
-                        outerRadius={65}
-                        stroke="none"
-                        paddingAngle={2}
-                        dataKey="amount"
-                      >
-                        {categoryStats.topCats.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="w-full h-full rounded-full border-[8px] border-[var(--border-subtle)]" />
-                )}
-                {/* Inner Icon */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-10 h-10 rounded-full bg-[var(--bg-inner)] flex items-center justify-center shadow-inner border border-[var(--border-subtle)]">
-                    <i className="fa-solid fa-wallet text-[var(--text-muted)] text-[14px]" />
+          <div className="space-y-1">
+            {transactions.slice(0, 5).map((t) => (
+              <div key={t.id} className="flex items-center justify-between py-3 px-2 border-b border-border/20 last:border-0 hover:bg-muted/30 transition-colors rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm ${t.type === TransactionType.INCOME ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground'} border border-border/50`}>
+                    <i className={`fa-solid ${CATEGORY_DATA[t.category]?.icon || 'fa-tag'}`} />
+                  </div>
+                  <div>
+                    <h4 className="text-[13px] font-semibold text-foreground leading-tight">{t.description || t.category}</h4>
+                    <p className="text-[9px] font-medium text-muted-foreground uppercase tracking-widest mt-0.5">
+                      {new Date(t.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} • {wallets.find(w => w.id === t.walletId)?.name}
+                    </p>
                   </div>
                 </div>
-              </div>
-
-              {/* Legend */}
-              <div className="flex-1 pl-4 space-y-3">
-                {categoryStats.topCats.slice(0, 4).map((cat) => (
-                  <div key={cat.name} className="flex flex-col">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-[3px]" style={{ backgroundColor: cat.color }} />
-                        <span className="text-[13px] font-medium text-[var(--text-primary)] capitalize">{cat.name}</span>
-                      </div>
-                      <span className="text-[12px] font-medium text-[var(--text-muted)]">{cat.percent.toFixed(0)}%</span>
-                    </div>
-                    <span className="text-[12px] font-medium tabular-nums text-[var(--text-secondary)] ml-4.5 pl-4">Rp {formatIDR(cat.amount)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-             {/* Insight Box */}
-            <div className="bg-[var(--bg-inner)] border border-[var(--border-subtle)] rounded-2xl p-3 flex items-center gap-3">
-               <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${metrics.expPct <= 0 ? 'bg-emerald-500/10' : 'bg-rose-500/10'}`}>
-                  <i className={`fa-solid ${metrics.expPct <= 0 ? 'fa-arrow-trend-down text-emerald-500' : 'fa-arrow-trend-up text-rose-500'} text-[12px]`} />
-               </div>
-               <div>
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[12px] font-semibold text-[var(--text-primary)]">Insight</span>
-                  </div>
-                  <p className="text-[11px] text-[var(--text-secondary)] leading-tight">
-                    Pengeluaran Anda {metrics.expPct <= 0 ? 'turun' : 'naik'} {Math.abs(metrics.expPct).toFixed(0)}% dibandingkan bulan lalu.
+                <div className="text-right">
+                  <p className={`text-[13px] font-bold tabular-nums tracking-tight ${t.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-foreground'}`}>
+                    {t.type === TransactionType.INCOME ? '+' : '-'} Rp {formatIDR(Number(t.amount))}
                   </p>
-               </div>
-            </div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       </main>

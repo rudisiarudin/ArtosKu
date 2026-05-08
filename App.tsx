@@ -249,7 +249,7 @@ const App: React.FC = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-    document.body.style.backgroundColor = theme === 'dark' ? '#09090b' : '#ffffff';
+    document.body.style.backgroundColor = theme === 'dark' ? 'hsl(240 10% 3.9%)' : 'hsl(0 0% 100%)';
 
     // Update Theme Color Meta Tag
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -433,7 +433,7 @@ const App: React.FC = () => {
       return;
     }
 
-    if (label === 'Send Money') {
+    if (label === 'Transfer' || label === 'Send Money') {
       setIsInterUserTransferModalOpen(true);
       return;
     }
@@ -658,7 +658,7 @@ const App: React.FC = () => {
 
   return (
     <LanguageProvider>
-      <div className="min-h-screen bg-[var(--bg-deep)] text-[var(--text-primary)] transition-colors duration-500 font-sans overflow-clip relative selection:bg-emerald-500/10">
+      <div className="min-h-screen bg-background text-foreground transition-colors duration-500 font-sans overflow-clip relative selection:bg-emerald-500/10">
         {/* Offline Status Banner */}
         <OfflineBanner />
         {/* Background blobs simplified for "Clean" look */}
@@ -667,7 +667,7 @@ const App: React.FC = () => {
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/[0.03] blur-[100px] rounded-full -ml-32 -mb-32"></div>
         </div>
 
-        <div className="relative z-10 w-full min-h-screen flex flex-col max-w-md mx-auto bg-[var(--bg-deep)] shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+        <div className="relative z-10 w-full min-h-screen flex flex-col max-w-md mx-auto bg-background shadow-[0_0_50px_rgba(0,0,0,0.3)]">
           <main className="flex-1 pb-32">
             <div className="h-full">
               {renderTabContent()}
@@ -687,6 +687,9 @@ const App: React.FC = () => {
           onClose={() => { setIsModalOpen(false); setPrefilledData(null); }}
           onAdd={addTransaction}
           wallets={wallets}
+          transactions={transactions}
+          debts={debts}
+          userName={userName}
           prefilledData={prefilledData}
           theme={theme}
         />
@@ -743,6 +746,7 @@ const App: React.FC = () => {
           wallets={wallets}
           debts={debts}
           userName={userName}
+          onAddTransaction={addTransaction}
         />
       </div>
     </LanguageProvider>

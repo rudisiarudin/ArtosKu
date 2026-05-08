@@ -1,115 +1,131 @@
 import React, { useState, useEffect } from 'react';
 import { Debt, TransactionType } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { formatIDR, vibrate } from '@/lib/utils';
 
 interface RepaymentModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    debt: Debt | null;
-    onConfirm: (amount: number) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  debt: Debt | null;
+  onConfirm: (amount: number) => void;
 }
 
 const RepaymentModal: React.FC<RepaymentModalProps> = ({ isOpen, onClose, debt, onConfirm }) => {
-    const { t, lang } = useLanguage();
-    const [amount, setAmount] = useState('');
+  const { t, lang } = useLanguage();
+  const [amount, setAmount] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
-    useEffect(() => {
-        if (isOpen && debt) {
-            setAmount('');
-        }
-    }, [isOpen, debt]);
+  useEffect(() => {
+    if (isOpen && debt) {
+      setAmount('');
+      setIsSuccess(false);
+    }
+  }, [isOpen, debt]);
 
-    if (!isOpen || !debt) return null;
+  if (!isOpen || !debt) return null;
 
-    const formatIDR = (val: number) => {
-        return new Intl.NumberFormat('id-ID').format(val);
-    };
+  const handleConfirm = () => {
+    const numAmount = Number(amount.replace(/\D/g, ''));
+    if (numAmount > 0) {
+      setIsSuccess(true);
+      vibrate([10, 30, 10]);
+      setTimeout(() => {
+        onConfirm(numAmount);
+        onClose();
+      }, 1500);
+    }
+  };
 
-    const handleConfirm = () => {
-        const numAmount = Number(amount.replace(/\D/g, ''));
-        if (numAmount > 0) {
-            onConfirm(numAmount);
-            onClose();
-        }
-    };
+  const handlePayFull = () => {
+    setAmount(debt.amount.toString());
+    vibrate(10);
+  };
 
-    const handlePayFull = () => {
-        setAmount(debt.amount.toString());
-    };
+  const isDebt = debt.type === TransactionType.DEBT;
 
-    const isDebt = debt.type === TransactionType.DEBT; // Hutang (We borrow)
-    const isReceivable = debt.type === TransactionType.RECEIVABLE; // Piutang (We lend)
-
-    return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-md" onClick={onClose}></div>
-            <div className="bg-[var(--bg-card)] w-full max-w-[360px] p-6 rounded-2xl border border-[var(--border-subtle)] relative z-10 animate-in slide-in-from-bottom-10 duration-500 shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 className="text-[12px] font-semibold tracking-[0.2em] text-[var(--text-primary)] uppercase">
-                            {isDebt ? t('debt.pay_debt') : t('debt.receive_payment')}
-                        </h3>
-                        <p className="text-[9px] font-medium text-[var(--text-muted)] tracking-widest mt-1">
-                            {t('debt.settlement_for').replace('{title}', debt.title)}
-                        </p>
-                    </div>
-                    <button onClick={onClose} className="w-9 h-9 rounded-full bg-[rgba(var(--bg-card-rgb),0.2)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
-                        <i className="fa-solid fa-times text-xs"></i>
-                    </button>
-                </div>
-
-                <div className="space-y-6">
-                    {/* Info Card */}
-                    <div className="bg-[rgba(var(--bg-card-rgb),0.2)] border border-[var(--border-subtle)] rounded-2xl p-4 flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-[var(--text-muted)] tracking-widest uppercase">{t('debt.remaining')}</span>
-                        <span className={`text-[16px] font-bold tabular-nums ${isDebt ? 'text-rose-500' : 'text-emerald-500'}`}>
-                            Rp{formatIDR(debt.amount)}
-                        </span>
-                    </div>
-
-                    {/* Amount Input */}
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center px-1">
-                            <label className="text-[9px] font-black text-[var(--text-muted)] opacity-50 tracking-[0.2em] uppercase">{t('debt.payment_amount')}</label>
-                            <button
-                                onClick={handlePayFull}
-                                className="text-[9px] font-bold text-[#00d293] tracking-widest hover:underline"
-                            >
-                                {t('debt.pay_full')}
-                            </button>
-                        </div>
-                        <div className="relative">
-                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[12px] font-black text-[var(--text-muted)] opacity-30">IDR</span>
-                            <input
-                                type="text"
-                                placeholder="0"
-                                value={amount ? Number(amount).toLocaleString(lang === 'id' ? 'id-ID' : 'en-US') : ''}
-                                onChange={(e) => {
-                                    const val = e.target.value.replace(/\D/g, '');
-                                    // Prevent paying more than owed
-                                    if (Number(val) > debt.amount) return;
-                                    setAmount(val);
-                                }}
-                                className="w-full h-16 bg-[var(--bg-inner)] rounded-2xl pl-14 pr-5 text-[18px] font-black text-[var(--text-primary)] border border-[var(--border-subtle)] focus:border-[#00d293]/50 outline-none transition-all placeholder:text-[var(--text-muted)] opacity-30 tabular-nums"
-                            />
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={handleConfirm}
-                        disabled={!amount || Number(amount) <= 0}
-                        className={`w-full h-14 rounded-full text-black text-[12px] font-black tracking-[0.2em] shadow-lg active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale ${isDebt
-                            ? 'bg-rose-500 shadow-[0_10px_30px_rgba(244,63,94,0.3)]'
-                            : 'bg-emerald-500 shadow-[0_10px_30px_rgba(16,185,129,0.3)]'
-                            }`}
-                    >
-                        {t('common.confirm')} {Number(amount) >= debt.amount ? t('debt.full_payment') : t('debt.partial_payment')}
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className="fixed inset-0 z-[2000] flex flex-col items-center justify-end md:justify-center bg-black/85 backdrop-blur-md animate-backdrop">
+      <div className="absolute inset-0" onClick={onClose} />
+      
+      {isSuccess && (
+        <div className="absolute inset-0 z-[2100] bg-[#0c0c0e] flex flex-col items-center justify-center animate-fade-in px-8 text-center">
+          <div className="w-24 h-24 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6 animate-scale-spring">
+            <i className="fa-solid fa-check text-4xl text-emerald-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Settled!</h2>
+          <p className="text-white/40 text-sm font-medium">Payment has been recorded.<br />Updating position...</p>
         </div>
-    );
+      )}
+
+      <div className="relative w-full max-w-lg bg-[#0e0e0e] rounded-t-[40px] md:rounded-[40px] shadow-2xl flex flex-col max-h-[90vh] animate-modal-slide border-t border-white/10 overflow-hidden">
+        
+        <div className="w-12 h-1 bg-white/10 rounded-full mx-auto mt-4 mb-2" />
+        
+        <div className="flex-1 overflow-y-auto no-scrollbar px-8 pb-32">
+          <div className="flex items-center justify-between py-8">
+            <div>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Debt Settlement</p>
+              <h2 className="text-2xl font-bold text-white">{isDebt ? 'Repay Debt' : 'Collect Payment'}</h2>
+            </div>
+            <button onClick={onClose} className="w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-white/40 active:scale-90 transition-all">
+              <i className="fa-solid fa-xmark text-lg" />
+            </button>
+          </div>
+
+          <div className="mb-10 p-6 bg-white/[0.03] border border-white/5 rounded-[28px] flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/40 border border-white/5">
+                <i className="fa-solid fa-circle-info" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-0.5">Remaining for {debt.title}</p>
+                <p className="text-base font-bold text-white tabular-nums">Rp{formatIDR(debt.amount)}</p>
+              </div>
+            </div>
+            <button onClick={handlePayFull} className="px-4 py-2 rounded-xl bg-white/5 text-[10px] font-black uppercase tracking-widest text-emerald-500 hover:bg-emerald-500/10 transition-all">
+              Settle All
+            </button>
+          </div>
+
+          <div className="text-center py-10">
+            <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] mb-4">Payment Amount</p>
+            <div className="inline-flex items-baseline gap-2">
+              <span className="text-xl font-bold text-white/20">Rp</span>
+              <input 
+                type="text"
+                inputMode="numeric"
+                value={amount === '0' ? '' : amount.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\./g, '');
+                  if (/^\d*$/.test(val) && Number(val) <= debt.amount) setAmount(val || '0');
+                }}
+                className="w-[5ch] bg-transparent border-none outline-none text-6xl font-black tabular-nums text-center text-white placeholder:text-white/5"
+                placeholder="0"
+                style={{ width: `${Math.max(3, amount.length + 1)}ch` }}
+                autoFocus
+              />
+            </div>
+          </div>
+          
+          <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-4 flex items-center gap-4 animate-fade-in">
+            <i className="fa-solid fa-shield-check text-emerald-500 text-sm" />
+            <p className="text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest leading-relaxed">Funds will be deducted from {debt.walletId ? 'associated wallet' : 'default wallet'}.</p>
+          </div>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e] to-transparent pt-12">
+          <button
+            onClick={handleConfirm}
+            disabled={!amount || Number(amount) <= 0}
+            className={`w-full h-15 rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 ${isDebt ? 'bg-rose-500 text-white shadow-rose-500/20' : 'bg-emerald-500 text-black shadow-emerald-500/20'}`}
+          >
+            Confirm Payment
+            <i className="fa-solid fa-chevron-right text-[10px]" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default RepaymentModal;
-
