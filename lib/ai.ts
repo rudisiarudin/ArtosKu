@@ -186,7 +186,7 @@ ${financialContext}`;
         'X-Title': 'ArtosKu Finance'
       },
       body: JSON.stringify({
-        model: 'google/gemini-flash-1.5-8b:free',
+        model: 'deepseek/deepseek-r1:free',
         messages: fullMessages,
         max_tokens: 1024,
         temperature: 0.7,
