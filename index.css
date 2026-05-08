@@ -83,10 +83,11 @@
   --active-tab-text: 161 72% 48%;
 }
 
+/* Reset base borders to ensure consistency without breaking Tailwind */
 *, ::before, ::after {
-  border: none !important;
-  border-width: 0 !important;
-  outline: none !important;
+  border-width: 0;
+  border-style: solid;
+  border-color: hsl(var(--border));
 }
 
 body {

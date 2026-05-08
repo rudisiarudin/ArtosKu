@@ -69,7 +69,7 @@ const App: React.FC = () => {
     return () => document.removeEventListener('open-ai-chat', handleOpenAiChat);
   }, []);
 
-  const isMobile = useMediaQuery('(max-width: 1279px)');
+  const isMobile = useMediaQuery('(max-width: 1279px)') || (typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
   const isDesktop = !isMobile;
 
   // PWA Install Prompt Listener
