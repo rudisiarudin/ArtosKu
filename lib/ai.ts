@@ -1,6 +1,6 @@
 import { Transaction, TransactionType, Wallet, Debt } from '../types';
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || (typeof process !== 'undefined' ? process.env.VITE_OPENROUTER_API_KEY : '');
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export interface ChatMessage {
@@ -186,8 +186,10 @@ ${financialContext}`;
         'X-Title': 'ArtosKu Finance'
       },
       body: JSON.stringify({
-        model: 'google/gemini-flash-1.5-8b:free',
+        model: 'google/gemini-2.0-flash-lite-preview-02-05:free',
         messages: fullMessages,
+        max_tokens: 1024,
+        temperature: 0.7,
       })
     });
 
