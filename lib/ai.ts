@@ -194,8 +194,9 @@ ${financialContext}`;
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter API error text:', errorText);
-      throw new Error(`API Error: ${response.status}`);
+      console.error('AI API error text:', errorText);
+      const keySnippet = OPENROUTER_API_KEY ? `(...${OPENROUTER_API_KEY.slice(-4)})` : '(no key)';
+      throw new Error(`API Error: ${response.status} ${keySnippet}`);
     }
 
     const data = await response.json();
