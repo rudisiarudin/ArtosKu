@@ -45,3 +45,35 @@ export function getLocalIsoString(date: Date = new Date()): string {
   const localDate = new Date(date.getTime() - (offset * 60 * 1000));
   return localDate.toISOString().slice(0, 19);
 }
+
+/**
+ * Fetches a URL bypassing CORS using a list of public proxies sequentially if one fails.
+ */
+export async function fetchWithCORSProxy(targetUrl: string, options?: RequestInit): Promise<Response> {
+  const proxies = [
+    // 1. AllOrigins raw endpoint (very reliable, doesn't block hosted environments)
+    (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    // 2. Corsproxy.io (kept as fallback, but fails with 403 on some platforms/sites)
+    (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    // 3. Direct fetch (fallback for environments without CORS restrictions, like native mobile apps)
+    (url: string) => url,
+  ];
+
+  let lastError: Error | null = null;
+
+  for (const getProxyUrl of proxies) {
+    try {
+      const proxyUrl = getProxyUrl(targetUrl);
+      const response = await fetch(proxyUrl, options);
+      if (response.ok) {
+        return response;
+      }
+      throw new Error(`Proxy status: ${response.status} ${response.statusText}`);
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`CORS proxy failed for: ${targetUrl} via ${getProxyUrl(targetUrl)}. Error:`, err);
+    }
+  }
+
+  throw lastError || new Error(`Failed to fetch ${targetUrl} after trying all proxies`);
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Wallet, Transaction, TransactionType, StockHolding, StockWatchlistItem, WalletType } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { vibrate } from '../lib/utils';
+import { vibrate, fetchWithCORSProxy } from '../lib/utils';
 import { 
   fetchStockWatchlist, 
   addToStockWatchlist, 
@@ -176,9 +176,8 @@ export const StockMarket: React.FC<StockMarketProps> = ({
       cleanSymbol = `${cleanSymbol}.JK`;
     }
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${cleanSymbol}?range=${yahooRange}&interval=${interval}`;
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
     
-    const response = await fetch(proxyUrl);
+    const response = await fetchWithCORSProxy(url);
     if (!response.ok) throw new Error('API server returned error');
     
     const parsed = await response.json();
@@ -343,8 +342,8 @@ export const StockMarket: React.FC<StockMarketProps> = ({
     if (showLoading) setIhsgLoading(true);
     try {
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/%5EJKSE?range=1d&interval=5m`;
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-      const res = await fetch(proxyUrl);
+      
+      const res = await fetchWithCORSProxy(url);
       const parsed = await res.json();
       const result = parsed.chart?.result?.[0];
       if (!result) return;
