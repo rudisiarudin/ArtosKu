@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Wallet, Transaction, TransactionType, StockHolding, StockWatchlistItem, WalletType } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { vibrate, fetchWithCORSProxy } from '../lib/utils';
+import { vibrate, fetchYahooFinance } from '../lib/utils';
 import { 
   fetchStockWatchlist, 
   addToStockWatchlist, 
@@ -175,9 +175,7 @@ export const StockMarket: React.FC<StockMarketProps> = ({
     if (!cleanSymbol.endsWith('.JK')) {
       cleanSymbol = `${cleanSymbol}.JK`;
     }
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${cleanSymbol}?range=${yahooRange}&interval=${interval}`;
-    
-    const response = await fetchWithCORSProxy(url);
+    const response = await fetchYahooFinance(cleanSymbol, `range=${yahooRange}&interval=${interval}`);
     if (!response.ok) throw new Error('API server returned error');
     
     const parsed = await response.json();
@@ -341,9 +339,7 @@ export const StockMarket: React.FC<StockMarketProps> = ({
   const fetchIHSGData = useCallback(async (showLoading = false) => {
     if (showLoading) setIhsgLoading(true);
     try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/%5EJKSE?range=1d&interval=5m`;
-      
-      const res = await fetchWithCORSProxy(url);
+      const res = await fetchYahooFinance('%5EJKSE', 'range=1d&interval=5m');
       const parsed = await res.json();
       const result = parsed.chart?.result?.[0];
       if (!result) return;

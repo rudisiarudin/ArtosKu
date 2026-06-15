@@ -10,6 +10,13 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       host: '0.0.0.0',
+      proxy: {
+        '/api/yahoo-chart': {
+          target: 'https://query1.finance.yahoo.com/v8/finance/chart',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/yahoo-chart/, ''),
+        },
+      },
     },
     plugins: [
       react(),

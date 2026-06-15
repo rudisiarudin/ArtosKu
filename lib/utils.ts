@@ -47,33 +47,56 @@ export function getLocalIsoString(date: Date = new Date()): string {
 }
 
 /**
- * Fetches a URL bypassing CORS using a list of public proxies sequentially if one fails.
+ * Fetches a Yahoo Finance API URL bypassing CORS.
+ * Detects if running in a native mobile app (where CORS is not enforced)
+ * or web (using a Vercel/Vite proxy with fallbacks).
  */
-export async function fetchWithCORSProxy(targetUrl: string, options?: RequestInit): Promise<Response> {
-  const proxies = [
-    // 1. AllOrigins raw endpoint (very reliable, doesn't block hosted environments)
-    (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    // 2. Corsproxy.io (kept as fallback, but fails with 403 on some platforms/sites)
-    (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    // 3. Direct fetch (fallback for environments without CORS restrictions, like native mobile apps)
-    (url: string) => url,
-  ];
-
-  let lastError: Error | null = null;
-
-  for (const getProxyUrl of proxies) {
+export async function fetchYahooFinance(cleanSymbol: string, params: string): Promise<Response> {
+  const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${cleanSymbol}?${params}`;
+  
+  // Detect Capacitor / Native mobile app environment
+  const isCapacitor = typeof window !== 'undefined' && (window as any).Capacitor;
+  
+  if (isCapacitor) {
     try {
-      const proxyUrl = getProxyUrl(targetUrl);
-      const response = await fetch(proxyUrl, options);
-      if (response.ok) {
-        return response;
-      }
-      throw new Error(`Proxy status: ${response.status} ${response.statusText}`);
-    } catch (err: any) {
-      lastError = err;
-      console.warn(`CORS proxy failed for: ${targetUrl} via ${getProxyUrl(targetUrl)}. Error:`, err);
+      // Native apps can fetch directly without CORS issues
+      const response = await fetch(targetUrl);
+      if (response.ok) return response;
+    } catch (err) {
+      console.warn("Direct fetch failed on native app, falling back to proxy...", err);
     }
   }
 
-  throw lastError || new Error(`Failed to fetch ${targetUrl} after trying all proxies`);
+  // Web environment: use local/hosted API proxy routes
+  // /api/yahoo-chart is proxied by Vite (dev) and Vercel (production)
+  const proxyPath = `/api/yahoo-chart/${cleanSymbol}?${params}`;
+  
+  try {
+    const response = await fetch(proxyPath);
+    if (response.ok) return response;
+    throw new Error(`Proxy path returned status ${response.status}`);
+  } catch (err) {
+    console.warn(`Local API proxy failed for ${cleanSymbol}, trying public proxies...`, err);
+  }
+
+  // Public proxy fallbacks (just in case they host elsewhere)
+  const publicProxies = [
+    (url: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  ];
+
+  let lastError: Error | null = null;
+  for (const getProxyUrl of publicProxies) {
+    try {
+      const proxyUrl = getProxyUrl(targetUrl);
+      const response = await fetch(proxyUrl);
+      if (response.ok) return response;
+      throw new Error(`Public proxy status: ${response.status}`);
+    } catch (e: any) {
+      lastError = e;
+      console.warn(`Public CORS proxy failed for ${targetUrl} via ${proxyUrl}:`, e);
+    }
+  }
+
+  throw lastError || new Error(`Failed to fetch Yahoo Finance data for ${cleanSymbol}`);
 }
