@@ -15,6 +15,7 @@ interface DebtManagementProps {
   onDeleteDebt: (id: string) => void;
   onBack: () => void;
   onAddTransaction: (t: any) => void;
+  isMobile?: boolean;
 }
 
 export interface InstallmentMeta {
@@ -48,7 +49,7 @@ export const buildDebtTitle = (name: string, installment: InstallmentMeta | null
 };
 
 const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
-  debts, wallets, onAddDebt, onUpdateDebt, onDeleteDebt, onBack, onAddTransaction
+  debts, wallets, onAddDebt, onUpdateDebt, onDeleteDebt, onBack, onAddTransaction, isMobile = false
 }) => {
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'HISTORY'>('ACTIVE');
   const [filterMode, setFilterMode] = useState<'ALL' | 'CICILAN' | 'PIUTANG' | 'HUTANG'>('ALL');
@@ -204,16 +205,18 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
           walletId: formData.walletId 
         };
         onAddDebt(newDebt);
-        onAddTransaction({ 
-          amount: newDebt.amount, 
-          type: newDebt.type, 
-          category: 'Loan', 
-          description: isInstallmentMode 
-            ? `Kredit Cicilan: ${installmentItem || 'Barang'} - ${formData.title}` 
-            : `Position: ${newDebt.title}`, 
-          date: new Date().toISOString(), 
-          walletId: newDebt.walletId 
-        });
+        // Hutang pribadi: catat transaksi pengeluaran/pemasukan dari saldo dompet.
+        // Cicilan kartu kredit: TIDAK memotong saldo dompet pribadi saat awal!
+        if (!isInstallmentMode) {
+          onAddTransaction({ 
+            amount: newDebt.amount, 
+            type: newDebt.type, 
+            category: 'Loan', 
+            description: `Position: ${newDebt.title}`, 
+            date: new Date().toISOString(), 
+            walletId: newDebt.walletId 
+          });
+        }
       }
       setShowAddForm(false);
     }, 1200);
@@ -313,7 +316,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
         </div>
       </header>
 
-      <div className="px-6 pt-52 space-y-8">
+      <div className={`px-4 md:px-8 pt-52 space-y-8 ${isMobile ? 'max-w-md mx-auto' : 'max-w-5xl mx-auto'}`}>
         <section className="rounded-[32px] p-8 bg-card border border-border/50 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16" />
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-2 relative z-10">{t('debt.net_debt_position')}</p>
@@ -332,7 +335,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
           </div>
         </section>
 
-        <div className="space-y-4">
+        <div className={isMobile ? 'space-y-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}>
           {debts
             .filter(d => activeTab === 'ACTIVE' ? !d.isPaid : d.isPaid)
             .filter(d => {
@@ -641,14 +644,18 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-card rounded-xl p-4 border border-border/50 flex flex-col gap-1 focus-within:border-primary/40 transition-all">
-                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Due Date</span>
+                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
+                      {isInstallmentMode ? 'Jatuh Tempo Bulanan' : 'Due Date'}
+                    </span>
                     <div className="flex items-center gap-3">
                       <Calendar className="w-3.5 h-3.5 text-muted-foreground/40" />
                       <input type="date" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} className="bg-transparent border-none outline-none text-[13px] font-bold text-foreground [color-scheme:dark] w-full" />
                     </div>
                   </div>
                   <div className="bg-card rounded-xl p-4 border border-border/50 flex flex-col gap-1 focus-within:border-primary/40 transition-all">
-                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Account</span>
+                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
+                      {isInstallmentMode ? 'Dompet Penampung' : 'Sumber Dompet'}
+                    </span>
                     <div className="flex items-center gap-3">
                       <WalletIcon className="w-3.5 h-3.5 text-muted-foreground/40" />
                       <select value={formData.walletId} onChange={e => setFormData({ ...formData, walletId: e.target.value })} className="bg-transparent border-none outline-none text-[13px] font-bold text-foreground appearance-none w-full">
@@ -657,6 +664,15 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                     </div>
                   </div>
                 </div>
+
+                {isInstallmentMode && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5">
+                    <span className="text-base leading-none">💳</span>
+                    <p className="text-[10px] text-amber-200/90 leading-relaxed font-medium">
+                      <strong>Sumber: Kartu Kredit</strong>. Saldo dompet Anda saat ini <strong>tidak akan terpotong</strong>. Saat orang membayar angsuran bulanan, uang akan otomatis masuk ke dompet penampung yang Anda pilih.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

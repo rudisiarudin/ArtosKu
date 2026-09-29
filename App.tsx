@@ -529,6 +529,7 @@ const App: React.FC = () => {
           <DebtManagement
             debts={debts}
             wallets={wallets}
+            isMobile={isMobile}
             onAddDebt={async (d) => {
               if (!session?.user) return;
               try {
