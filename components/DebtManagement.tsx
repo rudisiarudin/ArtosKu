@@ -241,16 +241,8 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
       isPaid
     });
 
-    onAddTransaction({
-      amount: payAmount,
-      type: debt.type === TransactionType.DEBT ? TransactionType.EXPENSE : TransactionType.INCOME,
-      category: 'Loan',
-      description: `Cicilan (${nextPaidTenor}/${installment.totalTenor}): ${installment.item || 'Barang'} - ${name}`,
-      date: new Date().toISOString(),
-      walletId: debt.walletId
-    });
-
-    vibrate(15);
+    // Cicilan kartu kredit mandiri: tidak menyentuh dompet kas sama sekali.
+    vibrate(20);
   };
 
   const handlePaymentConfirm = (amount: number) => {
@@ -577,12 +569,12 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                 </button>
               </div>
 
-              {/* Big Amount Input */}
-              <div className="mb-6 text-center">
-                <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+              {/* Big Amount Card */}
+              <div className="mb-5 p-4 rounded-2xl bg-zinc-900/60 border border-white/[0.08] text-center max-w-sm mx-auto">
+                <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
                   {isInstallmentMode ? 'Total Harga Barang / Tagihan KK' : 'Nominal Pinjaman'}
                 </p>
-                <div className="inline-flex items-baseline gap-1.5">
+                <div className="inline-flex items-baseline justify-center gap-1.5">
                   <span className="text-base font-bold text-zinc-500">Rp</span>
                   <input 
                     type="text" 
@@ -607,7 +599,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
               </div>
 
               {!isInstallmentMode ? (
-                <div className="flex bg-zinc-900 p-1 rounded-xl w-full max-w-xs mx-auto mb-6 border border-white/[0.08]">
+                <div className="flex bg-zinc-900 p-1 rounded-xl w-full max-w-xs mx-auto mb-5 border border-white/[0.08]">
                   <button 
                     type="button"
                     onClick={() => setFormData(d => ({ ...d, type: TransactionType.DEBT }))} 
@@ -632,46 +624,50 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                   </button>
                 </div>
               ) : (
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 mb-6 flex items-start gap-2.5">
-                  <span className="text-base leading-none">💳</span>
-                  <p className="text-[11px] text-emerald-200/90 leading-relaxed font-medium">
-                    <strong>Sumber: Kartu Kredit Anda</strong>. Saldo dompet Anda saat ini <strong>tidak akan terpotong</strong>. Saat debitur membayar tiap bulan, uang angsuran akan masuk ke dompet penampung Anda.
-                  </p>
+                <div className="p-3.5 rounded-xl bg-zinc-900/90 border border-white/[0.08] mb-5 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <CreditCard className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-bold text-white mb-0.5">Catatan Mandiri Kartu Kredit</h5>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed font-medium">
+                      Pencatatan ini mandiri khusus kartu kredit. <strong>Tidak ada dompet kas yang terpotong atau terhubung</strong>.
+                    </p>
+                  </div>
                 </div>
               )}
 
               {/* Form Fields */}
-              <div className="space-y-3.5">
-                <div className="flex gap-2.5">
-                  <div className="flex-1 bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                    <span className="text-[10px] font-semibold text-zinc-400">
-                      {isInstallmentMode ? 'Nama Debitur / Yang Mencicil' : 'Nama Pihak Kedua'}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-zinc-500 flex-shrink-0" />
-                      <input 
-                        type="text" 
-                        value={formData.title} 
-                        onChange={e => setFormData({ ...formData, title: e.target.value })} 
-                        placeholder={isInstallmentMode ? "Contoh: Budi Santoso" : "Nama teman / relasi"} 
-                        className="bg-transparent border-none outline-none text-xs font-semibold text-white placeholder:text-zinc-600 w-full" 
-                      />
-                    </div>
+              <div className="space-y-3">
+                <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                  <span className="text-[10px] font-semibold text-zinc-400">
+                    {isInstallmentMode ? 'Nama Debitur / Yang Mencicil' : 'Nama Pihak Kedua'}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+                    <input 
+                      type="text" 
+                      value={formData.title} 
+                      onChange={e => setFormData({ ...formData, title: e.target.value })} 
+                      placeholder={isInstallmentMode ? "Contoh: Budi Santoso" : "Nama teman / relasi"} 
+                      className="bg-transparent border-none outline-none text-xs font-semibold text-white placeholder:text-zinc-600 w-full" 
+                    />
+                    <button 
+                      type="button" 
+                      onClick={pickContact} 
+                      className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-emerald-400 text-[10px] font-semibold flex items-center gap-1 active:scale-95 transition-all cursor-pointer flex-shrink-0"
+                      title="Pilih dari Kontak"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>Kontak</span>
+                    </button>
                   </div>
-                  <button 
-                    type="button" 
-                    onClick={pickContact} 
-                    className="w-11 rounded-xl bg-zinc-900 border border-white/[0.08] flex items-center justify-center text-emerald-400 hover:text-emerald-300 active:scale-95 transition-all cursor-pointer flex-shrink-0"
-                    title="Pilih dari Kontak"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
                 </div>
 
                 {isInstallmentMode && (
                   <>
                     <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                      <span className="text-[10px] font-semibold text-emerald-400">
+                      <span className="text-[10px] font-semibold text-zinc-400">
                         Nama Barang / Keperluan Cicilan
                       </span>
                       <input 
@@ -684,14 +680,9 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                     </div>
 
                     <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-semibold text-zinc-400">
-                          Pilihan Tenor Pembayaran
-                        </span>
-                        <span className="text-xs font-bold text-emerald-400">
-                          {installmentTenor} Bulan
-                        </span>
-                      </div>
+                      <span className="text-[10px] font-semibold text-zinc-400">
+                        Pilihan Tenor Pembayaran
+                      </span>
                       <div className="flex gap-1.5">
                         {['3', '6', '12', '24'].map((t) => (
                           <button
@@ -736,43 +727,53 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                   </>
                 )}
 
-                <div className="grid grid-cols-2 gap-2.5">
+                {isInstallmentMode ? (
                   <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
                     <span className="text-[10px] font-semibold text-zinc-400">
-                      {isInstallmentMode ? 'Jatuh Tempo Tiap Bln' : 'Jatuh Tempo'}
+                      Jatuh Tempo Pembayaran Tiap Bulan
                     </span>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-3.5 h-3.5 text-zinc-500" />
+                    <input 
+                      type="date" 
+                      value={formData.dueDate} 
+                      onChange={e => setFormData({ ...formData, dueDate: e.target.value })} 
+                      className="bg-transparent border-none outline-none text-xs font-semibold text-white [color-scheme:dark] w-full cursor-pointer py-1" 
+                    />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                      <span className="text-[10px] font-semibold text-zinc-400">
+                        Jatuh Tempo
+                      </span>
                       <input 
                         type="date" 
                         value={formData.dueDate} 
                         onChange={e => setFormData({ ...formData, dueDate: e.target.value })} 
-                        className="bg-transparent border-none outline-none text-xs font-semibold text-white [color-scheme:dark] w-full" 
+                        className="bg-transparent border-none outline-none text-xs font-semibold text-white [color-scheme:dark] w-full cursor-pointer py-1" 
                       />
                     </div>
-                  </div>
-
-                  <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                    <span className="text-[10px] font-semibold text-zinc-400">
-                      {isInstallmentMode ? 'Dompet Penampung' : 'Sumber Dompet'}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <WalletIcon className="w-3.5 h-3.5 text-zinc-500" />
-                      <select 
-                        value={formData.walletId} 
-                        onChange={e => setFormData({ ...formData, walletId: e.target.value })} 
-                        className="bg-transparent border-none outline-none text-xs font-semibold text-white appearance-none w-full cursor-pointer"
-                      >
-                        {wallets.map(w => <option key={w.id} value={w.id} className="bg-zinc-900 text-white">{w.name}</option>)}
-                      </select>
+                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                      <span className="text-[10px] font-semibold text-zinc-400">
+                        Sumber Dompet Kas
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <WalletIcon className="w-3.5 h-3.5 text-zinc-500" />
+                        <select 
+                          value={formData.walletId} 
+                          onChange={e => setFormData({ ...formData, walletId: e.target.value })} 
+                          className="bg-transparent border-none outline-none text-xs font-semibold text-white appearance-none w-full cursor-pointer"
+                        >
+                          {wallets.map(w => <option key={w.id} value={w.id} className="bg-zinc-900 text-white">{w.name}</option>)}
+                        </select>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
             {/* Bottom Sheet CTA Button */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#0e121b]/95 backdrop-blur-md border-t border-white/[0.08]">
+            <div className="absolute bottom-0 left-0 right-0 px-6 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom,16px))] bg-[#0e121b]/98 backdrop-blur-md border-t border-white/[0.08]">
               <button 
                 onClick={handleSubmit} 
                 type="button"
