@@ -26,7 +26,7 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
             className="fixed bottom-0 left-0 right-0 z-[100] w-full border-t border-white/[0.08] bg-[#090d16]/92 backdrop-blur-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.45)]"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-            <nav className="flex items-center justify-around h-[58px] max-w-md mx-auto px-1">
+            <nav className="flex items-center justify-around h-[50px] max-w-md mx-auto px-1">
                 {tabs.map((tab) => {
                     const isActive = activeTab === tab.id;
                     const Icon = tab.icon;
@@ -39,7 +39,7 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
                                 vibrate(10);
                             }}
                             type="button"
-                            className="relative flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all duration-200 active:scale-90 select-none cursor-pointer"
+                            className="relative flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-all duration-200 active:scale-90 select-none cursor-pointer"
                             aria-label={tab.label}
                         >
                             {/* Telegram-style Icon: outlined when inactive, filled + glow when active */}
@@ -48,12 +48,12 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
                                     isActive ? 'scale-105' : 'scale-100'
                                 }`}
                                 style={{
-                                    filter: isActive ? 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.45))' : 'none'
+                                    filter: isActive ? 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.45))' : 'none'
                                 }}
                             >
                                 <Icon
-                                    size={20}
-                                    strokeWidth={isActive ? 2.4 : 1.8}
+                                    size={18}
+                                    strokeWidth={isActive ? 2.3 : 1.7}
                                     fill={isActive ? 'currentColor' : 'none'}
                                     className={`transition-colors duration-200 ${
                                         isActive ? 'text-emerald-400' : 'text-zinc-500 hover:text-zinc-400'
@@ -63,7 +63,7 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
 
                             {/* Telegram-style Label: clean, compact, sans-serif */}
                             <span
-                                className={`text-[10px] tracking-tight transition-all duration-200 leading-none ${
+                                className={`text-[9px] tracking-tight transition-all duration-200 leading-none ${
                                     isActive 
                                         ? 'font-bold text-emerald-400' 
                                         : 'font-medium text-zinc-500'

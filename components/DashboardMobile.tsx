@@ -243,60 +243,60 @@ const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
         </div>
       </header>
 
-      <main className="px-5 space-y-6 pt-6 pb-24">
+      <main className="px-4 space-y-4 pt-3 pb-24">
         <section>
-          <Card className="border-none bg-gradient-to-br from-card via-card to-muted/30 shadow-2xl rounded-[32px] overflow-hidden relative group">
+          <Card className="border-none bg-gradient-to-br from-card via-card to-muted/30 shadow-xl rounded-2xl overflow-hidden relative group">
             {/* ELITE MESH GLOWS */}
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-emerald-500/5 blur-[80px] rounded-full pointer-events-none" />
             
             {/* MONEY ICON WATERMARK */}
             <div className="absolute left-[-10%] top-[-10%] opacity-[0.03] pointer-events-none transform rotate-[15deg]">
-              <WalletIcon className="w-64 h-64 text-foreground" />
+              <WalletIcon className="w-48 h-48 text-foreground" />
             </div>
             
-            <CardContent className="p-8 relative">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em]">Net Worth Value</span>
-                <Badge variant="outline" className="text-[9px] font-semibold px-2 py-0.5 h-auto text-muted-foreground rounded-full" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+            <CardContent className="p-5 relative">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.1em]">Total Saldo Bersih</span>
+                <Badge variant="outline" className="text-[8px] font-semibold px-2 py-0.5 h-auto text-muted-foreground rounded-full" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                   REALTIME
                 </Badge>
               </div>
 
-              <div className="flex items-baseline gap-2 mb-8 mt-2">
-                <span className="text-[16px] font-semibold text-muted-foreground">IDR</span>
-                <h1 className="text-[36px] font-bold tabular-nums text-foreground tracking-tight">
+              <div className="flex items-baseline gap-1.5 mb-4 mt-1">
+                <span className="text-[13px] font-semibold text-muted-foreground">IDR</span>
+                <h1 className="text-[26px] font-bold tabular-nums text-foreground tracking-tight">
                   {hideBalance ? '••••••••' : formatIDR(animatedBalance)}
                 </h1>
-                <Button variant="ghost" size="icon" onClick={() => setHideBalance(!hideBalance)} className="h-6 w-6 text-muted-foreground ml-2 hover:bg-transparent">
-                  {hideBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                <Button variant="ghost" size="icon" onClick={() => setHideBalance(!hideBalance)} className="h-5 w-5 text-muted-foreground ml-1.5 hover:bg-transparent">
+                  {hideBalance ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </Button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-5 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-                <div className="space-y-2.5">
-                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-50">
+              <div className="grid grid-cols-2 gap-3 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+                <div className="space-y-1">
+                  <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-50">
                     {summaryFilter === 'TODAY' ? 'Daily' : summaryFilter === 'WEEKLY' ? 'Weekly' : 'Monthly'} Inflow
                   </p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[14px] font-bold text-foreground tabular-nums tracking-tighter">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[13px] font-bold text-foreground tabular-nums tracking-tighter">
                       {formatIDR(metrics.inc)}
                     </span>
-                    <div className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight bg-[#EF4444]/20 text-[#EF4444]`}>
+                    <div className={`px-1.5 py-0.2 rounded-full text-[8px] font-bold tracking-tight bg-[#EF4444]/20 text-[#EF4444]`}>
                       {metrics.incPct >= 0 ? '+' : '-'}{Math.abs(metrics.incPct).toFixed(1)}%
                     </div>
                   </div>
                 </div>
-                <div className="space-y-2.5">
-                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-50">
+                <div className="space-y-1">
+                  <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-50">
                     {summaryFilter === 'TODAY' ? 'Daily' : summaryFilter === 'WEEKLY' ? 'Weekly' : 'Monthly'} Outflow
                   </p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[14px] font-bold text-foreground tabular-nums tracking-tighter">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[13px] font-bold text-foreground tabular-nums tracking-tighter">
                       {formatIDR(metrics.exp)}
                     </span>
-                    <div className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight bg-[#EF4444]/20 text-[#EF4444]`}>
-                      {metrics.expPct > 0 ? '+' : '-'}{Math.abs(metrics.expPct).toFixed(1)}%
+                    <div className={`px-1.5 py-0.2 rounded-full text-[8px] font-bold tracking-tight bg-[#10B981]/20 text-[#10B981]`}>
+                      {metrics.expPct >= 0 ? '+' : '-'}{Math.abs(metrics.expPct).toFixed(1)}%
                     </div>
                   </div>
                 </div>

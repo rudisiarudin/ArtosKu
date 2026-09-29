@@ -263,26 +263,26 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground pb-32 animate-in fade-in duration-500 overflow-x-hidden">
-      <header className="fixed top-0 left-0 right-0 z-[100] px-6 pt-[calc(2rem+env(safe-area-inset-top))] pb-4 bg-background/95 backdrop-blur-sm border-b border-border/50">
-        <div className="flex items-center justify-between mb-6">
-          <button onClick={onBack} className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center text-foreground active:scale-90 transition-all border border-border">
-            <ArrowLeft className="w-5 h-5" />
+    <div className="flex flex-col min-h-screen bg-background text-foreground pb-24 animate-in fade-in duration-500 overflow-x-hidden">
+      <header className="fixed top-0 left-0 right-0 z-[100] px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2.5 bg-background/95 backdrop-blur-md border-b border-border/50">
+        <div className="flex items-center justify-between mb-2.5 max-w-5xl mx-auto">
+          <button onClick={onBack} className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center text-foreground active:scale-90 transition-all border border-border">
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t('debt.performance')}</h2>
-          <button onClick={handleOpenAddForm} className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm active:scale-95 transition-all">
-            <Plus className="w-5 h-5" />
+          <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{t('debt.performance')}</h2>
+          <button onClick={() => handleOpenAddForm(false)} className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm active:scale-95 transition-all">
+            <Plus className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex flex-col items-center gap-2.5">
-          <div className="bg-card p-1.5 rounded-[20px] flex items-center gap-1 border border-border/50 shadow-sm">
+        <div className="flex flex-col items-center gap-1.5 max-w-5xl mx-auto">
+          <div className="bg-card p-1 rounded-xl flex items-center gap-1 border border-border/50 shadow-sm">
             {['ACTIVE', 'HISTORY'].map((tab) => (
               <button 
                 key={tab} 
                 onClick={() => setActiveTab(tab as any)} 
-                className={`px-6 py-2 rounded-[16px] text-[10px] font-bold uppercase tracking-wider transition-all ${
+                className={`px-4 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all ${
                   activeTab === tab 
-                    ? 'bg-primary text-primary-foreground shadow-md' 
+                    ? 'bg-primary text-primary-foreground shadow-sm' 
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -292,7 +292,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
           </div>
 
           {activeTab === 'ACTIVE' && (
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
               {[
                 { id: 'ALL', label: 'Semua' },
                 { id: 'CICILAN', label: '📦 Cicilan' },
@@ -302,7 +302,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                 <button
                   key={f.id}
                   onClick={() => setFilterMode(f.id as any)}
-                  className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-tight transition-all select-none ${
+                  className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight transition-all select-none ${
                     filterMode === f.id
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm'
                       : 'bg-muted/40 text-muted-foreground border border-border/40 hover:text-foreground'
@@ -316,26 +316,26 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
         </div>
       </header>
 
-      <div className={`px-4 md:px-8 pt-52 space-y-8 ${isMobile ? 'max-w-md mx-auto' : 'max-w-5xl mx-auto'}`}>
-        <section className="rounded-[32px] p-8 bg-card border border-border/50 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16" />
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-2 relative z-10">{t('debt.net_debt_position')}</p>
-          <h1 className={`text-4xl font-black tracking-tighter tabular-nums relative z-10 ${totals.netValue >= 0 ? 'text-primary' : 'text-destructive'}`}>
+      <div className={`px-4 pt-36 space-y-4 ${isMobile ? 'max-w-md mx-auto' : 'max-w-5xl mx-auto'}`}>
+        <section className="rounded-2xl p-5 bg-card border border-border/50 shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-2xl -mr-12 -mt-12" />
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-1 relative z-10">{t('debt.net_debt_position')}</p>
+          <h1 className={`text-2xl md:text-3xl font-black tracking-tight tabular-nums relative z-10 ${totals.netValue >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {totals.netValue >= 0 ? '+' : ''}Rp{formatIDR(Math.abs(totals.netValue))}
           </h1>
-          <div className="grid grid-cols-2 gap-6 mt-8 pt-8 border-t border-border/50 relative z-10">
+          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border/50 relative z-10">
             <div>
-              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{t('debt.total_debt')}</p>
-              <p className="text-[15px] font-bold text-foreground">Rp{formatIDR(totals.hutang)}</p>
+              <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">{t('debt.total_debt')}</p>
+              <p className="text-[13px] font-bold text-foreground">Rp{formatIDR(totals.hutang)}</p>
             </div>
             <div className="text-right">
-              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{t('debt.receivable')}</p>
-              <p className="text-[15px] font-bold text-foreground">Rp{formatIDR(totals.piutang)}</p>
+              <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">{t('debt.receivable')}</p>
+              <p className="text-[13px] font-bold text-foreground">Rp{formatIDR(totals.piutang)}</p>
             </div>
           </div>
         </section>
 
-        <div className={isMobile ? 'space-y-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}>
+        <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 md:grid-cols-2 gap-3'}>
           {debts
             .filter(d => activeTab === 'ACTIVE' ? !d.isPaid : d.isPaid)
             .filter(d => {
@@ -354,10 +354,10 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                 : 0;
 
               return (
-                <div key={debt.id} className="p-5 rounded-[28px] border border-border/50 bg-card hover:border-primary/20 transition-all shadow-sm">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border flex-shrink-0 ${
+                <div key={debt.id} className="p-4 rounded-xl border border-border/50 bg-card hover:border-primary/20 transition-all shadow-sm">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center border flex-shrink-0 ${
                         installment 
                           ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                           : (!debt.isPaid && new Date(debt.dueDate) < new Date() 
@@ -365,87 +365,87 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                               : 'bg-muted/50 text-muted-foreground border-border')
                       }`}>
                         {installment ? (
-                          <span className="text-xl">📦</span>
+                          <span className="text-base">📦</span>
                         ) : (
-                          <User className="w-6 h-6" />
+                          <User className="w-4 h-4" />
                         )}
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-[14px] font-bold text-foreground truncate uppercase tracking-tight">{name}</h4>
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="text-[13px] font-bold text-foreground truncate uppercase tracking-tight">{name}</h4>
                           {installment && (
-                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                               Cicilan
                             </span>
                           )}
                         </div>
                         {installment ? (
-                          <p className="text-[11px] font-medium text-emerald-400/90 truncate mt-0.5">
+                          <p className="text-[10px] font-medium text-emerald-400/90 truncate">
                             {installment.item || 'Barang / Kredit'}
                           </p>
                         ) : (
-                          <div className="flex items-center gap-1.5 opacity-60 mt-0.5">
-                            <Calendar className="w-3 h-3" />
-                            <p className="text-[10px] font-bold uppercase tracking-widest">
+                          <div className="flex items-center gap-1 opacity-60">
+                            <Calendar className="w-2.5 h-2.5" />
+                            <p className="text-[9px] font-bold uppercase tracking-widest">
                               {new Date(debt.dueDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                             </p>
                           </div>
                         )}
                       </div>
                     </div>
-                    <button onClick={() => handleOpenEditForm(debt)} className="text-muted-foreground/30 p-2 hover:text-foreground transition-colors flex-shrink-0">
-                      <MoreVertical className="w-5 h-5" />
+                    <button onClick={() => handleOpenEditForm(debt)} className="text-muted-foreground/30 p-1 hover:text-foreground transition-colors flex-shrink-0">
+                      <MoreVertical className="w-4 h-4" />
                     </button>
                   </div>
 
                   {/* Cicilan Progress Bar */}
                   {installment && (
-                    <div className="mb-4 p-3 rounded-2xl bg-zinc-900/60 border border-white/[0.04]">
-                      <div className="flex justify-between items-center text-[10px] font-bold mb-1.5">
+                    <div className="mb-3 p-2.5 rounded-xl bg-zinc-900/60 border border-white/[0.04]">
+                      <div className="flex justify-between items-center text-[9px] font-bold mb-1">
                         <span className="text-muted-foreground">
-                          Angsuran: {installment.paidTenor} dari {installment.totalTenor} bulan
+                          Angsuran: {installment.paidTenor}/{installment.totalTenor} bln
                         </span>
                         <span className="text-emerald-400 font-mono">{progressPct}%</span>
                       </div>
-                      <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden border border-white/5">
+                      <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden border border-white/5">
                         <div 
                           className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
                           style={{ width: `${progressPct}%` }}
                         />
                       </div>
-                      <div className="flex justify-between items-center text-[9px] text-muted-foreground mt-2">
-                        <span>Tagihan/bln: <strong className="text-foreground">Rp{formatIDR(installment.monthlyAmount)}</strong></span>
-                        <span>Sisa: <strong className="text-foreground">{Math.max(0, installment.totalTenor - installment.paidTenor)} bln lagi</strong></span>
+                      <div className="flex justify-between items-center text-[8px] text-muted-foreground mt-1.5">
+                        <span>Tagihan: <strong className="text-foreground">Rp{formatIDR(installment.monthlyAmount)}/bln</strong></span>
+                        <span>Sisa: <strong className="text-foreground">{Math.max(0, installment.totalTenor - installment.paidTenor)} bln</strong></span>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex items-end justify-between pt-3 border-t border-border/50">
+                  <div className="flex items-end justify-between pt-2.5 border-t border-border/50">
                     <div>
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em] mb-1">
+                      <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.15em] mb-0.5">
                         {debt.type === TransactionType.DEBT ? 'Sisa Hutang' : 'Sisa Piutang'}
                       </p>
-                      <p className="text-[17px] font-bold tabular-nums text-foreground tracking-tight">
+                      <p className="text-[14px] font-bold tabular-nums text-foreground tracking-tight">
                         Rp{formatIDR(debt.amount)}
                       </p>
                     </div>
 
                     {!debt.isPaid && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         {installment ? (
                           <button 
                             onClick={() => handlePayInstallment(debt, installment)} 
-                            className="h-9 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[11px] font-bold uppercase tracking-wider active:scale-95 transition-all shadow-lg shadow-emerald-500/25 flex items-center gap-1.5 cursor-pointer"
+                            className="h-8 px-3 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-bold uppercase tracking-wider active:scale-95 transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1 cursor-pointer"
                           >
-                            <span>Bayar Angsuran</span>
+                            <span>Bayar</span>
                           </button>
                         ) : null}
                         <button 
                           onClick={() => setSelectedDebtForPayment(debt)} 
-                          className={`h-9 px-3.5 rounded-xl border text-[11px] font-bold uppercase tracking-wider active:scale-95 transition-all ${
+                          className={`h-8 px-2.5 rounded-lg border text-[10px] font-bold uppercase tracking-wider active:scale-95 transition-all ${
                             installment 
                               ? 'bg-muted/40 border-border text-muted-foreground hover:text-foreground'
-                              : 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
+                              : 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
                           }`}
                         >
                           {installment ? 'Lunas' : 'Settle'}
