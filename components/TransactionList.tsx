@@ -74,47 +74,47 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
   , [groupedTransactions]);
 
   return (
-    <div className="flex flex-col min-h-screen pb-36 bg-background animate-in fade-in duration-500">
-      <header className="sticky top-0 left-0 right-0 z-50 px-6 pt-[calc(1.5rem+env(safe-area-inset-top,24px))] pb-4 bg-background/95 backdrop-blur-sm border-b border-border/50">
+    <div className="flex flex-col min-h-screen pb-28 bg-[#09090b] text-foreground animate-in fade-in duration-300 font-sans">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-40 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.06] px-4 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] pb-3">
         <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="space-y-0.5">
-            <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{t('history.ledger')}</p>
-            <h2 className="text-[20px] font-bold text-foreground tracking-tight">{t('history.title')}</h2>
+            <h2 className="text-sm font-bold text-white tracking-tight">Riwayat Transaksi</h2>
+            <p className="text-[10px] text-zinc-500 font-medium">Log Arus Kas Keuangan</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-primary shadow-sm">
-            <List className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-emerald-400">
+            <List className="w-4 h-4" />
           </div>
         </div>
       </header>
 
-      <div className="px-5 space-y-4 pt-6 mb-4">
-        <div className="relative group max-w-md mx-auto w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/50" />
+      <div className="px-4 space-y-3 pt-3 mb-2 max-w-md mx-auto w-full">
+        <div className="relative group w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
           <input
             type="text"
-            placeholder={t('history.search_placeholder')}
-            className="w-full h-10 pl-9 pr-4 bg-muted/40 rounded-xl border border-border/50 outline-none text-[13px] font-medium text-foreground placeholder:text-muted-foreground/40 focus:bg-muted/60 focus:border-primary/30 transition-all"
+            placeholder={t('history.search_placeholder') || "Cari transaksi atau kategori..."}
+            className="w-full h-10 pl-9 pr-4 bg-zinc-900/90 rounded-xl border border-white/[0.08] outline-none text-xs font-semibold text-white placeholder:text-zinc-600 focus:border-emerald-500/50 transition-all"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-5 px-5 py-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           {[
-            { id: 'ALL', label: t('history.filter_all') },
-            { id: 'INCOME', label: t('history.filter_income') },
-            { id: 'EXPENSE', label: t('history.filter_expense') },
-            { id: 'DEBT', label: t('history.filter_liabilities') }
+            { id: 'ALL', label: t('history.filter_all') || 'Semua' },
+            { id: 'INCOME', label: t('history.filter_income') || 'Pemasukan' },
+            { id: 'EXPENSE', label: t('history.filter_expense') || 'Pengeluaran' },
+            { id: 'DEBT', label: t('history.filter_liabilities') || 'Hutang' }
           ].map((type) => (
             <button
               key={type.id}
               onClick={() => setFilterType(type.id as any)}
-              className={`whitespace-nowrap px-4 py-1.5 rounded-xl text-[11px] font-bold transition-all duration-300 border ${
+              type="button"
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 filterType === type.id 
-                  ? (type.id === 'EXPENSE' || type.id === 'DEBT')
-                    ? 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]/30'
-                    : 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
-                  : 'bg-muted/20 border-border/20 text-muted-foreground hover:text-foreground'
+                  ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20'
+                  : 'bg-zinc-900 text-zinc-400 border border-white/[0.08] hover:text-white'
               }`}
             >
               {type.label}
@@ -123,7 +123,7 @@ const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactio
         </div>
       </div>
 
-      <div className="flex-1 px-5 space-y-8 mt-4">
+      <div className="flex-1 px-4 space-y-6 mt-3 max-w-md mx-auto w-full">
         {sortedDates.map(date => (
           <div key={date} className="space-y-4">
             <div className="flex items-center justify-between px-1">

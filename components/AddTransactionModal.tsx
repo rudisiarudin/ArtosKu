@@ -164,100 +164,106 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
         </div>
       )}
 
-      <div className="relative w-full max-w-lg bg-background rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col max-h-[96vh] animate-modal-slide border border-border overflow-hidden">
+      <div className="relative w-full max-w-lg bg-[#0e121b] text-white rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col max-h-[96vh] animate-modal-slide border border-white/[0.08] overflow-hidden">
         
-        <div className="w-10 h-1 bg-muted rounded-full mx-auto mt-4 mb-2" />
+        <div className="w-10 h-1 bg-zinc-700/80 rounded-full mx-auto mt-3 mb-1" />
 
-        <div className="flex-1 overflow-y-auto no-scrollbar px-6 pb-40">
+        <div className="flex-1 overflow-y-auto no-scrollbar px-6 pb-28">
           
-          <div className="flex items-center justify-between py-6 mb-2">
+          <div className="flex items-center justify-between py-4 mb-2">
             <div>
-              <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-0.5">New Entry</p>
-              <h2 className="text-xl font-black text-foreground tracking-tight">Record Transaction</h2>
+              <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-0.5">Transaksi Baru</p>
+              <h2 className="text-lg font-bold text-white tracking-tight">Catat Transaksi</h2>
             </div>
-            <button onClick={onClose} className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center text-foreground active:scale-90 transition-all border border-border">
-              <X className="w-5 h-5" />
+            <button 
+              onClick={onClose} 
+              type="button"
+              className="w-8 h-8 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white active:scale-90 transition-all cursor-pointer"
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="mb-8">
-            <div className={`relative flex items-center gap-4 bg-zinc-900 rounded-[24px] px-5 py-4 transition-all duration-500 ${isAiLoading ? 'ring-2 ring-primary/40' : 'focus-within:ring-2 focus-within:ring-primary/20'}`}>
-              <div className="flex-1 flex items-center gap-3">
-                <Sparkles className={`w-5 h-5 ${isAiLoading ? 'animate-pulse text-primary' : 'text-primary/40'}`} />
+          {/* AI Smart Fill Bar */}
+          <div className="mb-5">
+            <div className={`relative flex items-center gap-3 bg-zinc-900/90 rounded-2xl px-4 py-3 border border-white/[0.08] transition-all duration-300 ${isAiLoading ? 'ring-2 ring-emerald-500/40' : 'focus-within:border-emerald-500/50'}`}>
+              <div className="flex-1 flex items-center gap-2.5">
+                <Sparkles className={`w-4 h-4 ${isAiLoading ? 'animate-pulse text-emerald-400' : 'text-emerald-400/60'}`} />
                 <input 
                   ref={aiInputRef}
                   type="text"
                   value={aiInput}
                   onChange={(e) => setAiInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleAiSmartFill()}
-                  placeholder="Smart Fill: 'Kopi 25rb'..."
-                  className="w-full bg-transparent border-none outline-none text-[15px] font-bold text-foreground placeholder:text-muted-foreground/10"
+                  placeholder="Ketik cepat: 'Kopi 25rb' atau 'Gaji 10jt'..."
+                  className="w-full bg-transparent border-none outline-none text-xs font-semibold text-white placeholder:text-zinc-600"
                 />
               </div>
               <button 
                 onClick={handleAiSmartFill}
                 disabled={!aiInput.trim() || isAiLoading}
-                className={`size-10 rounded-xl flex items-center justify-center transition-all ${
-                  aiInput.trim() ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-white/5 text-white/10'
+                type="button"
+                className={`h-8 px-3 rounded-xl flex items-center gap-1 text-[11px] font-bold transition-all cursor-pointer ${
+                  aiInput.trim() ? 'bg-emerald-500 text-black shadow-md' : 'bg-white/5 text-zinc-600'
                 }`}
               >
-                {isAiLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
+                {isAiLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <span>Isi</span>}
               </button>
             </div>
             {aiFeedback && (
-              <div className="mt-4 px-5 py-4 bg-primary/5 rounded-2xl animate-in slide-in-from-top-2 duration-300">
-                <p className="text-[11px] font-bold text-primary/60 leading-relaxed italic uppercase tracking-tight">{aiFeedback}</p>
+              <div className="mt-2.5 px-4 py-2.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20 animate-in slide-in-from-top-2 duration-200">
+                <p className="text-[11px] font-medium text-emerald-300 leading-relaxed italic">{aiFeedback}</p>
               </div>
             )}
           </div>
 
-          <div className="mb-10 text-center">
-            <div className="flex flex-col items-center justify-center py-8 group relative overflow-hidden">
-              <div className="relative z-10 flex items-center justify-center w-full">
-                <input 
-                  type="text"
-                  inputMode="numeric"
-                  autoFocus
-                  value={formData.amount === '0' ? '' : formData.amount.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\./g, '');
-                    if (/^\d*$/.test(val)) {
-                      setFormData(prev => ({ ...prev, amount: val || '0' }));
-                      vibrate(5);
-                    }
-                  }}
-                  className={`bg-transparent border-none outline-none font-black tabular-nums text-center transition-all tracking-[-0.05em] leading-none ${
-                    formData.type === TransactionType.INCOME ? 'text-emerald-500' : 'text-foreground'
-                  }`}
-                  style={{ fontSize: 'clamp(48px, 15vw, 96px)', width: '100%', height: 'auto' }}
-                  placeholder="0"
-                />
-              </div>
-              <span className="text-[10px] font-black text-muted-foreground/20 uppercase tracking-[0.4em] mt-4">Total Amount</span>
-            </div>
-            
-            <div className="flex bg-zinc-900 p-1 rounded-2xl w-fit mx-auto shadow-inner relative">
-              <div 
-                className={`absolute inset-1 w-[calc(50%-4px)] rounded-xl transition-all duration-500 ease-out shadow-lg ${
-                  formData.type === TransactionType.EXPENSE ? 'translate-x-0 bg-rose-500' : 'translate-x-[calc(100%+8px)] bg-emerald-500'
+          {/* Type Toggle: Pengeluaran vs Pemasukan */}
+          <div className="flex bg-zinc-900 p-1 rounded-xl w-full max-w-xs mx-auto mb-4 border border-white/[0.08]">
+            <button 
+              type="button"
+              onClick={() => { setFormData(d => ({ ...d, type: TransactionType.EXPENSE })); vibrate(5); }}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                formData.type === TransactionType.EXPENSE ? 'bg-rose-500 text-white font-bold shadow-md shadow-rose-500/20' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Pengeluaran
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setFormData(d => ({ ...d, type: TransactionType.INCOME })); vibrate(5); }}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                formData.type === TransactionType.INCOME ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Pemasukan
+            </button>
+          </div>
+
+          {/* Clean Amount Card */}
+          <div className="mb-5 p-4 rounded-2xl bg-zinc-900/60 border border-white/[0.08] text-center max-w-sm mx-auto">
+            <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+              Nominal {formData.type === TransactionType.EXPENSE ? 'Pengeluaran' : 'Pemasukan'}
+            </p>
+            <div className="inline-flex items-baseline justify-center gap-1.5">
+              <span className="text-base font-bold text-zinc-500">Rp</span>
+              <input 
+                type="text"
+                inputMode="numeric"
+                autoFocus
+                value={formData.amount === '0' ? '' : formData.amount.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\./g, '');
+                  if (/^\d*$/.test(val)) {
+                    setFormData(prev => ({ ...prev, amount: val || '0' }));
+                    vibrate(5);
+                  }
+                }}
+                className={`bg-transparent border-none outline-none text-3xl font-extrabold tabular-nums text-center tracking-tight ${
+                  formData.type === TransactionType.INCOME ? 'text-emerald-400' : 'text-white'
                 }`}
+                placeholder="0"
+                style={{ width: `${Math.max(3, formData.amount.length + 0.5)}ch` }}
               />
-              <button 
-                onClick={() => { setFormData(d => ({ ...d, type: TransactionType.EXPENSE })); vibrate(5); }}
-                className={`relative z-10 px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.1em] transition-colors duration-300 ${
-                  formData.type === TransactionType.EXPENSE ? 'text-white' : 'text-muted-foreground/40'
-                }`}
-              >
-                Expense
-              </button>
-              <button 
-                onClick={() => { setFormData(d => ({ ...d, type: TransactionType.INCOME })); vibrate(5); }}
-                className={`relative z-10 px-8 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.1em] transition-colors duration-300 ${
-                  formData.type === TransactionType.INCOME ? 'text-white' : 'text-muted-foreground/40'
-                }`}
-              >
-                Income
-              </button>
             </div>
           </div>
 
@@ -318,26 +324,28 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1 focus-within:border-primary/40">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Memo</span>
-                <input type="text" value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} placeholder="..." className="bg-transparent border-none outline-none text-[13px] font-semibold text-foreground placeholder:text-muted-foreground/20" />
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="bg-zinc-900/80 border border-white/[0.08] rounded-xl p-3 flex flex-col gap-1 focus-within:border-emerald-500/40">
+                <span className="text-[10px] font-semibold text-zinc-400">Catatan</span>
+                <input type="text" value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} placeholder="Contoh: Makan siang..." className="bg-transparent border-none outline-none text-xs font-semibold text-white placeholder:text-zinc-600" />
               </div>
-              <div onClick={() => (dateInputRef.current as any)?.showPicker?.()} className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1 cursor-pointer active:scale-95 transition-all">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Date</span>
-                <span className="text-[13px] font-semibold text-foreground truncate">{new Date(formData.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</span>
+              <div onClick={() => (dateInputRef.current as any)?.showPicker?.()} className="bg-zinc-900/80 border border-white/[0.08] rounded-xl p-3 flex flex-col gap-1 cursor-pointer active:scale-95 transition-all">
+                <span className="text-[10px] font-semibold text-zinc-400">Tanggal</span>
+                <span className="text-xs font-semibold text-white truncate">{new Date(formData.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
                 <input ref={dateInputRef} type="date" value={formData.date.split('T')[0]} onChange={e => setFormData(prev => ({ ...prev, date: `${e.target.value}T${new Date().toISOString().split('T')[1]}` }))} className="absolute opacity-0 pointer-events-none" />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-background/90 backdrop-blur-md border-t border-border/40">
+        {/* Bottom Sheet CTA Button */}
+        <div className="absolute bottom-0 left-0 right-0 px-6 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom,16px))] bg-[#0e121b]/98 backdrop-blur-md border-t border-white/[0.08]">
           <button 
             onClick={handleSubmit}
-            className="w-full h-12 rounded-xl bg-[#10B981] text-white font-black text-[12px] uppercase tracking-[0.2em] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10"
+            type="button"
+            className="w-full h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 cursor-pointer"
           >
-            Confirm Transaction
+            Simpan Transaksi
           </button>
         </div>
       </div>

@@ -167,35 +167,41 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
   }, [assetRanking]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground pb-32">
-      {/* Institutional Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 max-w-md mx-auto px-6 pt-[calc(1.5rem+env(safe-area-inset-top,24px))] pb-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-            <TrendingUp size={18} />
+    <div className="flex flex-col min-h-screen bg-[#09090b] text-foreground pb-28">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-40 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.06] px-4 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] pb-3">
+        <div className="flex items-center justify-between mb-3 max-w-md mx-auto">
+          <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-emerald-400">
+            <TrendingUp size={17} />
           </div>
-          <h2 className="text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground">{t('wallet.performance')}</h2>
+          <div className="text-center">
+            <h2 className="text-sm font-bold text-white tracking-tight">Manajemen Dompet</h2>
+            <p className="text-[10px] text-zinc-500 font-medium">Rekening & Aset Keuangan</p>
+          </div>
           <button
             onClick={onTransfer}
-            className="size-10 rounded-2xl bg-muted/30 flex items-center justify-center text-foreground active:scale-90 transition-all border border-border/10 hover:bg-muted"
+            type="button"
+            className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white active:scale-90 transition-all cursor-pointer"
+            title="Transfer Antar Dompet"
           >
-            <ArrowLeftRight size={18} />
+            <ArrowLeftRight size={16} />
           </button>
         </div>
 
-        <div className="flex bg-muted/30 rounded-2xl p-1 border border-border/10">
+        <div className="flex bg-zinc-900/90 rounded-xl p-1 border border-white/[0.08] max-w-md mx-auto">
           {[
-            { id: 'PORTFOLIO', label: 'Porto' },
+            { id: 'PORTFOLIO', label: 'Portofolio' },
             { id: 'ALOKASI', label: 'Alokasi' },
             { id: 'INVESTASI', label: 'Investasi' }
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 py-2 text-[10px] font-black tracking-widest uppercase transition-all rounded-xl ${
+              type="button"
+              className={`flex-1 py-1.5 text-xs font-semibold tracking-tight transition-all rounded-lg cursor-pointer ${
                 activeTab === tab.id 
-                  ? 'bg-primary text-primary-foreground shadow-lg' 
-                  : 'text-muted-foreground/50 hover:text-foreground'
+                  ? 'bg-zinc-800 text-white shadow-sm' 
+                  : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
               {tab.label}
@@ -205,18 +211,18 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       </header>
 
       {activeTab === 'PORTFOLIO' && (
-        <div className="px-5 pb-8 pt-[calc(10rem+env(safe-area-inset-top,24px))] space-y-8">
+        <div className="px-4 pt-4 pb-28 space-y-4 max-w-md mx-auto">
           {/* Summary Performance Card */}
-          <section className="bg-gradient-to-br from-card via-card to-muted/30 rounded-[32px] p-7 border border-border/10 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+          <section className="bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-white/[0.08] rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 blur-[80px] pointer-events-none" />
             
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50">{t('wallet.true_net_worth')}</span>
-              <ShieldCheck size={10} className="text-primary opacity-50" />
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="text-[10px] font-semibold text-zinc-400">{t('wallet.true_net_worth')}</span>
+              <ShieldCheck size={12} className="text-emerald-400" />
             </div>
-            <div className="mb-10 flex items-end justify-between">
+            <div className="mb-6 flex items-end justify-between">
               <div>
-                <h1 className={`text-3xl font-black tracking-tighter tabular-nums ${metrics.trueNetWorth >= 0 ? 'text-foreground' : 'text-rose-500'}`}>
+                <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums ${metrics.trueNetWorth >= 0 ? 'text-white' : 'text-rose-400'}`}>
                   Rp{formatIDR(metrics.trueNetWorth)}
                 </h1>
                 <p className="text-[10px] font-bold text-muted-foreground/60 tracking-widest mt-1 uppercase">{t('wallet.assets_minus_liabilities')}</p>
@@ -397,12 +403,12 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       )}
 
       {activeTab === 'ALOKASI' && (
-        <div className="px-6 pb-32 pt-[calc(10rem+env(safe-area-inset-top,24px))]">
+        <div className="px-4 pt-4 pb-28 max-w-md mx-auto">
           {/* Donut Chart for Allocation */}
-          <section className="bg-muted/10 border border-border/10 rounded-[32px] p-8 mb-8 flex flex-col items-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[40px] pointer-events-none" />
-            <p className="text-[10px] font-black text-muted-foreground/30 tracking-[0.2em] mb-8 text-center w-full uppercase">{t('wallet.portfolio_distribution')}</p>
-            <div className="h-[220px] w-full relative">
+          <section className="bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-white/[0.08] rounded-2xl p-5 mb-4 flex flex-col items-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[40px] pointer-events-none" />
+            <p className="text-xs font-semibold text-zinc-400 mb-6 text-center w-full">{t('wallet.portfolio_distribution')}</p>
+            <div className="h-[200px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
                 <RePieChart>
                   <Pie
@@ -471,7 +477,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       )}
 
       {activeTab === 'INVESTASI' && (
-        <div className="pt-[calc(10rem+env(safe-area-inset-top,24px))]">
+        <div className="px-4 pt-4 pb-28 max-w-md mx-auto">
           <Deposit
             wallets={wallets}
             transactions={transactions}
