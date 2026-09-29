@@ -331,7 +331,7 @@ const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
           {[
             { label: 'Log', icon: Plus, action: 'Log' },
             { label: 'Send', icon: Send, action: 'Transfer' },
-            { label: 'Loan', icon: Landmark, action: 'Loan' },
+            { label: 'Cicilan', icon: Landmark, action: 'Loan' },
             { label: t('nav.stocks'), icon: TrendingUp, action: 'Stocks' },
             { label: 'Dreams', icon: Star, action: 'Dreams' }
           ].map((btn, idx) => (
