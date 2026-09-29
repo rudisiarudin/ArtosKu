@@ -520,149 +520,180 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
       </div>
 
       {showAddForm && (
-        <div className="fixed inset-0 z-[1000] flex flex-col items-center justify-end md:justify-center bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[1000] flex flex-col items-center justify-end md:justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="absolute inset-0" onClick={() => setShowAddForm(false)} />
-          <div className="relative w-full max-w-lg bg-background rounded-t-[32px] md:rounded-[32px] shadow-2xl flex flex-col max-h-[92vh] animate-in slide-in-from-bottom-10 duration-500 border border-border overflow-hidden">
-            <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mt-4 mb-2" />
+          <div className="relative w-full max-w-lg bg-[#0e121b] text-white rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] animate-in slide-in-from-bottom-8 duration-300 border border-white/[0.08] overflow-hidden">
+            <div className="w-10 h-1 bg-zinc-700/80 rounded-full mx-auto mt-3 mb-1" />
             
-            <div className="flex-1 overflow-y-auto no-scrollbar px-6 pb-28">
-              <div className="flex items-center justify-between py-6">
+            <div className="flex-1 overflow-y-auto no-scrollbar px-6 pb-24">
+              <div className="flex items-center justify-between py-4">
                 <div>
-                  <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-0.5">Position Entry</p>
-                  <h2 className="text-xl font-black text-foreground">{editingDebtId ? 'Modify Record' : 'New Loan Record'}</h2>
+                  <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-0.5">Pencatatan Keuangan</p>
+                  <h2 className="text-lg font-bold text-white tracking-tight">
+                    {editingDebtId ? 'Edit Catatan' : isInstallmentMode ? 'Catat Cicilan Kartu Kredit' : 'Catat Hutang / Piutang'}
+                  </h2>
                 </div>
-                <button onClick={() => setShowAddForm(false)} className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center text-foreground active:scale-90 transition-all border border-border">
-                  <X className="w-5 h-5" />
+                <button 
+                  onClick={() => setShowAddForm(false)} 
+                  type="button"
+                  className="w-8 h-8 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white active:scale-90 transition-all cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="mb-10 text-center">
-                <div className="inline-flex items-baseline gap-2 mb-8">
-                  <span className={`text-[18px] font-bold transition-colors ${formData.type === TransactionType.DEBT ? 'text-destructive/40' : 'text-primary/40'}`}>IDR</span>
+              {/* Mode Selector: Regular vs Installment */}
+              <div className="flex bg-zinc-900 p-1 rounded-xl w-full max-w-sm mx-auto mb-6 border border-white/[0.08]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsInstallmentMode(true);
+                    setFormData(prev => ({ ...prev, type: TransactionType.RECEIVABLE }));
+                    const num = parseFloat(formData.amount) || 0;
+                    const t = parseInt(installmentTenor, 10) || 6;
+                    if (num > 0) setInstallmentMonthly(Math.round(num / t).toString());
+                  }}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold tracking-tight transition-all cursor-pointer ${
+                    isInstallmentMode 
+                      ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20' 
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  💳 Cicilan Kartu Kredit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsInstallmentMode(false);
+                    setFormData(prev => ({ ...prev, type: TransactionType.DEBT }));
+                  }}
+                  className={`flex-1 py-2 rounded-lg text-xs font-semibold tracking-tight transition-all cursor-pointer ${
+                    !isInstallmentMode 
+                      ? 'bg-zinc-800 text-white font-bold shadow-sm' 
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  🤝 Hutang Uang Kas
+                </button>
+              </div>
+
+              {/* Big Amount Input */}
+              <div className="mb-6 text-center">
+                <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                  {isInstallmentMode ? 'Total Harga Barang / Tagihan KK' : 'Nominal Pinjaman'}
+                </p>
+                <div className="inline-flex items-baseline gap-1.5">
+                  <span className="text-base font-bold text-zinc-500">Rp</span>
                   <input 
                     type="text" 
                     inputMode="numeric" 
                     value={formData.amount === '0' ? '' : formData.amount.replace(/\B(?=(\d{3})+(?!\d))/g, ".")} 
-                    onChange={(e) => { const val = e.target.value.replace(/\./g, ''); if (/^\d*$/.test(val)) setFormData(prev => ({ ...prev, amount: val || '0' })); }} 
-                    className={`w-[5ch] bg-transparent border-none outline-none text-4xl font-black tabular-nums text-center transition-all tracking-tighter ${formData.type === TransactionType.DEBT ? 'text-destructive' : 'text-primary'}`} 
+                    onChange={(e) => { 
+                      const val = e.target.value.replace(/\./g, ''); 
+                      if (/^\d*$/.test(val)) {
+                        setFormData(prev => ({ ...prev, amount: val || '0' })); 
+                        if (isInstallmentMode) {
+                          const num = parseFloat(val) || 0;
+                          const t = parseInt(installmentTenor, 10) || 6;
+                          if (num > 0) setInstallmentMonthly(Math.round(num / t).toString());
+                        }
+                      }
+                    }} 
+                    className="bg-transparent border-none outline-none text-3xl font-extrabold tabular-nums text-center text-white tracking-tight" 
                     placeholder="0" 
                     style={{ width: `${Math.max(3, formData.amount.length + 0.5)}ch` }} 
                   />
                 </div>
-                
-                {/* Mode Selector: Regular vs Installment */}
-                <div className="flex bg-muted/60 p-1 rounded-2xl w-full max-w-xs mx-auto mb-4 border border-border/50">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsInstallmentMode(false);
-                      setFormData(prev => ({ ...prev, type: TransactionType.DEBT }));
-                    }}
-                    className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold transition-all ${
-                      !isInstallmentMode 
-                        ? 'bg-card text-foreground shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    🤝 Hutang Biasa
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsInstallmentMode(true);
-                      setFormData(prev => ({ ...prev, type: TransactionType.RECEIVABLE }));
-                      const num = parseFloat(formData.amount) || 0;
-                      const t = parseInt(installmentTenor, 10) || 6;
-                      if (num > 0) setInstallmentMonthly(Math.round(num / t).toString());
-                    }}
-                    className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold transition-all ${
-                      isInstallmentMode 
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm' 
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    📦 Skema Cicilan
-                  </button>
-                </div>
-
-                {!isInstallmentMode ? (
-                  <div className="flex bg-muted/50 p-1.5 rounded-[18px] w-fit mx-auto border border-border shadow-inner">
-                    <button 
-                      onClick={() => setFormData(d => ({ ...d, type: TransactionType.DEBT }))} 
-                      className={`px-6 py-2 rounded-[12px] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
-                        formData.type === TransactionType.DEBT 
-                          ? 'bg-[#EF4444] text-white shadow-lg shadow-red-500/20' 
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      I Owe Money
-                    </button>
-                    <button 
-                      onClick={() => setFormData(d => ({ ...d, type: TransactionType.RECEIVABLE }))} 
-                      className={`px-6 py-2 rounded-[12px] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
-                        formData.type === TransactionType.RECEIVABLE 
-                          ? 'bg-[#10B981] text-white shadow-lg shadow-emerald-500/20' 
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      They Owe Me
-                    </button>
-                  </div>
-                ) : (
-                  <p className="text-[11px] font-semibold text-emerald-400">
-                    Orang mencicil ke Anda (Piutang Angsuran)
-                  </p>
-                )}
               </div>
 
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <div className="flex-1 bg-card rounded-xl p-4 border border-border/50 flex flex-col gap-1 focus-within:border-primary/40 transition-all">
-                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
-                      {isInstallmentMode ? 'Nama Debitur / Peminjam' : 'Counterparty Name'}
+              {!isInstallmentMode ? (
+                <div className="flex bg-zinc-900 p-1 rounded-xl w-full max-w-xs mx-auto mb-6 border border-white/[0.08]">
+                  <button 
+                    type="button"
+                    onClick={() => setFormData(d => ({ ...d, type: TransactionType.DEBT }))} 
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      formData.type === TransactionType.DEBT 
+                        ? 'bg-rose-500 text-white font-bold shadow-md shadow-rose-500/20' 
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Saya Berhutang
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setFormData(d => ({ ...d, type: TransactionType.RECEIVABLE }))} 
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      formData.type === TransactionType.RECEIVABLE 
+                        ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20' 
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Orang Berhutang
+                  </button>
+                </div>
+              ) : (
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 mb-6 flex items-start gap-2.5">
+                  <span className="text-base leading-none">💳</span>
+                  <p className="text-[11px] text-emerald-200/90 leading-relaxed font-medium">
+                    <strong>Sumber: Kartu Kredit Anda</strong>. Saldo dompet Anda saat ini <strong>tidak akan terpotong</strong>. Saat debitur membayar tiap bulan, uang angsuran akan masuk ke dompet penampung Anda.
+                  </p>
+                </div>
+              )}
+
+              {/* Form Fields */}
+              <div className="space-y-3.5">
+                <div className="flex gap-2.5">
+                  <div className="flex-1 bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                    <span className="text-[10px] font-semibold text-zinc-400">
+                      {isInstallmentMode ? 'Nama Debitur / Yang Mencicil' : 'Nama Pihak Kedua'}
                     </span>
-                    <div className="flex items-center gap-3">
-                      <User className="w-3.5 h-3.5 text-muted-foreground/40" />
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-zinc-500 flex-shrink-0" />
                       <input 
                         type="text" 
                         value={formData.title} 
                         onChange={e => setFormData({ ...formData, title: e.target.value })} 
-                        placeholder={isInstallmentMode ? "Contoh: Budi Santoso" : "John Doe..."} 
-                        className="bg-transparent border-none outline-none text-[13px] font-bold text-foreground placeholder:text-muted-foreground/20 w-full" 
+                        placeholder={isInstallmentMode ? "Contoh: Budi Santoso" : "Nama teman / relasi"} 
+                        className="bg-transparent border-none outline-none text-xs font-semibold text-white placeholder:text-zinc-600 w-full" 
                       />
                     </div>
                   </div>
-                  <button type="button" onClick={pickContact} className="w-12 rounded-xl bg-muted/30 border border-border flex items-center justify-center text-primary active:scale-95 transition-all">
-                    <Plus className="w-5 h-5" />
+                  <button 
+                    type="button" 
+                    onClick={pickContact} 
+                    className="w-11 rounded-xl bg-zinc-900 border border-white/[0.08] flex items-center justify-center text-emerald-400 hover:text-emerald-300 active:scale-95 transition-all cursor-pointer flex-shrink-0"
+                    title="Pilih dari Kontak"
+                  >
+                    <Plus className="w-4 h-4" />
                   </button>
                 </div>
 
                 {isInstallmentMode && (
                   <>
-                    <div className="bg-card rounded-xl p-4 border border-border/50 flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                      <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">
-                        Nama Barang / Catatan Cicilan
+                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                      <span className="text-[10px] font-semibold text-emerald-400">
+                        Nama Barang / Keperluan Cicilan
                       </span>
                       <input 
                         type="text" 
                         value={installmentItem} 
                         onChange={e => setInstallmentItem(e.target.value)} 
-                        placeholder="Contoh: iPhone 13 128GB / Pinjaman Modal" 
-                        className="bg-transparent border-none outline-none text-[13px] font-bold text-foreground placeholder:text-muted-foreground/30 w-full" 
+                        placeholder="Contoh: iPhone 15 Pro 128GB / Laptop Asus" 
+                        className="bg-transparent border-none outline-none text-xs font-semibold text-white placeholder:text-zinc-600 w-full" 
                       />
                     </div>
 
-                    <div className="bg-card rounded-xl p-4 border border-border/50 flex flex-col gap-2">
+                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
-                          Tenor (Bulan)
+                        <span className="text-[10px] font-semibold text-zinc-400">
+                          Pilihan Tenor Pembayaran
                         </span>
-                        <span className="text-[11px] font-bold text-emerald-400">
+                        <span className="text-xs font-bold text-emerald-400">
                           {installmentTenor} Bulan
                         </span>
                       </div>
-                      <div className="flex gap-2">
-                        {['3', '6', '10', '12'].map((t) => (
+                      <div className="flex gap-1.5">
+                        {['3', '6', '12', '24'].map((t) => (
                           <button
                             key={t}
                             type="button"
@@ -671,10 +702,10 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                               const num = parseFloat(formData.amount) || 0;
                               if (num > 0) setInstallmentMonthly(Math.round(num / parseInt(t, 10)).toString());
                             }}
-                            className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                            className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                               installmentTenor === t 
-                                ? 'bg-emerald-500 text-black shadow-md' 
-                                : 'bg-muted/40 text-muted-foreground hover:text-foreground'
+                                ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20' 
+                                : 'bg-zinc-800 text-zinc-400 hover:text-white'
                             }`}
                           >
                             {t} Bln
@@ -683,69 +714,71 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                       </div>
                     </div>
 
-                    <div className="bg-card rounded-xl p-4 border border-border/50 flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                      <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
-                        Angsuran / Bulan (IDR)
+                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                      <span className="text-[10px] font-semibold text-zinc-400">
+                        Nominal Angsuran per Bulan (Bisa disesuaikan manual)
                       </span>
-                      <input 
-                        type="text" 
-                        inputMode="numeric"
-                        value={installmentMonthly ? installmentMonthly.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ''} 
-                        onChange={e => {
-                          const val = e.target.value.replace(/\./g, '');
-                          if (/^\d*$/.test(val)) setInstallmentMonthly(val);
-                        }} 
-                        placeholder="0" 
-                        className="bg-transparent border-none outline-none text-[15px] font-bold text-emerald-400 tabular-nums w-full" 
-                      />
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-zinc-500">Rp</span>
+                        <input 
+                          type="text" 
+                          inputMode="numeric"
+                          value={installmentMonthly ? installmentMonthly.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ''} 
+                          onChange={e => {
+                            const val = e.target.value.replace(/\./g, '');
+                            if (/^\d*$/.test(val)) setInstallmentMonthly(val);
+                          }} 
+                          placeholder="0" 
+                          className="bg-transparent border-none outline-none text-sm font-bold text-emerald-400 tabular-nums w-full" 
+                        />
+                      </div>
                     </div>
                   </>
                 )}
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-card rounded-xl p-4 border border-border/50 flex flex-col gap-1 focus-within:border-primary/40 transition-all">
-                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
-                      {isInstallmentMode ? 'Jatuh Tempo Bulanan' : 'Due Date'}
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                    <span className="text-[10px] font-semibold text-zinc-400">
+                      {isInstallmentMode ? 'Jatuh Tempo Tiap Bln' : 'Jatuh Tempo'}
                     </span>
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-3.5 h-3.5 text-muted-foreground/40" />
-                      <input type="date" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} className="bg-transparent border-none outline-none text-[13px] font-bold text-foreground [color-scheme:dark] w-full" />
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-3.5 h-3.5 text-zinc-500" />
+                      <input 
+                        type="date" 
+                        value={formData.dueDate} 
+                        onChange={e => setFormData({ ...formData, dueDate: e.target.value })} 
+                        className="bg-transparent border-none outline-none text-xs font-semibold text-white [color-scheme:dark] w-full" 
+                      />
                     </div>
                   </div>
-                  <div className="bg-card rounded-xl p-4 border border-border/50 flex flex-col gap-1 focus-within:border-primary/40 transition-all">
-                    <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">
+
+                  <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                    <span className="text-[10px] font-semibold text-zinc-400">
                       {isInstallmentMode ? 'Dompet Penampung' : 'Sumber Dompet'}
                     </span>
-                    <div className="flex items-center gap-3">
-                      <WalletIcon className="w-3.5 h-3.5 text-muted-foreground/40" />
-                      <select value={formData.walletId} onChange={e => setFormData({ ...formData, walletId: e.target.value })} className="bg-transparent border-none outline-none text-[13px] font-bold text-foreground appearance-none w-full">
-                        {wallets.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+                    <div className="flex items-center gap-2">
+                      <WalletIcon className="w-3.5 h-3.5 text-zinc-500" />
+                      <select 
+                        value={formData.walletId} 
+                        onChange={e => setFormData({ ...formData, walletId: e.target.value })} 
+                        className="bg-transparent border-none outline-none text-xs font-semibold text-white appearance-none w-full cursor-pointer"
+                      >
+                        {wallets.map(w => <option key={w.id} value={w.id} className="bg-zinc-900 text-white">{w.name}</option>)}
                       </select>
                     </div>
                   </div>
                 </div>
-
-                {isInstallmentMode && (
-                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5">
-                    <span className="text-base leading-none">💳</span>
-                    <p className="text-[10px] text-amber-200/90 leading-relaxed font-medium">
-                      <strong>Sumber: Kartu Kredit</strong>. Saldo dompet Anda saat ini <strong>tidak akan terpotong</strong>. Saat orang membayar angsuran bulanan, uang akan otomatis masuk ke dompet penampung yang Anda pilih.
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-background/90 backdrop-blur-md border-t border-border/40">
+            {/* Bottom Sheet CTA Button */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#0e121b]/95 backdrop-blur-md border-t border-white/[0.08]">
               <button 
                 onClick={handleSubmit} 
-                className={`w-full h-12 rounded-xl text-white font-black text-[12px] uppercase tracking-[0.2em] active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 ${
-                  formData.type === TransactionType.DEBT 
-                    ? 'bg-[#EF4444] shadow-red-500/20' 
-                    : 'bg-[#10B981] shadow-emerald-500/20'
-                }`}
+                type="button"
+                className="w-full h-11 rounded-xl text-black font-bold text-xs uppercase tracking-wider active:scale-[0.98] transition-all shadow-lg bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/25 flex items-center justify-center gap-2 cursor-pointer"
               >
-                {editingDebtId ? 'Update Position' : 'Authorize Position'}
+                {editingDebtId ? 'Perbarui Catatan' : 'Simpan Catatan'}
               </button>
             </div>
           </div>
