@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { Wallet, TransactionType, WalletType } from '../types';
+import { Wallet } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { WalletLogo } from './WalletLogo';
+import { Button } from './ui/button';
+import { Label } from './ui/label';
+import { cn, formatIDR } from '@/lib/utils';
+import { X, ArrowDown, ArrowRight, Pencil } from 'lucide-react';
 
 interface TransferModalProps {
     isOpen: boolean;
@@ -19,7 +23,6 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onTransf
     const [amount, setAmount] = useState<string>('');
     const [description, setDescription] = useState<string>('');
 
-    // Update selection when wallets are loaded
     React.useEffect(() => {
         if (filteredWallets.length > 0) {
             if (!fromWalletId) setFromWalletId(filteredWallets[0].id);
@@ -32,41 +35,35 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onTransf
     const handleTransfer = () => {
         const numAmount = Number(amount.replace(/\D/g, ''));
         if (numAmount > 0 && fromWalletId && toWalletId && fromWalletId !== toWalletId) {
-            onTransfer(fromWalletId, toWalletId, numAmount, description || t('transfer.internal_description'));
+            onTransfer(fromWalletId, toWalletId, numAmount, description || t('transfer.internal_description') || 'Internal Transfer');
             onClose();
-            // Reset
             setAmount('');
             setDescription('');
         }
     };
 
-    const formatIDR = (val: string) => {
-        if (!val) return '0';
-        const num = val.replace(/\D/g, '');
-        return new Intl.NumberFormat('id-ID').format(Number(num));
-    };
-
     return (
-        <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-            <div className="absolute inset-0 z-40" onClick={onClose}></div>
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-end md:justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="absolute inset-0" onClick={onClose} />
 
-            <div className="relative bg-background w-full max-w-lg rounded-t-[32px] md:rounded-[32px] h-[95dvh] shadow-2xl flex flex-col overflow-hidden z-50 animate-modal-slide border border-border">
-                <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mt-4 mb-2 opacity-50" />
-                <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500/10 blur-[100px] rounded-full -ml-32 -mt-32 pointer-events-none"></div>
+            <div className="relative w-full max-w-lg bg-background rounded-t-3xl md:rounded-2xl shadow-2xl flex flex-col max-h-[92vh] md:max-h-[88vh] border border-border overflow-hidden z-10">
+                {/* Mobile Drag Handle */}
+                <div className="w-12 h-1.5 bg-muted-foreground/20 rounded-full mx-auto mt-3 mb-1 shrink-0 md:hidden" />
 
                 {/* Top Navigation */}
-                <div className="flex items-center px-6 pt-4 pb-2 justify-between relative z-10">
-                    <button onClick={onClose} className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted/50 text-foreground transition-all active:scale-90">
-                        <i className="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                    <h2 className="text-foreground text-lg font-bold leading-tight flex-1 text-center">{t('transfer.self_transfer')}</h2>
-                    <div className="w-10"></div>
+                <div className="flex items-center justify-between px-6 py-3 shrink-0 border-b border-border/40">
+                    <div>
+                        <p className="text-[11px] font-bold text-blue-500 uppercase tracking-wider">Internal Transfer</p>
+                        <h2 className="text-lg font-bold text-foreground tracking-tight">{t('transfer.self_transfer') || 'Pindah Saldo'}</h2>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="size-9 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground">
+                        <X className="size-5" />
+                    </Button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto no-scrollbar relative z-10">
+                <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4 space-y-6">
                     {/* Amount Input Section */}
-                    <div className="flex flex-col items-center justify-center py-8 px-6">
-                        <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-2">{t('common.amount')}</p>
+                    <div className="flex flex-col items-center justify-center py-4">
                         <div className="flex items-center justify-center w-full">
                             <input
                                 type="text"
@@ -76,85 +73,127 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onTransf
                                     const val = e.target.value.replace(/\./g, '');
                                     if (/^\d*$/.test(val)) setAmount(val || '0');
                                 }}
-                                className="bg-transparent border-none outline-none font-black tabular-nums text-center transition-all tracking-[-0.05em] leading-none text-blue-500 placeholder:text-muted-foreground/20"
-                                style={{ fontSize: 'clamp(48px, 15vw, 80px)', width: '100%' }}
+                                className="bg-transparent border-none outline-none font-extrabold tabular-nums text-center tracking-tight leading-none text-blue-500 placeholder:text-muted-foreground"
+                                style={{ fontSize: 'clamp(44px, 12vw, 76px)', width: '100%' }}
                                 placeholder="0"
                                 autoFocus
                             />
                         </div>
+                        <Label className="text-muted-foreground text-[11px] font-semibold uppercase tracking-widest mt-2">{t('common.amount') || 'Nominal Transfer'}</Label>
                     </div>
 
-                    {/* Wallet Selectors */}
-                    <section className="px-6 py-4">
-                        <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider mb-4 opacity-30">{t('transfer.from_wallet')}</h3>
-                        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-4">
-                            {filteredWallets.map((w, i) => (
-                                <button
-                                    key={w.id}
-                                    onClick={() => setFromWalletId(w.id)}
-                                    className={`min-w-[120px] p-3 rounded-xl border transition-all duration-300 text-left relative group active:scale-95 ${fromWalletId === w.id ? 'bg-blue-600 border-blue-600 shadow-lg shadow-blue-600/10' : 'bg-[rgba(var(--bg-card-rgb),0.4)] border-[var(--border-subtle)] opacity-50'}`}
-                                >
-                                    <div className={`size-8 rounded-lg flex items-center justify-center mb-3 transition-all ${fromWalletId === w.id ? 'bg-white/20 text-white' : 'bg-[rgba(var(--bg-inner-rgb),0.5)] text-[var(--text-muted)]'}`}>
-                                        <WalletLogo wallet={w} size={16} />
-                                    </div>
-                                    <p className={`text-[9px] font-bold uppercase mb-0.5 ${fromWalletId === w.id ? 'text-white/60' : 'text-[var(--text-muted)] opacity-30'}`}>{t(`wallet.${w.type.toLowerCase()}`) || w.type}</p>
-                                    <p className={`text-xs font-bold truncate ${fromWalletId === w.id ? 'text-white' : 'text-[var(--text-primary)]'}`}>{w.name}</p>
-                                </button>
-                            ))}
-                        </div>
-                    </section>
-
-                    <div className="flex justify-center -my-2 relative z-20">
-                        <div className="size-10 rounded-full bg-blue-500 flex items-center justify-center text-white border-4 border-[var(--bg-deep)] shadow-lg shadow-blue-500/20">
-                            <i className="fa-solid fa-arrow-down-long text-xs"></i>
+                    {/* From Wallet Selector */}
+                    <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">{t('transfer.from_wallet') || 'Sumber Dana'}</Label>
+                        <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+                            {filteredWallets.map((w) => {
+                                const isSelected = fromWalletId === w.id;
+                                return (
+                                    <button
+                                        key={w.id}
+                                        type="button"
+                                        onClick={() => setFromWalletId(w.id)}
+                                        className={cn(
+                                            "min-w-[130px] p-3 rounded-xl border transition-all text-left active:scale-95 shadow-sm",
+                                            isSelected 
+                                                ? 'bg-blue-600 border-blue-600 text-white shadow-blue-600/20' 
+                                                : 'bg-card border-border hover:bg-muted/50'
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "size-8 rounded-lg flex items-center justify-center mb-2",
+                                            isSelected ? 'bg-white/20 text-white' : 'bg-muted text-foreground'
+                                        )}>
+                                            <WalletLogo wallet={w} size={16} />
+                                        </div>
+                                        <p className={cn(
+                                            "text-[10px] font-semibold uppercase truncate mb-0.5",
+                                            isSelected ? 'text-white/80' : 'text-muted-foreground'
+                                        )}>{w.name}</p>
+                                        <p className={cn(
+                                            "text-xs font-bold tabular-nums",
+                                            isSelected ? 'text-white' : 'text-foreground'
+                                        )}>Rp {formatIDR(w.balance.toString())}</p>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
-                    <section className="px-6 py-4">
-                        <h3 className="text-[var(--text-primary)] text-sm font-bold uppercase tracking-wider mb-4 opacity-30">{t('transfer.to_wallet')}</h3>
-                        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-4">
-                            {filteredWallets.map((w, i) => (
-                                <button
-                                    key={w.id}
-                                    onClick={() => setToWalletId(w.id)}
-                                    disabled={fromWalletId === w.id}
-                                    className={`min-w-[130px] p-4 rounded-2xl border transition-all duration-300 text-left relative group active:scale-95 disabled:opacity-20 ${toWalletId === w.id ? 'bg-blue-500 border-blue-500 shadow-lg shadow-blue-500/20' : 'bg-[rgba(var(--bg-card-rgb),0.4)] border-[var(--border-subtle)] opacity-50'}`}
-                                >
-                                    <div className={`size-10 rounded-xl flex items-center justify-center mb-4 transition-all ${toWalletId === w.id ? 'bg-white/20 text-white' : 'bg-[rgba(var(--bg-inner-rgb),0.5)] text-[var(--text-muted)]'}`}>
-                                        <WalletLogo wallet={w} size={20} />
-                                    </div>
-                                    <p className={`text-[10px] font-bold uppercase mb-1 ${toWalletId === w.id ? 'text-white/60' : 'text-[var(--text-muted)] opacity-30'}`}>{t(`wallet.${w.type.toLowerCase()}`) || w.type}</p>
-                                    <p className={`text-sm font-bold truncate ${toWalletId === w.id ? 'text-white' : 'text-[var(--text-primary)]'}`}>{w.name}</p>
-                                </button>
-                            ))}
+                    {/* Divider Arrow */}
+                    <div className="flex justify-center -my-2 relative z-10">
+                        <div className="size-9 rounded-full bg-blue-500 flex items-center justify-center text-white border-2 border-background shadow-md">
+                            <ArrowDown className="size-4" />
                         </div>
-                    </section>
+                    </div>
+
+                    {/* To Wallet Selector */}
+                    <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">{t('transfer.to_wallet') || 'Tujuan Transfer'}</Label>
+                        <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+                            {filteredWallets.map((w) => {
+                                const isSelected = toWalletId === w.id;
+                                const isDisabled = fromWalletId === w.id;
+                                return (
+                                    <button
+                                        key={w.id}
+                                        type="button"
+                                        disabled={isDisabled}
+                                        onClick={() => setToWalletId(w.id)}
+                                        className={cn(
+                                            "min-w-[130px] p-3 rounded-xl border transition-all text-left active:scale-95 shadow-sm",
+                                            isDisabled && "opacity-30 pointer-events-none",
+                                            isSelected 
+                                                ? 'bg-blue-500 border-blue-500 text-white shadow-blue-500/20' 
+                                                : 'bg-card border-border hover:bg-muted/50'
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "size-8 rounded-lg flex items-center justify-center mb-2",
+                                            isSelected ? 'bg-white/20 text-white' : 'bg-muted text-foreground'
+                                        )}>
+                                            <WalletLogo wallet={w} size={16} />
+                                        </div>
+                                        <p className={cn(
+                                            "text-[10px] font-semibold uppercase truncate mb-0.5",
+                                            isSelected ? 'text-white/80' : 'text-muted-foreground'
+                                        )}>{w.name}</p>
+                                        <p className={cn(
+                                            "text-xs font-bold tabular-nums",
+                                            isSelected ? 'text-white' : 'text-foreground'
+                                        )}>Rp {formatIDR(w.balance.toString())}</p>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
 
                     {/* Note Input */}
-                    <section className="px-6 py-6 pb-64">
-                        <div className="bg-[rgba(var(--bg-card-rgb),0.4)] border border-[var(--border-subtle)] p-4 rounded-2xl flex items-center gap-4 focus-within:border-[rgba(var(--bg-card-rgb),0.8)] transition-all">
-                            <i className="fa-solid fa-pen-to-square text-[var(--text-muted)] opacity-30 text-sm"></i>
+                    <div className="bg-card border border-border rounded-xl p-3.5 flex flex-col gap-1 focus-within:border-primary/50 transition-all shadow-sm">
+                        <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Catatan Transfer</Label>
+                        <div className="flex items-center gap-2">
+                            <Pencil className="size-3.5 text-muted-foreground shrink-0" />
                             <input
                                 type="text"
                                 value={description}
                                 onChange={e => setDescription(e.target.value)}
-                                className="bg-transparent border-none outline-none text-[var(--text-primary)] text-sm font-medium w-full placeholder:text-[var(--text-muted)] opacity-40"
-                                placeholder={t('transfer.add_note')}
+                                className="bg-transparent border-none outline-none text-foreground text-xs font-medium w-full placeholder:text-muted-foreground"
+                                placeholder={t('transfer.add_note') || 'Misal: Simpan ke tabungan...'}
                             />
                         </div>
-                    </section>
+                    </div>
                 </div>
 
                 {/* Bottom Button */}
-                <div className="px-6 pb-8 pt-4 bg-[rgba(var(--bg-deep-rgb),0.8)] backdrop-blur-md border-t border-[var(--border-subtle)] z-[100]">
-                    <button
+                <div className="p-4 sm:p-5 bg-background/95 backdrop-blur-md border-t border-border shrink-0 z-10">
+                    <Button
                         onClick={handleTransfer}
-                        disabled={!amount || fromWalletId === toWalletId}
-                        className="w-full h-11 rounded-xl bg-blue-600 text-white font-semibold text-xs shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 border-none uppercase tracking-widest"
+                        disabled={!amount || amount === '0' || fromWalletId === toWalletId}
+                        className="w-full h-12 rounded-xl font-bold text-sm uppercase tracking-wider shadow-md gap-2 bg-blue-600 hover:bg-blue-500 text-white"
                     >
-                        <span>{t('transfer.execute_transfer')}</span>
-                        <i className="fa-solid fa-arrow-right-long"></i>
-                    </button>
+                        <span>{t('transfer.execute_transfer') || 'Eksekusi Transfer'}</span>
+                        <ArrowRight className="size-4" />
+                    </Button>
                 </div>
             </div>
         </div>
@@ -162,4 +201,3 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onTransf
 };
 
 export default TransferModal;
-
