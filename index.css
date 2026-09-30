@@ -76,13 +76,13 @@
   --secondary: 0 0% 12%;
   --secondary-foreground: 0 0% 100%;
   --muted: 0 0% 12%;
-  --muted-foreground: 0 0% 40%;
+  --muted-foreground: 240 5% 68%; /* High contrast readable muted text */
   --accent: 155 64% 8%; /* #0A2E1F */
   --accent-foreground: 161 72% 48%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 14%;
-  --input: 0 0% 14%;
+  --border: 0 0% 16%;
+  --input: 0 0% 16%;
   --ring: 161 72% 48%;
 
   /* Navbar Brand Mapping */
