@@ -119,7 +119,7 @@ const InterUserTransferModal: React.FC<InterUserTransferModalProps> = ({ isOpen,
     setError(null);
     try {
       const numAmount = Number(amount.replace(/\D/g, ''));
-      const res = await transferToUser(recipientEmail, numAmount, description || 'Transfer', fromWalletId);
+      const res = await transferToUser(fromWalletId, recipientEmail, numAmount, description || 'Transfer');
       if (res && res.success) {
         setTransferResult({
           amount: numAmount,

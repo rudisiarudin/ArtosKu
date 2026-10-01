@@ -257,7 +257,7 @@ const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
             
             <CardContent className="p-5 relative">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.1em]">Total Saldo Bersih</span>
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Total Saldo Bersih</span>
                 <Badge variant="outline" className="text-[8px] font-semibold px-2 py-0.5 h-auto text-muted-foreground rounded-full" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                   REALTIME
                 </Badge>
@@ -275,27 +275,27 @@ const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
 
               <div className="grid grid-cols-2 gap-3 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                 <div className="space-y-1">
-                  <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-50">
+                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
                     {summaryFilter === 'TODAY' ? 'Daily' : summaryFilter === 'WEEKLY' ? 'Weekly' : 'Monthly'} Inflow
                   </p>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[13px] font-bold text-foreground tabular-nums tracking-tighter">
                       {formatIDR(metrics.inc)}
                     </span>
-                    <div className={`px-1.5 py-0.2 rounded-full text-[8px] font-bold tracking-tight bg-[#EF4444]/20 text-[#EF4444]`}>
+                    <div className="px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight bg-rose-500/10 text-rose-500 border border-rose-500/20">
                       {metrics.incPct >= 0 ? '+' : '-'}{Math.abs(metrics.incPct).toFixed(1)}%
                     </div>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-50">
+                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
                     {summaryFilter === 'TODAY' ? 'Daily' : summaryFilter === 'WEEKLY' ? 'Weekly' : 'Monthly'} Outflow
                   </p>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[13px] font-bold text-foreground tabular-nums tracking-tighter">
                       {formatIDR(metrics.exp)}
                     </span>
-                    <div className={`px-1.5 py-0.2 rounded-full text-[8px] font-bold tracking-tight bg-[#10B981]/20 text-[#10B981]`}>
+                    <div className="px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                       {metrics.expPct >= 0 ? '+' : '-'}{Math.abs(metrics.expPct).toFixed(1)}%
                     </div>
                   </div>
@@ -358,7 +358,7 @@ const DashboardMobile: React.FC<DashboardViewProps> = React.memo(({
         {dreams && dreams.length > 0 && (
           <section className="space-y-4">
             <div className="flex justify-between items-baseline px-1">
-              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Target Tersimpan</h3>
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Target Tersimpan</h3>
               <button onClick={() => setActiveTab('dreams')} className="text-[10px] font-bold text-emerald-500 hover:text-emerald-400 transition-colors uppercase tracking-wider flex items-center gap-1">
                 DETAIL <ChevronRight className="w-3 h-3" />
               </button>

@@ -87,8 +87,8 @@ export async function fetchYahooFinance(cleanSymbol: string, params: string): Pr
 
   let lastError: Error | null = null;
   for (const getProxyUrl of publicProxies) {
+    const proxyUrl = getProxyUrl(targetUrl);
     try {
-      const proxyUrl = getProxyUrl(targetUrl);
       const response = await fetch(proxyUrl);
       if (response.ok) return response;
       throw new Error(`Public proxy status: ${response.status}`);
