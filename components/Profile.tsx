@@ -198,13 +198,13 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center py-4 border-r border-white/5 last:border-0">
               <p className="text-[18px] font-bold text-foreground tabular-nums tracking-tighter mb-0.5">{stat.val}</p>
-              <p className="text-[8px] font-black text-muted-foreground/20 tracking-[0.2em] uppercase text-center leading-tight">{stat.label}</p>
+              <p className="text-[8px] font-black text-muted-foreground tracking-[0.2em] uppercase text-center leading-tight">{stat.label}</p>
             </div>
           ))}
         </section>
 
         <section className="space-y-0.5">
-          <h3 className="text-[9px] font-black text-muted-foreground/20 tracking-[0.5em] uppercase px-6 mb-4">{t('profile.general')}</h3>
+          <h3 className="text-[9px] font-black text-muted-foreground tracking-[0.5em] uppercase px-6 mb-4">{t('profile.general')}</h3>
           
           <div className="space-y-0.5">
             {/* Language Toggle */}
@@ -215,12 +215,12 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
                 </div>
                 <div>
                   <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">{t('profile.language')}</p>
-                  <p className="text-[9px] font-black text-muted-foreground/20 uppercase tracking-[0.1em]">{t('profile.select_language')}</p>
+                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.1em]">{t('profile.select_language')}</p>
                 </div>
               </div>
               <div className="flex items-center bg-zinc-900 p-1 rounded-xl">
-                <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all ${lang === 'id' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground/30'}`}>ID</div>
-                <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all ${lang === 'en' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground/30'}`}>EN</div>
+                <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all ${lang === 'id' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground'}`}>ID</div>
+                <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all ${lang === 'en' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground'}`}>EN</div>
               </div>
             </div>
 
@@ -232,7 +232,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
                 </div>
                 <div>
                   <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">{t('profile.appearance')}</p>
-                  <p className="text-[9px] font-black text-muted-foreground/20 uppercase tracking-[0.1em]">{t('profile.interface_style')}</p>
+                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.1em]">{t('profile.interface_style')}</p>
                 </div>
               </div>
               <div className={`w-10 h-5.5 rounded-full transition-all duration-500 relative ${isDark ? 'bg-primary/40' : 'bg-muted/40'}`}>
@@ -248,16 +248,16 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
                 </div>
                 <div>
                   <p className="text-[14px] font-black text-foreground tracking-tight mb-0.5">{t('profile.password')}</p>
-                  <p className="text-[9px] font-black text-muted-foreground/20 uppercase tracking-[0.1em]">{t('profile.auth_credentials')}</p>
+                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.1em]">{t('profile.auth_credentials')}</p>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-muted-foreground/20" />
+              <ChevronRight size={18} className="text-muted-foreground" />
             </div>
           </div>
         </section>
 
         <section className="space-y-0.5">
-          <h3 className="text-[9px] font-black text-muted-foreground/20 tracking-[0.5em] uppercase px-6 mb-4">{t('profile.security')}</h3>
+          <h3 className="text-[9px] font-black text-muted-foreground tracking-[0.5em] uppercase px-6 mb-4">{t('profile.security')}</h3>
           
           <div className="space-y-0.5">
             {/* PIN Security */}
@@ -305,7 +305,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
         </section>
 
         <section className="space-y-0.5">
-          <h3 className="text-[9px] font-black text-muted-foreground/20 tracking-[0.5em] uppercase px-6 mb-4">Pengingat & Notifikasi</h3>
+          <h3 className="text-[9px] font-black text-muted-foreground tracking-[0.5em] uppercase px-6 mb-4">Pengingat & Notifikasi</h3>
           
           <div className="space-y-0.5">
             {/* Daily Reminder */}
@@ -355,7 +355,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
 
           <button
             onClick={() => setIsLogoutModalOpen(true)}
-            className="w-full py-8 text-[11px] font-black text-rose-500/40 tracking-[0.4em] uppercase hover:text-rose-500 transition-all active:scale-95"
+            className="w-full py-8 text-[11px] font-black text-rose-500 tracking-[0.4em] uppercase hover:text-rose-500 transition-all active:scale-95"
           >
             {t('profile.sign_out')}
           </button>
@@ -375,7 +375,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
 
             <h3 className="text-xl font-black text-foreground mb-2 text-center uppercase">Secure Access</h3>
-            <p className="text-[10px] font-black text-muted-foreground/30 tracking-[0.2em] text-center mb-8 uppercase">Choose your 6-digit signature key</p>
+            <p className="text-[10px] font-black text-muted-foreground tracking-[0.2em] text-center mb-8 uppercase">Choose your 6-digit signature key</p>
 
             <div className="space-y-8">
               <input
@@ -391,7 +391,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
               <div className="flex gap-4">
                 <button
                   onClick={() => { setIsPinModalOpen(false); setNewPin(''); }}
-                  className="flex-1 h-14 rounded-2xl text-[11px] font-black text-muted-foreground/40 tracking-widest hover:text-foreground transition-all uppercase"
+                  className="flex-1 h-14 rounded-2xl text-[11px] font-black text-muted-foreground tracking-widest hover:text-foreground transition-all uppercase"
                 >
                   Dismiss
                 </button>
@@ -420,7 +420,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
               </div>
 
               <h3 className="text-lg font-black text-foreground mb-2 tracking-tight uppercase">Security Terminal</h3>
-              <p className="text-[10px] font-black text-muted-foreground/30 leading-relaxed px-4 uppercase tracking-[0.2em]">
+              <p className="text-[10px] font-black text-muted-foreground leading-relaxed px-4 uppercase tracking-[0.2em]">
                 Terminate active <span className="text-primary/40">ArtosKu</span> session?
               </p>
             </div>
@@ -434,7 +434,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
               </button>
               <button
                 onClick={() => setIsLogoutModalOpen(false)}
-                className="w-full h-12 rounded-xl text-[10px] font-black text-muted-foreground/30 tracking-[0.2em] hover:text-muted-foreground transition-all uppercase"
+                className="w-full h-12 rounded-xl text-[10px] font-black text-muted-foreground tracking-[0.2em] hover:text-muted-foreground transition-all uppercase"
               >
                 Cancel
               </button>
