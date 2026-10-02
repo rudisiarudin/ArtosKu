@@ -147,13 +147,13 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
         className="hidden"
       />
 
-      <header className="px-6 pt-[calc(2.5rem+env(safe-area-inset-top,24px))] pb-10 flex flex-col items-center">
+      <header className="px-6 pt-[calc(2.5rem+env(safe-area-inset-top,24px))] pb-10 flex flex-col items-center xl:flex-row xl:justify-start xl:gap-8 xl:px-12">
         <div className="relative group mb-8" onClick={handleAvatarClick}>
           {/* High-End Avatar Glow */}
           <div className="absolute -inset-4 bg-primary/5 blur-[32px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
           
           <div className="size-24 rounded-full p-1 bg-gradient-to-tr from-primary/20 via-transparent to-transparent relative z-10 group-active:scale-95 transition-transform duration-500">
-            <div className="w-full h-full rounded-full overflow-hidden bg-zinc-900 flex items-center justify-center relative border border-white/5 shadow-2xl">
+            <div className="w-full h-full rounded-full overflow-hidden bg-muted flex items-center justify-center relative border border-white/5 shadow-2xl">
               {isUploading ? (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-10">
                   <RefreshCw className="size-6 text-primary animate-spin" />
@@ -177,14 +177,14 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
           </div>
         </div>
 
-        <h2 className="text-[28px] font-black text-foreground tracking-tight mb-2 uppercase text-center">{userName}</h2>
+        <h2 className="text-[28px] font-black text-foreground tracking-tight mb-2 uppercase text-center xl:text-left">{userName}</h2>
         <div className="flex items-center gap-2 group cursor-default">
           <div className="size-1.5 rounded-full bg-primary animate-pulse" />
           <span className="text-[10px] font-black text-primary tracking-[0.4em] uppercase">{t('profile.elite_member')}</span>
         </div>
       </header>
 
-      <div className="px-6 space-y-12">
+      <div className="px-6 xl:px-12 space-y-12 max-w-4xl mx-auto xl:mx-0 w-full">
         <section className="grid grid-cols-3 gap-0 px-2">
           {[
             {
@@ -196,7 +196,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
             { label: 'Uptime Connection', val: '100%', icon: Check, color: 'text-blue-500' },
             { label: 'Security Tier', val: 'Elite', icon: Crown, color: 'text-amber-500' },
           ].map((stat, i) => (
-            <div key={i} className="flex flex-col items-center py-4 border-r border-white/5 last:border-0">
+            <div key={i} className="flex flex-col items-center xl:flex-row xl:justify-start xl:gap-8 xl:px-12 py-4 border-r border-white/5 last:border-0">
               <p className="text-[18px] font-bold text-foreground tabular-nums tracking-tighter mb-0.5">{stat.val}</p>
               <p className="text-[8px] font-black text-muted-foreground tracking-[0.2em] uppercase text-center leading-tight">{stat.label}</p>
             </div>
@@ -210,7 +210,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
             {/* Language Toggle */}
             <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={() => setLanguage(lang === 'id' ? 'en' : 'id')}>
               <div className="flex items-center gap-5">
-                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                <div className="size-10 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
                   <Globe size={18} strokeWidth={1.5} />
                 </div>
                 <div>
@@ -218,7 +218,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
                   <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.1em]">{t('profile.select_language')}</p>
                 </div>
               </div>
-              <div className="flex items-center bg-zinc-900 p-1 rounded-xl">
+              <div className="flex items-center bg-muted p-1 rounded-xl">
                 <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all ${lang === 'id' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground'}`}>ID</div>
                 <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black transition-all ${lang === 'en' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground'}`}>EN</div>
               </div>
@@ -227,7 +227,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
             {/* Theme Toggle */}
             <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={() => setTheme(isDark ? 'light' : 'dark')}>
               <div className="flex items-center gap-5">
-                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                <div className="size-10 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
                   {isDark ? <Moon size={18} strokeWidth={1.5} /> : <Sun size={18} strokeWidth={1.5} className="text-amber-500" />}
                 </div>
                 <div>
@@ -243,7 +243,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
             {/* Change Password */}
             <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={() => setIsPasswordModalOpen(true)}>
               <div className="flex items-center gap-5">
-                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                <div className="size-10 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
                   <Key size={18} strokeWidth={1.5} />
                 </div>
                 <div>
@@ -263,7 +263,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
             {/* PIN Security */}
             <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={handleTogglePin}>
               <div className="flex items-center gap-5">
-                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                <div className="size-10 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
                   <ShieldCheck size={18} strokeWidth={1.5} />
                 </div>
                 <div>
@@ -287,7 +287,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
                 onUpdateProfile();
               }}>
               <div className="flex items-center gap-5">
-                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                <div className="size-10 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
                   <Fingerprint size={18} strokeWidth={1.5} />
                 </div>
                 <div>
@@ -311,7 +311,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
             {/* Daily Reminder */}
             <div className="px-6 py-4 flex items-center justify-between active:bg-white/[0.03] transition-colors group" onClick={handleToggleReminder}>
               <div className="flex items-center gap-5">
-                <div className="size-10 rounded-2xl bg-zinc-900 flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
+                <div className="size-10 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground group-active:scale-95 transition-transform">
                   <Bell size={18} strokeWidth={1.5} />
                 </div>
                 <div>
@@ -413,7 +413,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
         <div className="fixed inset-0 z-[1100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0" onClick={() => setIsLogoutModalOpen(false)} />
           
-          <div className="relative w-full max-w-[320px] bg-zinc-950 border border-white/5 rounded-[28px] p-8 shadow-2xl animate-in zoom-in-95 duration-500">
+          <div className="relative w-full max-w-[320px] bg-background border border-white/5 rounded-[28px] p-8 shadow-2xl animate-in zoom-in-95 duration-500">
             <div className="text-center mb-8">
               <div className="size-16 rounded-2xl bg-rose-500/10 flex items-center justify-center mx-auto mb-6">
                 <LogOut size={24} className="text-rose-500" strokeWidth={1.5} />

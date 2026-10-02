@@ -272,7 +272,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
     <div className="flex flex-col min-h-screen bg-[#09090b] text-foreground pb-28 animate-in fade-in duration-300 overflow-x-hidden font-sans">
       {/* Sticky Header with NO Collision */}
       <header className="sticky top-0 z-40 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.06] px-4 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] pb-3.5">
-        <div className="flex items-center justify-between mb-3 max-w-md md:max-w-5xl mx-auto">
+        <div className="flex items-center justify-between mb-3 max-w-md xl:max-w-6xl mx-auto">
           <button 
             onClick={onBack} 
             type="button"
@@ -296,7 +296,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
           </button>
         </div>
 
-        <div className="flex flex-col items-center gap-2.5 max-w-md md:max-w-5xl mx-auto">
+        <div className="flex flex-col items-center gap-2.5 max-w-md xl:max-w-6xl mx-auto">
           {/* Segmented Control */}
           <div className="bg-zinc-900/90 p-1 rounded-xl flex items-center gap-1 border border-white/[0.08] w-full max-w-xs shadow-inner">
             {[
@@ -345,7 +345,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
       </header>
 
       {/* Main Content Area */}
-      <div className={`px-4 pt-4 space-y-4 ${isMobile ? 'max-w-md mx-auto' : 'max-w-5xl mx-auto'}`}>
+      <div className={`px-4 pt-4 space-y-4 ${isMobile ? 'max-w-md mx-auto' : 'max-w-6xl mx-auto xl:px-8'}`}>
         {/* Net Balance Card with Real Depth */}
         <section className="rounded-2xl p-5 bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-white/[0.08] shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl -mr-16 -mt-16 pointer-events-none" />
@@ -397,7 +397,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
             )}
           </div>
         ) : (
-          <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 md:grid-cols-2 gap-3'}>
+          <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3'}>
             {filteredDebts.map(debt => {
               const { name, installment } = parseDebtMeta(debt.title);
               const progressPct = installment 
