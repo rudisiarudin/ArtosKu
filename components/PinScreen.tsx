@@ -85,7 +85,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 z-[1000] bg-[var(--bg-deep)] flex flex-col items-center justify-center p-6 select-none">
+        <div className="fixed inset-0 z-[1000] bg-background flex flex-col items-center justify-center p-6 select-none">
             {/* Background Glows */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#00d293]/5 rounded-full blur-[120px]"></div>
@@ -95,13 +95,13 @@ const PinScreen: React.FC<PinScreenProps> = ({
             <div className="w-full max-w-[360px] relative z-10 flex flex-col items-center text-center">
                 {/* Header */}
                 <div className="mb-10">
-                    <div className="w-16 h-16 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-center mb-6 shadow-2xl relative group mx-auto"
+                    <div className="w-16 h-16 rounded-3xl bg-card border border-border flex items-center justify-center mb-6 shadow-2xl relative group mx-auto"
                         onClick={() => biometricAvailable && performBiometricVerification()}>
                         <div className="absolute inset-0 bg-[#00d293]/10 blur-xl rounded-full opacity-50"></div>
                         <i className={`fa-solid ${error ? 'fa-lock-open text-rose-500' : 'fa-lock text-[#00d293]'} text-xl z-10 transition-colors`}></i>
                     </div>
-                    <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)] mb-2">{title}</h1>
-                    <p className={`text-xs font-medium px-4 transition-colors ${error ? 'text-rose-500' : 'text-[var(--text-muted)] opacity-60'}`}>
+                    <h1 className="text-2xl font-bold tracking-tight text-foreground mb-2">{title}</h1>
+                    <p className={`text-xs font-medium px-4 transition-colors ${error ? 'text-rose-500' : 'text-muted-foreground opacity-60'}`}>
                         {error ? "PIN Salah. Silakan coba lagi." : description}
                     </p>
                 </div>
@@ -114,7 +114,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
                             className={`w-3.5 h-3.5 rounded-full transition-all duration-300 border shadow-[0_0_10px_rgba(0,0,0,0.5)]
                                 ${pin.length > i
                                     ? 'bg-[#00d293] border-[#00d293] scale-125 shadow-[0_0_15px_rgba(0,210,147,0.4)]'
-                                    : 'bg-[rgba(var(--bg-inner-rgb),0.5)] border-[var(--border-subtle)] scale-100'
+                                    : 'bg-[rgba(var(--bg-inner-rgb),0.5)] border-border scale-100'
                                 }
                                 ${error ? 'bg-rose-500 border-rose-500 animate-shake' : ''}
                             `}
@@ -129,7 +129,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
                             key={num}
                             onClick={() => handleKeyClick(num)}
                             disabled={loading}
-                            className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-medium text-[var(--text-primary)] hover:bg-[var(--bg-card)] active:bg-[var(--bg-inner)] active:scale-95 transition-all"
+                            className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-medium text-foreground hover:bg-card active:bg-muted active:scale-95 transition-all"
                         >
                             {num}
                         </button>
@@ -145,7 +145,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
                     ) : (
                         <button
                             onClick={onLogout}
-                            className="w-16 h-16 rounded-full flex flex-col items-center justify-center text-[10px] font-bold tracking-widest text-[var(--text-muted)] opacity-50 hover:text-[var(--text-primary)] hover:opacity-100 hover:bg-[var(--bg-card)] active:bg-[var(--bg-inner)] active:scale-95 transition-all text-center leading-tight gap-0.5"
+                            className="w-16 h-16 rounded-full flex flex-col items-center justify-center text-[10px] font-bold tracking-widest text-muted-foreground opacity-50 hover:text-foreground hover:opacity-100 hover:bg-card active:bg-muted active:scale-95 transition-all text-center leading-tight gap-0.5"
                         >
                             <span>Sign</span>
                             <span>out</span>
@@ -155,13 +155,13 @@ const PinScreen: React.FC<PinScreenProps> = ({
                     <button
                         onClick={() => handleKeyClick('0')}
                         disabled={loading}
-                        className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-medium text-[var(--text-primary)] hover:bg-[var(--bg-card)] active:bg-[var(--bg-inner)] active:scale-95 transition-all"
+                        className="w-16 h-16 rounded-full flex items-center justify-center text-3xl font-medium text-foreground hover:bg-card active:bg-muted active:scale-95 transition-all"
                     >
                         0
                     </button>
                     <button
                         onClick={handleDelete}
-                        className="w-16 h-16 rounded-full flex items-center justify-center text-[var(--text-muted)] opacity-50 hover:opacity-100 hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] active:bg-[var(--bg-inner)] active:scale-95 transition-all"
+                        className="w-16 h-16 rounded-full flex items-center justify-center text-muted-foreground opacity-50 hover:opacity-100 hover:text-foreground hover:bg-card active:bg-muted active:scale-95 transition-all"
                     >
                         <i className="fa-solid fa-delete-left text-2xl"></i>
                     </button>
@@ -175,7 +175,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
                 )}
 
                 {/* Status Bar Indicator */}
-                <div className="mt-6 text-[9px] font-bold text-[var(--text-muted)] tracking-[0.3em] opacity-50">
+                <div className="mt-6 text-[9px] font-bold text-muted-foreground tracking-[0.3em] opacity-50">
                     Secured by ArtosKu
                 </div>
             </div>

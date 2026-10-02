@@ -139,7 +139,7 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
   return (
     <div className="min-h-[calc(100vh-100px)]">
         {/* TIME RANGE SELECTOR */}
-        <div className="bg-[var(--bg-inner)] p-1.5 rounded-2xl inline-flex mb-8 border border-[var(--border-subtle)]">
+        <div className="bg-muted p-1.5 rounded-2xl inline-flex mb-8 border border-border">
           {['1D', '1W', '1M', '3M', 'YTD', 'All'].map(range => (
             <button 
               key={range}
@@ -155,30 +155,30 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="premium-glass p-6 rounded-[24px] border border-white/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-wallet text-2xl text-rose-500"></i></div>
-            <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">Total Spent</p>
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Total Spent</p>
             <h3 className="text-2xl font-black tracking-tight">Rp{formatIDR(statsData.totalSpent)}</h3>
             <p className="text-[12px] font-medium text-rose-500 mt-2"><i className="fa-solid fa-arrow-trend-up mr-1"></i> 12% vs last {timeRange}</p>
           </div>
 
           <div className="premium-glass p-6 rounded-[24px] border border-white/5 relative overflow-hidden group">
              <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-chart-line text-2xl text-amber-500"></i></div>
-            <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">Avg. Monthly</p>
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Avg. Monthly</p>
             <h3 className="text-2xl font-black tracking-tight">Rp{formatIDR(statsData.avgMonthly)}</h3>
-            <p className="text-[12px] font-medium text-[var(--text-secondary)] mt-2">Historical average</p>
+            <p className="text-[12px] font-medium text-foreground/80 mt-2">Historical average</p>
           </div>
 
-          <div className="premium-glass p-6 rounded-[24px] border border-[var(--border-subtle)] relative overflow-hidden group">
+          <div className="premium-glass p-6 rounded-[24px] border border-border relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-fire text-2xl text-orange-500"></i></div>
-            <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">Highest Category</p>
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Highest Category</p>
             <h3 className="text-2xl font-black tracking-tight capitalize truncate w-3/4">{statsData.sortedCats[0]?.[0] || '-'}</h3>
-            <p className="text-[12px] font-medium text-[var(--text-secondary)] mt-2">Rp{formatIDR(statsData.sortedCats[0]?.[1] || 0)}</p>
+            <p className="text-[12px] font-medium text-foreground/80 mt-2">Rp{formatIDR(statsData.sortedCats[0]?.[1] || 0)}</p>
           </div>
 
-          <div className="premium-glass p-6 rounded-[24px] border border-[var(--border-subtle)] relative overflow-hidden group">
+          <div className="premium-glass p-6 rounded-[24px] border border-border relative overflow-hidden group">
              <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-piggy-bank text-2xl text-emerald-500"></i></div>
-            <p className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">Savings Rate</p>
+            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Savings Rate</p>
             <h3 className="text-2xl font-black tracking-tight text-emerald-400">{statsData.savingsRate.toFixed(1)}%</h3>
-            <p className="text-[12px] font-medium text-[var(--text-secondary)] mt-2">Of total income</p>
+            <p className="text-[12px] font-medium text-foreground/80 mt-2">Of total income</p>
           </div>
         </div>
 
@@ -190,9 +190,9 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-lg font-black tracking-tight">Cash Outflow Trend</h3>
-                <p className="text-[12px] text-[var(--text-muted)]">Cumulative spending over {timeRange}</p>
+                <p className="text-[12px] text-muted-foreground">Cumulative spending over {timeRange}</p>
               </div>
-              <button className="w-10 h-10 rounded-xl bg-[var(--bg-inner)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] hover:text-white transition-colors">
+              <button className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground/80 hover:text-white transition-colors">
                 <i className="fa-solid fa-download"></i>
               </button>
             </div>
@@ -233,7 +233,7 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
           {/* Donut Chart Breakdown */}
           <div className="premium-glass p-8 rounded-[24px] border border-white/5 flex flex-col">
             <h3 className="text-lg font-black tracking-tight mb-2">Category Breakdown</h3>
-            <p className="text-[12px] text-[var(--text-muted)] mb-6">Distribution of expenses</p>
+            <p className="text-[12px] text-muted-foreground mb-6">Distribution of expenses</p>
             
             <div className="h-[200px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
@@ -260,9 +260,9 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
               </ResponsiveContainer>
               {/* Center Text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
-                <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Total</span>
+                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Total</span>
                 <span className="text-xl font-black text-white">{statsData.sortedCats.length}</span>
-                <span className="text-[10px] text-[var(--text-secondary)]">Categories</span>
+                <span className="text-[10px] text-foreground/80">Categories</span>
               </div>
             </div>
 
@@ -295,14 +295,14 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
             <h3 className="text-lg font-black tracking-tight mb-6">Top Merchants</h3>
             <div className="space-y-4">
               {merchantData.map(([merchant, data], index) => (
-                <div key={merchant} className="flex items-center justify-between p-4 bg-[var(--bg-inner)] border border-[var(--border-subtle)] rounded-[20px]">
+                <div key={merchant} className="flex items-center justify-between p-4 bg-muted border border-border rounded-[20px]">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center font-black text-rose-500">
                       #{index + 1}
                     </div>
                     <div>
                       <p className="text-[14px] font-bold text-white capitalize">{merchant}</p>
-                      <p className="text-[11px] font-medium text-[var(--text-secondary)]">{data.count} transactions</p>
+                      <p className="text-[11px] font-medium text-foreground/80">{data.count} transactions</p>
                     </div>
                   </div>
                   <p className="text-[14px] font-black tracking-tight text-white/90">Rp{formatIDR(data.total)}</p>
@@ -333,7 +333,7 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
                        </div>
                        <p className="text-[12px] font-black tabular-nums">{progress.toFixed(0)}%</p>
                      </div>
-                     <div className="h-2 w-full bg-[var(--bg-inner)] rounded-full overflow-hidden">
+                     <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                        <div 
                         className={`h-full rounded-full transition-all duration-1000 ${isDanger ? 'bg-rose-500' : isWarning ? 'bg-amber-500' : 'bg-emerald-500'}`}
                         style={{ width: `${progress}%` }}
