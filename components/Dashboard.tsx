@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { Transaction, TransactionType, Wallet, UserProfile, Dream } from '../types';
+import { Transaction, TransactionType, Wallet, UserProfile, Dream, TabType } from '../types';
 import { getLocalIsoDate } from '../lib/utils';
 import { useLanguage } from '../context/LanguageContext';
 import DashboardMobile from './DashboardMobile';
@@ -17,7 +17,7 @@ interface DashboardProps {
   setTheme: (theme: 'light' | 'dark') => void;
   onTopup: (walletId: string) => void;
   onQuickAction: (label: string) => void;
-  setActiveTab: (tab: any) => void;
+  setActiveTab: (tab: TabType) => void;
   onSearch: () => void;
   onShowNotifications: () => void;
   onSetLimit?: (category: string) => void;
@@ -116,7 +116,7 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
     { id: 'stocks', icon: 'fa-chart-line', label: t('nav.stocks'), action: () => setActiveTab('stocks'), color: 'text-primary', bg: 'bg-primary/10' },
     { id: 'stats', icon: 'fa-chart-pie', label: 'Stats', action: () => setActiveTab('stats'), color: 'text-rose-500', bg: 'bg-rose-500/10' },
     { id: 'dreams', icon: 'fa-star', label: 'Dreams', action: () => setActiveTab('dreams'), color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { id: 'budget', icon: 'fa-bullseye', label: 'Budget', action: () => setActiveTab('budget'), color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { id: 'budget', icon: 'fa-bullseye', label: 'Budget', action: () => setActiveTab('stats'), color: 'text-amber-500', bg: 'bg-amber-500/10' },
   ];
 
   if (isMobile) {

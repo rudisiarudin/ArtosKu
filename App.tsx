@@ -655,6 +655,20 @@ const App: React.FC = () => {
             onUpdateBalanceRequest={(w) => setSelectedWalletForUpdate(w)}
           />
         );
+      case 'deposit':
+        return (
+          <Deposit
+            wallets={wallets}
+            transactions={transactions}
+            onDeposit={() => {
+              const targetWallet = wallets.find(w => w.type === WalletType.INVESTMENT) || wallets[0];
+              if (targetWallet) handleOpenTopup(targetWallet.id, { title: 'Tambah Tabungan' });
+            }}
+            onWithdraw={() => setIsTransferModalOpen(true)}
+            onUpdateBalance={handleUpdateBalance}
+            onUpdateBalanceRequest={(wallet) => setSelectedWalletForUpdate(wallet)}
+          />
+        );
       case 'profile':
         return (
           <Profile
@@ -732,7 +746,7 @@ const App: React.FC = () => {
         {/* Offline Status Banner */}
         <OfflineBanner />
         {/* Background blobs simplified for "Clean" look */}
-        <div className="fixed inset-0 pointer-events-none pointer-events-none overflow-hidden z-0">
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full -mr-64 -mt-64"></div>
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/[0.03] blur-[100px] rounded-full -ml-32 -mb-32"></div>
         </div>
@@ -742,6 +756,7 @@ const App: React.FC = () => {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             userName={userProfile?.full_name || userName}
+            profile={userProfile}
           />
         )}
 
@@ -758,7 +773,7 @@ const App: React.FC = () => {
         )}
 
         <div className={`relative z-10 w-full min-h-screen flex flex-col bg-background ${isDesktop ? 'xl:pl-72' : 'max-w-md mx-auto shadow-[0_0_50px_rgba(0,0,0,0.3)]'}`}>
-          <main className="flex-1 pb-32">
+          <main className={`flex-1 ${isDesktop ? 'pb-12' : 'pb-32'}`}>
             <div className="h-full">
               {renderTabContent()}
             </div>

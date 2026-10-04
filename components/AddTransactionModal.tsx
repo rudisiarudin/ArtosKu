@@ -10,7 +10,6 @@ import {
 import { WalletLogo } from './WalletLogo';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
-import { Card, CardContent } from './ui/card';
 import { cn } from '@/lib/utils';
 
 interface AddTransactionModalProps {
@@ -26,7 +25,7 @@ interface AddTransactionModalProps {
 }
 
 const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({ 
-  isOpen, onClose, onAdd, wallets, transactions, debts, userName, prefilledData, theme 
+  isOpen, onClose, onAdd, wallets, transactions, debts, userName, prefilledData
 }) => {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
@@ -71,14 +70,25 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
         amount: '0',
         type: prefilledData?.type || TransactionType.EXPENSE,
         category: prefilledData?.category || 'Makan',
+        date: getLocalIsoString(),
         description: prefilledData?.description || '',
         walletId: prefilledData?.walletId || defaultWalletId
       }));
+      setIsWalletPickerOpen(false);
     } else {
       document.body.classList.remove('modal-open');
     }
     return () => document.body.classList.remove('modal-open');
   }, [isOpen, prefilledData, wallets]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isSuccess) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isSuccess, onClose]);
 
   const handleAiSmartFill = async () => {
     if (!aiInput.trim() || isAiLoading) return;
@@ -151,7 +161,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-end md:justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="absolute inset-0" onClick={onClose} />
+      <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Tutup modal transaksi" />
       
       {isSuccess && (
         <div className="absolute inset-0 z-[60] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center px-8 text-center animate-in zoom-in-95 duration-200">
@@ -164,7 +174,12 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
       )}
 
       {/* Main Bottom Sheet Container with strict vertical flex hierarchy */}
-      <div className="relative w-full max-w-lg bg-background rounded-t-3xl md:rounded-2xl shadow-2xl flex flex-col max-h-[92vh] md:max-h-[88vh] border border-border overflow-hidden z-10">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-transaction-title"
+        className="relative w-full max-w-lg bg-background rounded-t-3xl md:rounded-2xl shadow-2xl flex flex-col max-h-[92vh] md:max-h-[88vh] border border-border overflow-hidden z-10"
+      >
         
         {/* Mobile Drag Indicator */}
         <div className="w-12 h-1.5 bg-muted-foreground/20 rounded-full mx-auto mt-3 mb-1 shrink-0 md:hidden" />
@@ -173,9 +188,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
         <div className="flex items-center justify-between px-6 py-3 shrink-0 border-b border-border/40">
           <div>
             <p className="text-[11px] font-bold text-primary uppercase tracking-wider">New Entry</p>
-            <h2 className="text-lg font-bold text-foreground tracking-tight">Record Transaction</h2>
+            <h2 id="add-transaction-title" className="text-lg font-bold text-foreground tracking-tight">Record Transaction</h2>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="size-9 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground">
+          <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Tutup" className="size-9 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground">
             <X className="size-5" />
           </Button>
         </div>
@@ -202,8 +217,10 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
                 />
               </div>
               <Button 
+                type="button"
                 size="icon"
                 onClick={handleAiSmartFill}
+                aria-label="Isi transaksi otomatis"
                 disabled={!aiInput.trim() || isAiLoading}
                 className="size-8 rounded-lg shrink-0"
               >
@@ -221,7 +238,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
           <div className="text-center py-2">
             <div className="flex flex-col items-center justify-center">
               <div className="relative z-10 flex items-center justify-center w-full">
+                <label htmlFor="transaction-amount" className="sr-only">Jumlah transaksi</label>
                 <input 
+                  id="transaction-amount"
                   type="text"
                   inputMode="numeric"
                   autoFocus
@@ -270,28 +289,31 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
           {/* Wallet Selector Card */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Source of Funds</Label>
-            <Card 
-              className="border border-border bg-card cursor-pointer hover:border-primary/40 active:scale-[0.99] transition-all shadow-sm"
+            <button
+              type="button"
+              className="w-full rounded-xl border border-border bg-card p-3.5 text-left shadow-sm transition-all hover:border-primary/40 active:scale-[0.99]"
               onClick={() => setIsWalletPickerOpen(!isWalletPickerOpen)}
+              aria-expanded={isWalletPickerOpen}
+              aria-controls="wallet-picker-options"
             >
-              <CardContent className="p-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-3.5">
-                  <div className="size-10 rounded-xl bg-muted flex items-center justify-center text-primary shrink-0">
+              <span className="flex items-center justify-between">
+                <span className="flex items-center gap-3.5">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-primary">
                     <WalletLogo wallet={wallets.find(w => w.id === formData.walletId) || {} as any} size={20} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground tracking-tight">{wallets.find(w => w.id === formData.walletId)?.name || 'Select Wallet'}</p>
-                    <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                  </span>
+                  <span>
+                    <span className="block text-sm font-bold text-foreground tracking-tight">{wallets.find(w => w.id === formData.walletId)?.name || 'Select Wallet'}</span>
+                    <span className="mt-0.5 block text-xs font-medium text-muted-foreground">
                       Rp {formatIDR((wallets.find(w => w.id === formData.walletId)?.balance || 0).toString())}
-                    </p>
-                  </div>
-                </div>
+                    </span>
+                  </span>
+                </span>
                 <ChevronDown className={cn("size-4 text-muted-foreground transition-transform duration-200", isWalletPickerOpen ? 'rotate-180' : '')} />
-              </CardContent>
-            </Card>
+              </span>
+            </button>
 
             {isWalletPickerOpen && (
-              <div className="grid grid-cols-1 gap-1.5 p-1.5 bg-muted/40 border border-border rounded-xl mt-1 animate-in fade-in-50 duration-150">
+              <div id="wallet-picker-options" className="grid grid-cols-1 gap-1.5 p-1.5 bg-muted/40 border border-border rounded-xl mt-1 animate-in fade-in-50 duration-150">
                 {wallets.filter(w => w.code !== 'STOCKS').map(w => (
                   <Button 
                     key={w.id} 
@@ -357,22 +379,16 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
               />
             </div>
             
-            <div 
-              onClick={() => (dateInputRef.current as any)?.showPicker?.()} 
-              className="bg-card border border-border rounded-xl p-3.5 flex flex-col gap-1 cursor-pointer hover:border-primary/50 active:scale-95 transition-all shadow-sm relative"
-            >
-              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Date</Label>
-              <span className="text-xs font-semibold text-foreground">
-                {new Date(formData.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-              </span>
-              <input 
-                ref={dateInputRef} 
-                type="date" 
-                value={formData.date.split('T')[0]} 
-                onChange={e => setFormData(prev => ({ ...prev, date: `${e.target.value}T${new Date().toISOString().split('T')[1]}` }))} 
-                className="absolute inset-0 opacity-0 pointer-events-none" 
+            <label className="bg-card border border-border rounded-xl p-3.5 flex flex-col gap-1 hover:border-primary/50 transition-all shadow-sm">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Date</span>
+              <input
+                ref={dateInputRef}
+                type="date"
+                value={formData.date.split('T')[0]}
+                onChange={e => setFormData(prev => ({ ...prev, date: `${e.target.value}T${new Date().toISOString().split('T')[1]}` }))}
+                className="min-w-0 bg-transparent text-xs font-semibold text-foreground outline-none [color-scheme:light] dark:[color-scheme:dark]"
               />
-            </div>
+            </label>
           </div>
 
         </div>
@@ -382,7 +398,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = React.memo(({
           <Button 
             onClick={handleSubmit}
             className="w-full h-12 rounded-xl font-bold text-sm uppercase tracking-wider shadow-md"
-            disabled={!formData.amount || formData.amount === '0'}
+            disabled={!formData.walletId || !formData.amount || formData.amount === '0'}
           >
             Confirm Transaction
           </Button>

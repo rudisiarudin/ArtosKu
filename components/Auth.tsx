@@ -1,202 +1,164 @@
-import React, { useState, useEffect } from 'react';
-import { signIn, signUp, resetPasswordForEmail, updateUserPassword } from '../lib/supabase';
-import { Mail, Lock, User, Eye, EyeOff, Loader2, ChevronLeft, ArrowRight, ShieldCheck } from 'lucide-react';
-import { vibrate } from '@/lib/utils';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight, ChevronLeft, Eye, EyeOff, Loader2, Lock, Mail, ShieldCheck, User } from 'lucide-react';
+import { resetPasswordForEmail, signIn, signUp, updateUserPassword } from '../lib/supabase';
+import { vibrate } from '../lib/utils';
 
 interface AuthProps {
-    onSuccess: () => void;
+  onSuccess: () => void;
 }
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
 const Auth: React.FC<AuthProps> = ({ onSuccess }) => {
-    const [mode, setMode] = useState<AuthMode>('login');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [successMsg, setSuccessMsg] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+  const [mode, setMode] = useState<AuthMode>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-    useEffect(() => {
-        if (window.location.hash && window.location.hash.includes('type=recovery')) {
-            setMode('reset');
-        }
-    }, []);
+  useEffect(() => {
+    if (window.location.hash.includes('type=recovery')) setMode('reset');
+  }, []);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setSuccessMsg('');
-        setLoading(true);
-        vibrate(5);
+  const changeMode = (nextMode: AuthMode) => {
+    setMode(nextMode);
+    setError('');
+    setSuccessMsg('');
+    setPassword('');
+    vibrate(2);
+  };
 
-        try {
-            if (mode === 'login') {
-                const { error } = await signIn(email, password);
-                if (error) throw error;
-                onSuccess();
-            } else if (mode === 'signup') {
-                const { error } = await signUp(email, password, fullName);
-                if (error) throw error;
-                setSuccessMsg('Verification link sent.');
-            } else if (mode === 'forgot') {
-                const { error } = await resetPasswordForEmail(email);
-                if (error) throw error;
-                setSuccessMsg('Instructions sent.');
-            } else if (mode === 'reset') {
-                const { error } = await updateUserPassword(password);
-                if (error) throw error;
-                setSuccessMsg('Security key updated.');
-                setTimeout(() => setMode('login'), 2000);
-            }
-        } catch (err: any) {
-            setError(err.message || 'Access denied.');
-            vibrate([10, 50, 10]);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError('');
+    setSuccessMsg('');
+    setLoading(true);
+    vibrate(5);
 
-    const isLogin = mode === 'login';
-    const isSignup = mode === 'signup';
+    try {
+      if (mode === 'login') {
+        const { error: authError } = await signIn(email, password);
+        if (authError) throw authError;
+        onSuccess();
+      } else if (mode === 'signup') {
+        const { error: authError } = await signUp(email, password, fullName);
+        if (authError) throw authError;
+        setSuccessMsg('Tautan verifikasi telah dikirim ke email Anda.');
+      } else if (mode === 'forgot') {
+        const { error: authError } = await resetPasswordForEmail(email);
+        if (authError) throw authError;
+        setSuccessMsg('Instruksi pemulihan telah dikirim ke email Anda.');
+      } else {
+        const { error: authError } = await updateUserPassword(password);
+        if (authError) throw authError;
+        setSuccessMsg('Kata sandi berhasil diperbarui. Silakan masuk kembali.');
+        window.setTimeout(() => changeMode('login'), 1800);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Permintaan tidak dapat diproses.');
+      vibrate([10, 50, 10]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center p-6 selection:bg-emerald-500/20 font-sans">
-            <div className="w-full max-w-[360px] space-y-10">
-                {/* Branding */}
-                <div className="text-center space-y-3">
-                    <div className="size-14 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center mx-auto mb-4 shadow-2xl">
-                        <img src="/pwa-192x192.png" alt="ArtosKu" className="size-8" />
-                    </div>
-                    <h1 className="text-3xl font-bold tracking-tight text-white uppercase italic text-center w-full">ArtosKu</h1>
-                    <p className="text-[10px] font-bold text-zinc-500 tracking-[0.4em] uppercase text-center w-full">Private Asset Node</p>
-                </div>
+  const showEmail = mode !== 'reset';
+  const showPasswordField = mode !== 'forgot';
+  const titles: Record<AuthMode, { title: string; subtitle: string; action: string }> = {
+    login: { title: 'Selamat datang', subtitle: 'Masuk untuk melanjutkan ke keuangan Anda.', action: 'Masuk' },
+    signup: { title: 'Buat akun', subtitle: 'Mulai kelola keuangan dalam satu tempat.', action: 'Daftar' },
+    forgot: { title: 'Pulihkan akun', subtitle: 'Kami akan mengirim tautan pemulihan ke email Anda.', action: 'Kirim Instruksi' },
+    reset: { title: 'Buat kata sandi baru', subtitle: 'Gunakan kata sandi yang kuat dan mudah Anda ingat.', action: 'Simpan Kata Sandi' },
+  };
 
-                <div className="bg-zinc-900/50 border border-white/5 rounded-[2rem] p-8 shadow-2xl space-y-8">
-                    {/* Consistent Segmented Toggle */}
-                    <div className="flex bg-zinc-950 p-1.5 rounded-xl border border-white/5 relative h-12">
-                        <div 
-                            className={`absolute inset-y-1.5 rounded-lg bg-zinc-800 transition-all duration-300 ease-in-out shadow-lg ${
-                                isLogin ? 'left-1.5 w-[calc(50%-4px)]' : 'left-[calc(50%+3px)] w-[calc(50%-9px)]'
-                            }`}
-                            style={{ width: 'calc(50% - 6px)' }}
-                        />
-                        <button
-                            onClick={() => { setMode('login'); vibrate(2); }}
-                            className={`relative z-10 flex-1 flex items-center justify-center text-[11px] font-bold tracking-widest uppercase transition-colors ${isLogin ? 'text-white' : 'text-zinc-500'}`}
-                        >
-                            Sign In
-                        </button>
-                        <button
-                            onClick={() => { setMode('signup'); vibrate(2); }}
-                            className={`relative z-10 flex-1 flex items-center justify-center text-[11px] font-bold tracking-widest uppercase transition-colors ${isSignup ? 'text-white' : 'text-zinc-500'}`}
-                        >
-                            Sign Up
-                        </button>
-                    </div>
+  return (
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 p-5 font-sans text-white selection:bg-emerald-500/20">
+      <div className="pointer-events-none absolute -right-40 -top-40 size-[32rem] rounded-full bg-emerald-500/10 blur-[120px]" />
+      <div className="pointer-events-none absolute -bottom-52 -left-40 size-[30rem] rounded-full bg-cyan-500/5 blur-[120px]" />
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {isSignup && (
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Identity</label>
-                                <div className="flex items-center bg-zinc-950 border border-white/5 rounded-xl px-4 h-12 focus-within:border-emerald-500/20 transition-all">
-                                    <User className="size-4 text-zinc-500 shrink-0" />
-                                    <input
-                                        type="text"
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
-                                        className="w-full bg-transparent pl-3 text-sm text-white placeholder:text-zinc-800 outline-none"
-                                        placeholder="Full Name"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Access Point</label>
-                            <div className="flex items-center bg-zinc-950 border border-white/5 rounded-xl px-4 h-12 focus-within:border-emerald-500/20 transition-all">
-                                <Mail className="size-4 text-zinc-500 shrink-0" />
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-transparent pl-3 text-sm text-white placeholder:text-zinc-800 outline-none"
-                                    placeholder="name@email.com"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center ml-1">
-                                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Security Key</label>
-                                {isLogin && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setMode('forgot')}
-                                        className="text-[10px] font-bold text-emerald-500/50 hover:text-emerald-500 transition-colors uppercase"
-                                    >
-                                        Recover
-                                    </button>
-                                )}
-                            </div>
-                            <div className="flex items-center bg-zinc-950 border border-white/5 rounded-xl px-4 h-12 focus-within:border-emerald-500/20 transition-all">
-                                <Lock className="size-4 text-zinc-500 shrink-0" />
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-transparent pl-3 pr-2 text-sm text-white placeholder:text-zinc-800 outline-none tracking-widest"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="text-zinc-500 hover:text-emerald-500 transition-colors ml-auto shrink-0"
-                                >
-                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                </button>
-                            </div>
-                        </div>
-
-                        {error && (
-                            <div className="p-3.5 rounded-xl bg-rose-500/5 border border-rose-500/10 text-[10px] font-bold text-rose-500 uppercase text-center tracking-tight">
-                                {error}
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full h-14 bg-emerald-500 text-black rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] mt-6 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/10"
-                        >
-                            {loading ? (
-                                <Loader2 className="animate-spin size-5" />
-                            ) : (
-                                <>
-                                    Confirm Access
-                                    <ArrowRight size={14} />
-                                </>
-                            )}
-                        </button>
-                    </form>
-                </div>
-
-                {/* Secure Footer */}
-                <div className="text-center pt-4 opacity-20">
-                    <div className="flex items-center justify-center gap-2">
-                        <ShieldCheck size={12} className="text-emerald-500" />
-                        <span className="text-[8px] font-black uppercase tracking-[0.4em]">End-to-End Encryption Standard</span>
-                    </div>
-                </div>
-            </div>
+      <div className="relative w-full max-w-[420px]">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl">
+            <img src="/pwa-192x192.png" alt="" className="size-8" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight">ArtosKu</h1>
+          <p className="mt-2 text-sm text-zinc-400">Keuangan pribadi, lebih teratur.</p>
         </div>
-    );
+
+        <section className="rounded-3xl border border-white/10 bg-zinc-900/75 p-7 shadow-2xl backdrop-blur-xl sm:p-8" aria-labelledby="auth-title">
+          {(mode === 'login' || mode === 'signup') ? (
+            <div className="mb-7 grid grid-cols-2 rounded-xl border border-white/5 bg-zinc-950 p-1">
+              <button type="button" onClick={() => changeMode('login')} aria-pressed={mode === 'login'} className={`h-10 rounded-lg text-xs font-semibold transition-colors ${mode === 'login' ? 'bg-zinc-800 text-white shadow' : 'text-zinc-500 hover:text-zinc-300'}`}>Masuk</button>
+              <button type="button" onClick={() => changeMode('signup')} aria-pressed={mode === 'signup'} className={`h-10 rounded-lg text-xs font-semibold transition-colors ${mode === 'signup' ? 'bg-zinc-800 text-white shadow' : 'text-zinc-500 hover:text-zinc-300'}`}>Daftar</button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => changeMode('login')} className="mb-6 flex items-center gap-2 text-xs font-semibold text-zinc-400 transition-colors hover:text-white">
+              <ChevronLeft size={16} aria-hidden="true" /> Kembali ke halaman masuk
+            </button>
+          )}
+
+          <div className="mb-7">
+            <h2 id="auth-title" className="text-xl font-bold">{titles[mode].title}</h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{titles[mode].subtitle}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {mode === 'signup' && (
+              <label className="block space-y-2 text-xs font-semibold text-zinc-400">
+                Nama lengkap
+                <span className="flex h-12 items-center rounded-xl border border-white/10 bg-zinc-950 px-4 transition-colors focus-within:border-emerald-500/50">
+                  <User className="size-4 shrink-0" aria-hidden="true" />
+                  <input type="text" value={fullName} onChange={(event) => setFullName(event.target.value)} className="h-full w-full bg-transparent pl-3 text-sm text-white outline-none placeholder:text-zinc-700" placeholder="Nama Anda" autoComplete="name" required />
+                </span>
+              </label>
+            )}
+
+            {showEmail && (
+              <label className="block space-y-2 text-xs font-semibold text-zinc-400">
+                Email
+                <span className="flex h-12 items-center rounded-xl border border-white/10 bg-zinc-950 px-4 transition-colors focus-within:border-emerald-500/50">
+                  <Mail className="size-4 shrink-0" aria-hidden="true" />
+                  <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="h-full w-full bg-transparent pl-3 text-sm text-white outline-none placeholder:text-zinc-700" placeholder="nama@email.com" autoComplete="email" required />
+                </span>
+              </label>
+            )}
+
+            {showPasswordField && (
+              <label className="block space-y-2 text-xs font-semibold text-zinc-400">
+                Kata sandi
+                <span className="flex h-12 items-center rounded-xl border border-white/10 bg-zinc-950 px-4 transition-colors focus-within:border-emerald-500/50">
+                  <Lock className="size-4 shrink-0" aria-hidden="true" />
+                  <input type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} className="h-full w-full bg-transparent px-3 text-sm text-white outline-none placeholder:text-zinc-700" placeholder="Minimal 6 karakter" autoComplete={mode === 'reset' ? 'new-password' : 'current-password'} minLength={6} required />
+                  <button type="button" onClick={() => setShowPassword((visible) => !visible)} className="flex size-8 items-center justify-center text-zinc-500 transition-colors hover:text-emerald-400" aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}>
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </span>
+                {mode === 'login' && (
+                  <button type="button" onClick={() => changeMode('forgot')} className="mt-2 block text-xs font-semibold text-emerald-400 transition-colors hover:text-emerald-300">Lupa kata sandi?</button>
+                )}
+              </label>
+            )}
+
+            <div aria-live="polite">
+              {error && <p className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-center text-xs font-medium text-rose-400">{error}</p>}
+              {successMsg && <p className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-xs font-medium text-emerald-400">{successMsg}</p>}
+            </div>
+
+            <button type="submit" disabled={loading} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 text-sm font-bold text-zinc-950 shadow-lg shadow-emerald-500/10 transition-all hover:bg-emerald-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50">
+              {loading ? <Loader2 className="size-5 animate-spin" aria-label="Memproses" /> : <>{titles[mode].action}<ArrowRight size={16} aria-hidden="true" /></>}
+            </button>
+          </form>
+        </section>
+
+        <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-600">
+          <ShieldCheck size={13} className="text-emerald-500" aria-hidden="true" /> Data Anda dilindungi
+        </div>
+      </div>
+    </main>
+  );
 };
 
 export default Auth;
-

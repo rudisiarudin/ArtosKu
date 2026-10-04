@@ -10,12 +10,12 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActiveTab }) => {
-    const { t } = useLanguage();
+    const { t, lang } = useLanguage();
 
     const tabs: { id: TabType; icon: any; label: string }[] = [
         { id: 'dashboard',    icon: Home,       label: t('nav.dashboard') || 'Beranda' },
-        { id: 'transactions', icon: History,    label: 'Riwayat' },
-        { id: 'debt',         icon: CreditCard, label: 'Cicilan' },
+        { id: 'transactions', icon: History,    label: lang === 'id' ? 'Riwayat' : 'History' },
+        { id: 'debt',         icon: CreditCard, label: lang === 'id' ? 'Cicilan' : 'Debts' },
         { id: 'wallets',      icon: Wallet,     label: t('nav.performance') || 'Dompet' },
         { id: 'profile',      icon: User,       label: t('nav.profile') || 'Profil' },
     ];
@@ -40,6 +40,7 @@ const Navigation: React.FC<NavigationProps> = React.memo(({ activeTab, setActive
                             type="button"
                             className="relative flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all duration-150 active:scale-90 select-none cursor-pointer"
                             aria-label={tab.label}
+                            aria-current={isActive ? 'page' : undefined}
                         >
                             {/* Active pill indicator at top of tab */}
                             <span
