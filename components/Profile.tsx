@@ -153,7 +153,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
           <div className="absolute -inset-4 bg-primary/5 blur-[32px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
           
           <div className="size-24 rounded-full p-1 bg-gradient-to-tr from-primary/20 via-transparent to-transparent relative z-10 group-active:scale-95 transition-transform duration-500">
-            <div className="w-full h-full rounded-full overflow-hidden bg-muted flex items-center justify-center relative border border-white/5 shadow-2xl">
+            <div className="w-full h-full rounded-full overflow-hidden bg-muted flex items-center justify-center relative border border-border shadow-2xl">
               {isUploading ? (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-10">
                   <RefreshCw className="size-6 text-primary animate-spin" />
@@ -196,7 +196,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
             { label: 'Uptime Connection', val: '100%', icon: Check, color: 'text-blue-500' },
             { label: 'Security Tier', val: 'Elite', icon: Crown, color: 'text-amber-500' },
           ].map((stat, i) => (
-            <div key={i} className="flex flex-col items-center xl:flex-row xl:justify-start xl:gap-8 xl:px-12 py-4 border-r border-white/5 last:border-0">
+            <div key={i} className="flex flex-col items-center xl:flex-row xl:justify-start xl:gap-8 xl:px-12 py-4 border-r border-border last:border-0">
               <p className="text-[18px] font-bold text-foreground tabular-nums tracking-tighter mb-0.5">{stat.val}</p>
               <p className="text-[8px] font-black text-muted-foreground tracking-[0.2em] uppercase text-center leading-tight">{stat.label}</p>
             </div>
@@ -413,7 +413,7 @@ const Profile: React.FC<ProfileProps> = React.memo(({ userName, theme, setTheme,
         <div className="fixed inset-0 z-[1100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0" onClick={() => setIsLogoutModalOpen(false)} />
           
-          <div className="relative w-full max-w-[320px] bg-background border border-white/5 rounded-[28px] p-8 shadow-2xl animate-in zoom-in-95 duration-500">
+          <div className="relative w-full max-w-[320px] bg-card border border-border rounded-[28px] p-8 shadow-2xl animate-in zoom-in-95 duration-500">
             <div className="text-center mb-8">
               <div className="size-16 rounded-2xl bg-rose-500/10 flex items-center justify-center mx-auto mb-6">
                 <LogOut size={24} className="text-rose-500" strokeWidth={1.5} />

@@ -663,7 +663,7 @@ export const StockMarket: React.FC<StockMarketProps> = ({
     return (
       <div className="flex flex-col items-center justify-center py-24">
         <div className="size-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
-        <p className="text-zinc-500 font-bold text-xs uppercase tracking-widest">{t('stocks.loading_data')}</p>
+        <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest">{t('stocks.loading_data')}</p>
       </div>
     );
   }
@@ -674,12 +674,12 @@ export const StockMarket: React.FC<StockMarketProps> = ({
       {/* SUCCESS OVERLAY */}
       {showSuccessOverlay && (
         <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center animate-in fade-in duration-300">
-          <div className="text-center space-y-6 max-w-sm p-8 rounded-2xl bg-zinc-950 border border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+          <div className="text-center space-y-6 max-w-sm p-8 rounded-2xl bg-card border border-emerald-500/30 shadow-xl">
             <div className="size-20 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 mx-auto animate-bounce">
               <CheckCircle2 size={40} />
             </div>
-            <h2 className="text-2xl font-black text-white tracking-tight uppercase">Success</h2>
-            <p className="text-zinc-400 font-medium text-sm leading-relaxed">{successMessage}</p>
+            <h2 className="text-2xl font-black text-foreground tracking-tight uppercase">Success</h2>
+            <p className="text-muted-foreground font-medium text-sm leading-relaxed">{successMessage}</p>
             <div className="h-1 w-24 bg-primary/30 rounded-full overflow-hidden mx-auto">
               <div className="h-full bg-primary animate-[shimmer_2s_infinite] w-full" />
             </div>
@@ -688,7 +688,7 @@ export const StockMarket: React.FC<StockMarketProps> = ({
       )}
 
       {/* HEADER — sticky top */}
-      <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900/80 -mx-4 px-4 md:mx-0 md:px-0 py-3 mb-2 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-md border-b border-border -mx-4 px-4 md:mx-0 md:px-0 py-3 mb-2 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
             <h1 className="text-base font-black text-white tracking-tight uppercase leading-none">{t('stocks.title')}</h1>

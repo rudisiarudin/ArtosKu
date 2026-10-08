@@ -161,10 +161,10 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
         {/* Dreams List */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {dreams.length === 0 ? (
-            <div className="col-span-full py-12 text-center border-2 border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
-              <Heart className="w-12 h-12 text-white/20 mx-auto mb-4" />
-              <h3 className="text-xl font-black mb-2 text-white">{text.emptyTitle}</h3>
-              <p className="text-white/50">{text.emptySub}</p>
+            <div className="col-span-full py-12 text-center border-2 border-dashed border-border rounded-3xl bg-muted/20">
+              <Heart className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+              <h3 className="text-xl font-black mb-2 text-foreground">{text.emptyTitle}</h3>
+              <p className="text-muted-foreground">{text.emptySub}</p>
             </div>
           ) : (
             autoAllocatedDreams.map(dream => {
@@ -264,14 +264,14 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
       {/* Simple Add Dream Modal - normally extracted to separate component */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[200] flex items-center justify-center p-4">
-          <div className="bg-gradient-to-b from-zinc-900 to-black border border-white/10 rounded-[32px] p-6 md:p-8 w-full max-w-md shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] animate-in zoom-in-95 fade-in duration-500 relative overflow-hidden">
+          <div className="bg-card border border-border rounded-[32px] p-6 md:p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95 fade-in duration-500 relative overflow-hidden">
             {/* Ambient glows */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 blur-[60px] rounded-full -mr-24 -mt-24 pointer-events-none transition-colors duration-1000" style={{ backgroundColor: `${selectedColor}20` }}></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 blur-[40px] rounded-full -ml-16 -mb-16 pointer-events-none transition-colors duration-1000" style={{ backgroundColor: `${selectedColor}10` }}></div>
             
             <div className="flex justify-between items-center mb-8 relative z-10">
-              <h2 className="text-2xl font-black tracking-tighter text-white">{selectedDream ? 'Edit Target' : text.modalTitle}</h2>
-              <button onClick={() => setIsAddModalOpen(false)} className="size-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/50 hover:text-white transition-all">
+              <h2 className="text-2xl font-black tracking-tighter text-foreground">{selectedDream ? 'Edit Target' : text.modalTitle}</h2>
+              <button type="button" aria-label="Tutup" onClick={() => setIsAddModalOpen(false)} className="size-8 rounded-full bg-muted hover:bg-muted/70 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -295,14 +295,14 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
             }} className="space-y-5 relative z-10">
               
               <div>
-                <label className="block text-[9px] font-black text-white/40 mb-2 uppercase tracking-[0.2em] ml-1">{text.modalName}</label>
-                <input required name="title" defaultValue={selectedDream?.title || ''} type="text" placeholder={lang === 'id' ? "Contoh: Biaya Menikah" : "e.g. Wedding Cost"} className="w-full bg-white/[0.03] border border-white/5 hover:border-white/10 rounded-2xl px-5 py-3 outline-none focus:border-emerald-500 focus:bg-white/[0.05] focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-sm text-white placeholder:text-white/20" />
+                <label className="block text-[9px] font-black text-muted-foreground mb-2 uppercase tracking-[0.2em] ml-1">{text.modalName}</label>
+                <input required name="title" defaultValue={selectedDream?.title || ''} type="text" placeholder={lang === 'id' ? "Contoh: Biaya Menikah" : "e.g. Wedding Cost"} className="w-full bg-muted/40 border border-border hover:border-primary/30 rounded-2xl px-5 py-3 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-bold text-sm text-foreground placeholder:text-muted-foreground" />
               </div>
 
               <div>
-                <label className="block text-[9px] font-black text-white/40 mb-2 uppercase tracking-[0.2em] ml-1">{text.modalTarget}</label>
+                <label className="block text-[9px] font-black text-muted-foreground mb-2 uppercase tracking-[0.2em] ml-1">{text.modalTarget}</label>
                 <div className="relative">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 font-black text-sm">Rp</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground font-black text-sm">Rp</span>
                   <input 
                     required 
                     name="target" 
@@ -310,19 +310,19 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
                     value={targetAmountStr}
                     onChange={handleTargetChange}
                     placeholder="25.000.000" 
-                    className="w-full bg-white/[0.03] border border-white/5 hover:border-white/10 rounded-2xl pl-12 pr-5 py-3 outline-none focus:border-emerald-500 focus:bg-white/[0.05] focus:ring-4 focus:ring-emerald-500/10 transition-all font-black text-lg tracking-wider text-white placeholder:text-white/10" 
+                    className="w-full bg-muted/40 border border-border hover:border-primary/30 rounded-2xl pl-12 pr-5 py-3 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-black text-lg tracking-wider text-foreground placeholder:text-muted-foreground" 
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[9px] font-black text-white/40 mb-2 uppercase tracking-[0.2em] ml-1">{text.modalDeadline}</label>
-                <input required name="deadline" defaultValue={selectedDream?.deadline ? new Date(selectedDream.deadline).toISOString().split('T')[0] : ''} type="date" className="w-full bg-white/[0.03] border border-white/5 hover:border-white/10 rounded-2xl px-5 py-3 outline-none focus:border-emerald-500 focus:bg-white/[0.05] focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-sm text-white/80" style={{ colorScheme: 'dark' }} />
+                <label className="block text-[9px] font-black text-muted-foreground mb-2 uppercase tracking-[0.2em] ml-1">{text.modalDeadline}</label>
+                <input required name="deadline" defaultValue={selectedDream?.deadline ? new Date(selectedDream.deadline).toISOString().split('T')[0] : ''} type="date" className="w-full bg-muted/40 border border-border hover:border-primary/30 rounded-2xl px-5 py-3 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-bold text-sm text-foreground [color-scheme:light] dark:[color-scheme:dark]" />
               </div>
               
               <div className="space-y-4 pt-1">
                 <div>
-                  <label className="block text-[9px] font-black text-white/40 mb-2 uppercase tracking-[0.2em] ml-1">{text.modalIcon}</label>
+                  <label className="block text-[9px] font-black text-muted-foreground mb-2 uppercase tracking-[0.2em] ml-1">{text.modalIcon}</label>
                   <div className="flex gap-3 overflow-x-auto py-2 px-2 -mx-2 no-scrollbar">
                     {ICONS.map(icon => (
                       <button
@@ -331,8 +331,8 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
                         onClick={() => setSelectedIcon(icon)}
                         className={`size-10 shrink-0 rounded-[14px] flex items-center justify-center text-sm transition-all border ${
                           selectedIcon === icon 
-                            ? 'bg-white/10 border-white/30 text-white scale-110 shadow-lg' 
-                            : 'bg-white/[0.02] border-white/5 text-white/30 hover:bg-white/5 hover:text-white/60'
+                            ? 'bg-primary/10 border-primary text-primary scale-110 shadow-sm' 
+                            : 'bg-muted/40 border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                         }`}
                       >
                         <i className={`fa-solid fa-${icon}`}></i>
@@ -342,7 +342,7 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
                 </div>
 
                 <div>
-                  <label className="block text-[9px] font-black text-white/40 mb-2 uppercase tracking-[0.2em] ml-1">{text.modalColor}</label>
+                  <label className="block text-[9px] font-black text-muted-foreground mb-2 uppercase tracking-[0.2em] ml-1">{text.modalColor}</label>
                   <div className="flex gap-3 overflow-x-auto py-2 px-2 -mx-2 no-scrollbar">
                     {COLORS.map(color => (
                       <button
@@ -351,7 +351,7 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
                         onClick={() => setSelectedColor(color)}
                         className={`size-8 shrink-0 rounded-full transition-all border-2 relative ${
                           selectedColor === color 
-                            ? 'border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' 
+                            ? 'border-foreground scale-110 shadow-md' 
                             : 'border-transparent hover:scale-110'
                         }`}
                         style={{ backgroundColor: color }}
@@ -387,16 +387,17 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
       {/* Delete Confirmation Modal */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[200] flex items-center justify-center p-4">
-          <div className="bg-gradient-to-b from-zinc-900 to-black border border-white/10 rounded-[32px] p-6 md:p-8 w-full max-w-sm shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] animate-in zoom-in-95 fade-in duration-300 relative overflow-hidden text-center">
+          <div className="bg-card border border-border rounded-[32px] p-6 md:p-8 w-full max-w-sm shadow-2xl animate-in zoom-in-95 fade-in duration-300 relative overflow-hidden text-center">
              <div className="w-16 h-16 mx-auto bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mb-6">
                 <Trash2 className="w-8 h-8" />
              </div>
-             <h2 className="text-xl font-black tracking-tighter text-white mb-2">Hapus Target?</h2>
-             <p className="text-white/50 text-sm mb-8">{text.confirmDelete}</p>
+             <h2 className="text-xl font-black tracking-tighter text-foreground mb-2">Hapus Target?</h2>
+             <p className="text-muted-foreground text-sm mb-8">{text.confirmDelete}</p>
              <div className="flex gap-3">
                 <button 
+                  type="button"
                   onClick={() => setDeleteModal({ isOpen: false, dreamId: null })}
-                  className="flex-1 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all uppercase tracking-[0.1em] text-[10px]"
+                  className="flex-1 py-4 rounded-2xl bg-muted hover:bg-muted/70 text-foreground font-bold transition-all uppercase tracking-[0.1em] text-[10px]"
                 >
                   Batal
                 </button>
@@ -414,15 +415,16 @@ const DreamsManagement: React.FC<DreamsManagementProps> = ({ dreams, setDreams, 
       {/* Error Alert Modal */}
       {errorModal.isOpen && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[300] flex items-center justify-center p-4">
-          <div className="bg-gradient-to-b from-zinc-900 to-black border border-white/10 rounded-[32px] p-6 md:p-8 w-full max-w-sm shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] animate-in zoom-in-95 fade-in duration-300 relative overflow-hidden text-center">
+          <div className="bg-card border border-border rounded-[32px] p-6 md:p-8 w-full max-w-sm shadow-2xl animate-in zoom-in-95 fade-in duration-300 relative overflow-hidden text-center">
              <div className="w-16 h-16 mx-auto bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mb-6">
                 <i className="fa-solid fa-triangle-exclamation text-3xl"></i>
              </div>
-             <h2 className="text-xl font-black tracking-tighter text-white mb-2">Oops!</h2>
-             <p className="text-white/70 text-sm mb-8">{errorModal.message}</p>
+             <h2 className="text-xl font-black tracking-tighter text-foreground mb-2">Oops!</h2>
+             <p className="text-muted-foreground text-sm mb-8">{errorModal.message}</p>
              <button 
+               type="button"
                onClick={() => setErrorModal({ isOpen: false, message: '' })}
-               className="w-full py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-black transition-all active:scale-95 uppercase tracking-[0.1em] text-[10px]"
+               className="w-full py-4 rounded-2xl bg-muted hover:bg-muted/70 text-foreground font-black transition-all active:scale-95 uppercase tracking-[0.1em] text-[10px]"
              >
                Mengerti
              </button>
