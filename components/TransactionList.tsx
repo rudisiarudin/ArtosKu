@@ -1,215 +1,218 @@
-
-import React, { useState, useMemo } from 'react';
-import { Transaction, TransactionType, Category } from '../types';
+import React, { useMemo, useState } from 'react';
+import { ArrowDownLeft, ArrowUpRight, CheckCircle2, ChevronDown, List, Search } from 'lucide-react';
+import { Category, Transaction, TransactionType } from '../types';
 import { getLocalIsoDate } from '../lib/utils';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../lib/translations';
-import { Bell, Settings, User, Search, Filter, List, ArrowUpRight, ArrowDownLeft, ChevronDown, CheckCircle2 } from 'lucide-react';
 
 interface TransactionListProps {
   transactions: Transaction[];
   onUpdateTransaction?: (id: string, updates: Partial<Transaction>) => void;
 }
 
+type FilterType = 'ALL' | 'INCOME' | 'EXPENSE' | 'DEBT';
+
 const CATEGORIES: Category[] = [
   'Makan', 'Transport', 'Shop', 'Tagihan', 'Hiburan', 'Kesehatan',
-  'Gaji', 'Investasi', 'Hadiah', 'Topup', 'Loan', 'Transfer', 'Others'
+  'Gaji', 'Investasi', 'Hadiah', 'Topup', 'Loan', 'Transfer', 'Others',
 ];
 
 const TransactionList: React.FC<TransactionListProps> = React.memo(({ transactions, onUpdateTransaction }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'ALL' | 'INCOME' | 'EXPENSE' | 'DEBT'>('ALL');
+  const [filterType, setFilterType] = useState<FilterType>('ALL');
   const [editingId, setEditingId] = useState<string | null>(null);
   const { lang, t } = useLanguage();
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency', currency: 'IDR', maximumFractionDigits: 0
-    }).format(val).replace('Rp', 'Rp ');
-  };
+  const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(value).replace('Rp', 'Rp ');
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
     const now = new Date();
-    const dDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const dNow = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const dYesterday = new Date(dNow);
-    dYesterday.setDate(dYesterday.getDate() - 1);
+    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const normalizedNow = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(normalizedNow);
+    yesterday.setDate(yesterday.getDate() - 1);
 
-    if (dDate.getTime() === dNow.getTime()) return t('history.today');
-    if (dDate.getTime() === dYesterday.getTime()) return t('history.yesterday');
-
+    if (normalizedDate.getTime() === normalizedNow.getTime()) return t('history.today');
+    if (normalizedDate.getTime() === yesterday.getTime()) return t('history.yesterday');
     return date.toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
-  const handleCategoryUpdate = (txId: string, newCategory: Category) => {
-    if (onUpdateTransaction) onUpdateTransaction(txId, { category: newCategory });
+  const categoryLabel = (category: Category) => (
+    translations[lang].transactions.categories[category.toLowerCase() as keyof typeof translations.en.transactions.categories] || category
+  );
+
+  const filteredTransactions = useMemo(() => transactions.filter((transaction) => {
+    const query = searchTerm.trim().toLowerCase();
+    const matchesSearch = !query
+      || transaction.description.toLowerCase().includes(query)
+      || transaction.category.toLowerCase().includes(query);
+    if (!matchesSearch) return false;
+    if (filterType === 'INCOME') return transaction.type === TransactionType.INCOME || transaction.type === TransactionType.DEBT;
+    if (filterType === 'EXPENSE') return transaction.type === TransactionType.EXPENSE || transaction.type === TransactionType.RECEIVABLE;
+    if (filterType === 'DEBT') return transaction.type === TransactionType.DEBT || transaction.type === TransactionType.RECEIVABLE;
+    return true;
+  }), [filterType, searchTerm, transactions]);
+
+  const groupedTransactions = useMemo(() => filteredTransactions.reduce((groups, transaction) => {
+    const dateKey = getLocalIsoDate(new Date(transaction.date));
+    if (!groups[dateKey]) groups[dateKey] = [];
+    groups[dateKey].push(transaction);
+    return groups;
+  }, {} as Record<string, Transaction[]>), [filteredTransactions]);
+
+  const sortedDates = useMemo(() => Object.keys(groupedTransactions)
+    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime()), [groupedTransactions]);
+
+  const filters: { id: FilterType; label: string }[] = [
+    { id: 'ALL', label: t('history.filter_all') || 'Semua' },
+    { id: 'INCOME', label: t('history.filter_income') || 'Pemasukan' },
+    { id: 'EXPENSE', label: t('history.filter_expense') || 'Pengeluaran' },
+    { id: 'DEBT', label: t('history.filter_liabilities') || 'Utang' },
+  ];
+
+  const updateCategory = (transactionId: string, category: Category) => {
+    onUpdateTransaction?.(transactionId, { category });
     setEditingId(null);
   };
 
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter(t => {
-      const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.category.toLowerCase().includes(searchTerm.toLowerCase());
-      if (!matchesSearch) return false;
-
-      if (filterType === 'ALL') return true;
-      if (filterType === 'INCOME') return t.type === TransactionType.INCOME || t.type === TransactionType.DEBT;
-      if (filterType === 'EXPENSE') return t.type === TransactionType.EXPENSE || t.type === TransactionType.RECEIVABLE;
-      if (filterType === 'DEBT') return t.type === TransactionType.DEBT || t.type === TransactionType.RECEIVABLE;
-
-      return true;
-    });
-  }, [transactions, searchTerm, filterType]);
-
-  const groupedTransactions = useMemo(() => filteredTransactions.reduce((acc, t) => {
-    const dateKey = getLocalIsoDate(new Date(t.date));
-    if (!acc[dateKey]) acc[dateKey] = [];
-    acc[dateKey].push(t);
-    return acc;
-  }, {} as Record<string, Transaction[]>), [filteredTransactions]);
-
-  const sortedDates = useMemo(() =>
-    Object.keys(groupedTransactions).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-  , [groupedTransactions]);
-
   return (
-    <div className="flex flex-col min-h-screen pb-28 bg-[#09090b] text-foreground animate-in fade-in duration-300 font-sans">
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.06] px-4 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] pb-3">
-        <div className="flex items-center justify-between max-w-md mx-auto">
-          <div className="space-y-0.5">
-            <h2 className="text-sm font-bold text-white tracking-tight">Riwayat Transaksi</h2>
-            <p className="text-[10px] text-zinc-500 font-medium">Log Arus Kas Keuangan</p>
+    <div className="min-h-[calc(100vh-5rem)] bg-background pb-28 text-foreground xl:pb-10">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/90 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] backdrop-blur-xl xl:hidden">
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          <div>
+            <h2 className="text-sm font-bold">{t('history.title') || 'Riwayat Transaksi'}</h2>
+            <p className="mt-0.5 text-[10px] font-medium text-muted-foreground">{filteredTransactions.length} transaksi ditemukan</p>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-emerald-400">
-            <List className="w-4 h-4" />
+          <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <List className="size-4" aria-hidden="true" />
           </div>
         </div>
       </header>
 
-      <div className="px-4 space-y-3 pt-3 mb-2 max-w-md mx-auto w-full">
-        <div className="relative group w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-          <input
-            type="text"
-            placeholder={t('history.search_placeholder') || "Cari transaksi atau kategori..."}
-            className="w-full h-10 pl-9 pr-4 bg-zinc-900/90 rounded-xl border border-white/[0.08] outline-none text-xs font-semibold text-white placeholder:text-zinc-600 focus:border-emerald-500/50 transition-all"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-          />
-        </div>
+      <main className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 xl:px-8 xl:py-2">
+        <section className="mb-7 rounded-2xl border border-border bg-card p-4 shadow-sm xl:flex xl:items-center xl:gap-4 xl:p-5" aria-label="Pencarian dan filter transaksi">
+          <label className="relative block flex-1">
+            <span className="sr-only">{t('history.search_placeholder') || 'Cari transaksi atau kategori'}</span>
+            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+            <input
+              type="search"
+              placeholder={t('history.search_placeholder') || 'Cari transaksi atau kategori...'}
+              className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm font-medium outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/10"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+            />
+          </label>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          {[
-            { id: 'ALL', label: t('history.filter_all') || 'Semua' },
-            { id: 'INCOME', label: t('history.filter_income') || 'Pemasukan' },
-            { id: 'EXPENSE', label: t('history.filter_expense') || 'Pengeluaran' },
-            { id: 'DEBT', label: t('history.filter_liabilities') || 'Hutang' }
-          ].map((type) => (
-            <button
-              key={type.id}
-              onClick={() => setFilterType(type.id as any)}
-              type="button"
-              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                filterType === type.id 
-                  ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20'
-                  : 'bg-zinc-900 text-zinc-400 border border-white/[0.08] hover:text-white'
-              }`}
-            >
-              {type.label}
-            </button>
-          ))}
-        </div>
-      </div>
+          <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-0.5 xl:mt-0" aria-label="Filter transaksi">
+            {filters.map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => setFilterType(filter.id)}
+                aria-pressed={filterType === filter.id}
+                className={`h-10 whitespace-nowrap rounded-xl px-4 text-xs font-semibold transition-colors ${
+                  filterType === filter.id
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'border border-border bg-background text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      <div className="flex-1 px-4 space-y-6 mt-3 max-w-md mx-auto w-full">
-        {sortedDates.map(date => (
-          <div key={date} className="space-y-4">
-            <div className="flex items-center justify-between px-1">
-              <h3 className="text-[10px] font-bold text-muted-foreground tracking-[0.15em] uppercase">
-                {formatDate(date)}
-              </h3>
-              <div className="flex items-center gap-1 opacity-40">
-                <CheckCircle2 className="w-2.5 h-2.5 text-primary" />
-                <span className="text-[8px] font-bold text-foreground tracking-widest uppercase">{t('history.successful')}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {groupedTransactions[date].map((t) => (
-                <div
-                  key={t.id}
-                  className="relative group bg-transparent hover:bg-muted/30 transition-all active:scale-[0.99] cursor-pointer -mx-2 px-2 py-1 rounded-2xl"
-                  onClick={() => setEditingId(editingId === t.id ? null : t.id)}
-                >
-                  <div className="flex items-center justify-between py-2">
-                    <div className="flex items-center gap-3 sm:gap-4 overflow-hidden flex-1">
-                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border-none transition-transform group-hover:scale-105 ${
-                        (t.type === TransactionType.INCOME || t.type === TransactionType.DEBT)
-                          ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20'
-                          : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20'
-                      }`}>
-                        {(t.type === TransactionType.INCOME || t.type === TransactionType.DEBT) ? (
-                          <ArrowUpRight className="w-5 h-5" />
-                        ) : (
-                          <ArrowDownLeft className="w-5 h-5" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="text-[13px] font-bold text-foreground leading-tight truncate tracking-tight pr-1">{t.description || t.category}</h4>
-                        <div className="flex items-center gap-1 mt-0.5 opacity-60">
-                          <p className="text-[8.5px] font-bold text-muted-foreground tracking-widest uppercase">
-                            {translations[lang].transactions.categories[t.category.toLowerCase() as keyof typeof translations.en.transactions.categories] || t.category}
-                          </p>
-                          <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${editingId === t.id ? 'rotate-180' : ''}`} />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className={`text-[15px] font-black tabular-nums tracking-tighter ${
-                        (t.type === TransactionType.INCOME || t.type === TransactionType.DEBT) ? 'text-[#10B981]' : 'text-[#EF4444]'
-                      }`}>
-                        {t.type === TransactionType.INCOME || t.type === TransactionType.DEBT ? '+' : '-'}{formatCurrency(t.amount).replace('Rp', '')}
-                      </p>
-                    </div>
-                  </div>
-
-                  {editingId === t.id && (
-                    <div className="absolute left-0 right-0 top-full mt-2 z-[100] bg-card/95 backdrop-blur-xl border border-primary/20 rounded-[24px] p-2 grid grid-cols-4 gap-1 shadow-2xl animate-in zoom-in-95 duration-200">
-                      {CATEGORIES.map(cat => (
-                        <button
-                          key={cat}
-                          onClick={(e) => { e.stopPropagation(); handleCategoryUpdate(t.id, cat); }}
-                          className={`px-2 py-2.5 rounded-xl text-[9px] font-bold tracking-tight transition-all truncate border ${
-                            t.category === cat
-                              ? 'bg-primary border-primary text-primary-foreground shadow-md'
-                              : 'bg-muted/30 border-border/50 text-muted-foreground hover:bg-muted'
-                          }`}
-                        >
-                          {translations[lang].transactions.categories[cat.toLowerCase() as keyof typeof translations.en.transactions.categories] || cat}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+        <div className="space-y-8">
+          {sortedDates.map((date) => (
+            <section key={date} aria-labelledby={`date-${date}`}>
+              <div className="mb-3 flex items-center justify-between px-1">
+                <h3 id={`date-${date}`} className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{formatDate(date)}</h3>
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground">
+                  <CheckCircle2 className="size-3 text-primary" aria-hidden="true" />
+                  {groupedTransactions[date].length} transaksi
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
+              </div>
 
-        {sortedDates.length === 0 && (
-          <div className="py-32 text-center flex flex-col items-center justify-center space-y-4">
-            <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center border border-border">
-              <Search className="w-8 h-8 text-muted-foreground/20" />
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                {groupedTransactions[date].map((transaction, index) => {
+                  const isIncome = transaction.type === TransactionType.INCOME || transaction.type === TransactionType.DEBT;
+                  const isEditing = editingId === transaction.id;
+                  return (
+                    <article key={transaction.id} className={`${index > 0 ? 'border-t border-border' : ''} transition-colors hover:bg-muted/30`}>
+                      <div className="flex items-center gap-3 p-4 sm:gap-4 xl:px-5">
+                        <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${isIncome ? 'bg-primary/10 text-primary' : 'bg-rose-500/10 text-rose-500'}`}>
+                          {isIncome ? <ArrowUpRight className="size-5" aria-hidden="true" /> : <ArrowDownLeft className="size-5" aria-hidden="true" />}
+                        </div>
+
+                        <div className="min-w-0 flex-1 xl:grid xl:grid-cols-[minmax(0,1.5fr)_minmax(140px,0.7fr)] xl:items-center xl:gap-6">
+                          <div className="min-w-0">
+                            <h4 className="truncate text-[13px] font-semibold text-foreground sm:text-sm">{transaction.description || transaction.category}</h4>
+                            <p className="mt-1 text-[10px] font-medium text-muted-foreground xl:hidden">{categoryLabel(transaction.category)}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setEditingId(isEditing ? null : transaction.id)}
+                            aria-expanded={isEditing}
+                            aria-controls={`categories-${transaction.id}`}
+                            className="mt-1 inline-flex items-center gap-1 rounded-lg text-[10px] font-semibold text-muted-foreground transition-colors hover:text-primary xl:mt-0 xl:w-fit xl:border xl:border-border xl:bg-background xl:px-3 xl:py-2 xl:text-xs"
+                          >
+                            <span className="hidden xl:inline">{categoryLabel(transaction.category)}</span>
+                            <span className="xl:hidden">Ubah kategori</span>
+                            <ChevronDown className={`size-3 transition-transform ${isEditing ? 'rotate-180' : ''}`} aria-hidden="true" />
+                          </button>
+                        </div>
+
+                        <p className={`shrink-0 text-right text-sm font-bold tabular-nums sm:text-[15px] ${isIncome ? 'text-primary' : 'text-rose-500'}`}>
+                          {isIncome ? '+' : '-'}{formatCurrency(Number(transaction.amount))}
+                        </p>
+                      </div>
+
+                      {isEditing && (
+                        <div id={`categories-${transaction.id}`} className="grid grid-cols-3 gap-2 border-t border-border bg-muted/20 p-3 sm:grid-cols-5 xl:grid-cols-7" aria-label="Pilih kategori baru">
+                          {CATEGORIES.map((category) => (
+                            <button
+                              key={category}
+                              type="button"
+                              onClick={() => updateCategory(transaction.id, category)}
+                              aria-pressed={transaction.category === category}
+                              className={`min-h-10 rounded-lg px-2 py-2 text-[10px] font-semibold transition-colors ${
+                                transaction.category === category
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'border border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground'
+                              }`}
+                            >
+                              {categoryLabel(category)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+
+          {sortedDates.length === 0 && (
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card py-24 text-center">
+              <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                <Search className="size-6" aria-hidden="true" />
+              </div>
+              <p className="text-sm font-semibold text-foreground">{t('history.no_results') || 'Transaksi tidak ditemukan'}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Coba ubah kata pencarian atau filter.</p>
             </div>
-            <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em]">{t('history.no_results')}</p>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 });
 
-export default TransactionList;
+TransactionList.displayName = 'TransactionList';
 
+export default TransactionList;

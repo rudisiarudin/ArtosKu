@@ -144,7 +144,7 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
             <button 
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-6 py-2 rounded-xl text-[13px] font-bold transition-all ${timeRange === range ? 'bg-zinc-800 text-white shadow-xl' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`px-6 py-2 rounded-xl text-[13px] font-bold transition-all ${timeRange === range ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               {range}
             </button>
@@ -153,28 +153,28 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
 
         {/* METRIC CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="premium-glass p-6 rounded-[24px] border border-white/5 relative overflow-hidden group">
+          <div className="bg-card shadow-sm p-6 rounded-[24px] border border-border relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-wallet text-2xl text-rose-500"></i></div>
             <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Total Spent</p>
             <h3 className="text-2xl font-black tracking-tight">Rp{formatIDR(statsData.totalSpent)}</h3>
             <p className="text-[12px] font-medium text-rose-500 mt-2"><i className="fa-solid fa-arrow-trend-up mr-1"></i> 12% vs last {timeRange}</p>
           </div>
 
-          <div className="premium-glass p-6 rounded-[24px] border border-white/5 relative overflow-hidden group">
+          <div className="bg-card shadow-sm p-6 rounded-[24px] border border-border relative overflow-hidden group">
              <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-chart-line text-2xl text-amber-500"></i></div>
             <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Avg. Monthly</p>
             <h3 className="text-2xl font-black tracking-tight">Rp{formatIDR(statsData.avgMonthly)}</h3>
             <p className="text-[12px] font-medium text-foreground/80 mt-2">Historical average</p>
           </div>
 
-          <div className="premium-glass p-6 rounded-[24px] border border-border relative overflow-hidden group">
+          <div className="bg-card shadow-sm p-6 rounded-[24px] border border-border relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-fire text-2xl text-orange-500"></i></div>
             <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Highest Category</p>
             <h3 className="text-2xl font-black tracking-tight capitalize truncate w-3/4">{statsData.sortedCats[0]?.[0] || '-'}</h3>
             <p className="text-[12px] font-medium text-foreground/80 mt-2">Rp{formatIDR(statsData.sortedCats[0]?.[1] || 0)}</p>
           </div>
 
-          <div className="premium-glass p-6 rounded-[24px] border border-border relative overflow-hidden group">
+          <div className="bg-card shadow-sm p-6 rounded-[24px] border border-border relative overflow-hidden group">
              <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-100 transition-opacity"><i className="fa-solid fa-piggy-bank text-2xl text-emerald-500"></i></div>
             <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Savings Rate</p>
             <h3 className="text-2xl font-black tracking-tight text-emerald-400">{statsData.savingsRate.toFixed(1)}%</h3>
@@ -186,7 +186,7 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           
           {/* Main Area Chart */}
-          <div className="lg:col-span-2 premium-glass p-8 rounded-[24px] border border-white/5">
+          <div className="lg:col-span-2 bg-card shadow-sm p-8 rounded-[24px] border border-border">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-lg font-black tracking-tight">Cash Outflow Trend</h3>
@@ -209,20 +209,20 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
                     dataKey="date" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#71717a', fontSize: 11, fontWeight: 600 }}
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11, fontWeight: 600 }}
                     dy={10}
                   />
                   <YAxis 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#71717a', fontSize: 11, fontWeight: 600 }}
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11, fontWeight: 600 }}
                     tickFormatter={(val) => `Rp${(val/1000000).toFixed(1)}M`}
                     dx={-10}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)' }}
-                    itemStyle={{ color: '#fff', fontWeight: 'bold' }}
-                    labelStyle={{ color: '#a1a1aa', marginBottom: '8px', fontSize: '12px' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)' }}
+                    itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+                    labelStyle={{ color: 'hsl(var(--muted-foreground))', marginBottom: '8px', fontSize: '12px' }}
                   />
                   <Area type="monotone" dataKey="value" stroke="#f43f5e" strokeWidth={3} fillOpacity={1} fill="url(#colorSpent)" />
                 </AreaChart>
@@ -231,7 +231,7 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
           </div>
 
           {/* Donut Chart Breakdown */}
-          <div className="premium-glass p-8 rounded-[24px] border border-white/5 flex flex-col">
+          <div className="bg-card shadow-sm p-8 rounded-[24px] border border-border flex flex-col">
             <h3 className="text-lg font-black tracking-tight mb-2">Category Breakdown</h3>
             <p className="text-[12px] text-muted-foreground mb-6">Distribution of expenses</p>
             
@@ -253,15 +253,15 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
                     ))}
                   </Pie>
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px' }}
-                    itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
+                    itemStyle={{ color: 'hsl(var(--foreground))', fontSize: '12px', fontWeight: 'bold' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
               {/* Center Text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
                 <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Total</span>
-                <span className="text-xl font-black text-white">{statsData.sortedCats.length}</span>
+                <span className="text-xl font-black text-foreground">{statsData.sortedCats.length}</span>
                 <span className="text-[10px] text-foreground/80">Categories</span>
               </div>
             </div>
@@ -274,7 +274,7 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
                   <div key={index} className="flex items-center justify-between group">
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                      <p className="text-[13px] font-bold capitalize text-zinc-300 group-hover:text-white transition-colors">{entry.name}</p>
+                      <p className="text-[13px] font-bold capitalize text-foreground/80 group-hover:text-foreground transition-colors">{entry.name}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-[13px] font-black">{percentage}%</p>
@@ -291,31 +291,31 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* Top Merchants Leaderboard */}
-          <div className="premium-glass p-8 rounded-[24px] border border-white/5">
+          <div className="bg-card shadow-sm p-8 rounded-[24px] border border-border">
             <h3 className="text-lg font-black tracking-tight mb-6">Top Merchants</h3>
             <div className="space-y-4">
               {merchantData.map(([merchant, data], index) => (
                 <div key={merchant} className="flex items-center justify-between p-4 bg-muted border border-border rounded-[20px]">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center font-black text-rose-500">
+                    <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center font-black text-rose-500">
                       #{index + 1}
                     </div>
                     <div>
-                      <p className="text-[14px] font-bold text-white capitalize">{merchant}</p>
+                      <p className="text-[14px] font-bold text-foreground capitalize">{merchant}</p>
                       <p className="text-[11px] font-medium text-foreground/80">{data.count} transactions</p>
                     </div>
                   </div>
-                  <p className="text-[14px] font-black tracking-tight text-white/90">Rp{formatIDR(data.total)}</p>
+                  <p className="text-[14px] font-black tracking-tight text-foreground">Rp{formatIDR(data.total)}</p>
                 </div>
               ))}
               {merchantData.length === 0 && (
-                 <p className="text-center text-zinc-500 text-sm py-4">Not enough data to generate leaderboards.</p>
+                 <p className="text-center text-muted-foreground text-sm py-4">Not enough data to generate leaderboards.</p>
               )}
             </div>
           </div>
 
           {/* Budget Health Monitor */}
-          <div className="premium-glass p-8 rounded-[24px] border border-white/5">
+          <div className="bg-card shadow-sm p-8 rounded-[24px] border border-border">
             <h3 className="text-lg font-black tracking-tight mb-6">Budget Health Score</h3>
             <div className="space-y-6">
                {budgets.slice(0, 4).map(b => {
@@ -344,8 +344,8 @@ const Stats: React.FC<StatsProps> = React.memo(({ transactions, wallets, budgets
                })}
                {budgets.length === 0 && (
                  <div className="text-center py-8">
-                   <i className="fa-solid fa-bullseye text-3xl text-zinc-700 mb-3"></i>
-                   <p className="text-sm font-medium text-zinc-500">No active budgets. Set them up to monitor health.</p>
+                   <i className="fa-solid fa-bullseye text-3xl text-muted-foreground/50 mb-3"></i>
+                   <p className="text-sm font-medium text-muted-foreground">No active budgets. Set them up to monitor health.</p>
                  </div>
                )}
             </div>

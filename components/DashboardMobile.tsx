@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { Transaction, TransactionType, Wallet, UserProfile } from '../types';
+import { Transaction, TransactionType, Wallet, UserProfile, TabType } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -20,7 +20,7 @@ export interface DashboardViewProps {
   onShowAll: () => void;
   onTopup: (walletId: string) => void;
   onQuickAction: (label: string) => void;
-  setActiveTab: (tab: any) => void;
+  setActiveTab: (tab: TabType) => void;
   formatIDR: (val: number) => string;
   getCategoryIcon: (category: string) => string;
   onSearch: () => void;

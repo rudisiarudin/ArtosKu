@@ -114,17 +114,19 @@ const StatsMobile: React.FC<StatsViewProps> = React.memo(({
     <div className="w-full font-sans relative bg-background">
       
       {/* ─── STICKY ELITE HEADER ─── */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 px-5 pt-[calc(1.5rem+env(safe-area-inset-top,24px))] pb-4">
-        <div className="bg-zinc-950 p-1 rounded-xl flex border border-white/5 shadow-inner">
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border px-5 pt-[calc(1.5rem+env(safe-area-inset-top,24px))] pb-4">
+        <div className="bg-muted p-1 rounded-xl flex border border-border shadow-inner">
           <button 
+            type="button"
             onClick={() => { setActiveTab('expenses'); if (window.navigator.vibrate) window.navigator.vibrate(2); }}
-            className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${activeTab === 'expenses' ? 'bg-zinc-800 text-white shadow-xl' : 'text-zinc-600'}`}
+            className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${activeTab === 'expenses' ? 'bg-background text-foreground shadow' : 'text-muted-foreground'}`}
           >
             Expenses
           </button>
           <button 
+            type="button"
             onClick={() => { setActiveTab('income'); if (window.navigator.vibrate) window.navigator.vibrate(2); }}
-            className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${activeTab === 'income' ? 'bg-zinc-800 text-white shadow-xl' : 'text-zinc-600'}`}
+            className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${activeTab === 'income' ? 'bg-background text-foreground shadow' : 'text-muted-foreground'}`}
           >
             Income
           </button>
@@ -134,7 +136,7 @@ const StatsMobile: React.FC<StatsViewProps> = React.memo(({
       <div className="px-5 pt-6 pb-24 space-y-8">
         {/* ─── PRIMARY METRIC ─── */}
         <div className="relative">
-          <p className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-1.5 ml-0.5">
+          <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-1.5 ml-0.5">
             {activeTab} Overview
           </p>
           <div className="flex items-baseline gap-2">

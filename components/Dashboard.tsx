@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { Transaction, TransactionType, Wallet, UserProfile, Dream } from '../types';
+import { Transaction, TransactionType, Wallet, UserProfile, Dream, TabType } from '../types';
 import { getLocalIsoDate } from '../lib/utils';
 import { useLanguage } from '../context/LanguageContext';
 import DashboardMobile from './DashboardMobile';
@@ -17,7 +17,7 @@ interface DashboardProps {
   setTheme: (theme: 'light' | 'dark') => void;
   onTopup: (walletId: string) => void;
   onQuickAction: (label: string) => void;
-  setActiveTab: (tab: any) => void;
+  setActiveTab: (tab: TabType) => void;
   onSearch: () => void;
   onShowNotifications: () => void;
   onSetLimit?: (category: string) => void;
@@ -89,13 +89,34 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
   
   const animatedBalance = useCountUp(totals.balance, 1500);
 
+  const topExpenseCategories = useMemo(() => {
+    const now = new Date();
+    const start = new Date();
+    start.setMonth(now.getMonth() - 1);
+    const map: Record<string, number> = {};
+    let total = 0;
+    transactions.forEach(tx => {
+      if ((tx.type === TransactionType.EXPENSE || tx.type === TransactionType.RECEIVABLE) && new Date(tx.date) >= start) {
+        map[tx.category] = (map[tx.category] || 0) + Number(tx.amount);
+        total += Number(tx.amount);
+      }
+    });
+    return {
+      total,
+      items: Object.entries(map)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4)
+        .map(([name, amount]) => ({ name, amount, percent: total > 0 ? (amount / total) * 100 : 0 })),
+    };
+  }, [transactions]);
+
   const quickActions = [
     { id: 'transfer', icon: 'fa-arrow-right-arrow-left', label: 'Transfer', action: () => onQuickAction('Transfer'), color: 'text-blue-500', bg: 'bg-blue-500/10' },
     { id: 'pay', icon: 'fa-qrcode', label: 'Pay', action: () => onQuickAction('Pay'), color: 'text-purple-500', bg: 'bg-purple-500/10' },
     { id: 'stocks', icon: 'fa-chart-line', label: t('nav.stocks'), action: () => setActiveTab('stocks'), color: 'text-primary', bg: 'bg-primary/10' },
     { id: 'stats', icon: 'fa-chart-pie', label: 'Stats', action: () => setActiveTab('stats'), color: 'text-rose-500', bg: 'bg-rose-500/10' },
     { id: 'dreams', icon: 'fa-star', label: 'Dreams', action: () => setActiveTab('dreams'), color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { id: 'budget', icon: 'fa-bullseye', label: 'Budget', action: () => setActiveTab('budget'), color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { id: 'budget', icon: 'fa-bullseye', label: 'Budget', action: () => setActiveTab('stats'), color: 'text-amber-500', bg: 'bg-amber-500/10' },
   ];
 
   if (isMobile) {
@@ -121,144 +142,119 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
     );
   }
 
+  const savingsRate = totals.income > 0 ? Math.max(0, ((totals.income - totals.expense) / totals.income) * 100) : 0;
+
   return (
       <div className="hidden lg:flex flex-col min-h-screen bg-background text-foreground transition-all duration-500">
-        <main className="max-w-7xl mx-auto w-full pb-24 space-y-10">
-          
-          {/* ─── ELITE HEADER SECTION ─── */}
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Master Asset Card */}
-            <div className="lg:col-span-6 xl:col-span-5">
-              <div className="w-full aspect-[1.7/1] rounded-[24px] md:rounded-[40px] p-6 md:p-10 bg-gradient-to-br from-zinc-800 via-zinc-950 to-black border border-zinc-800 relative overflow-hidden group shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] flex flex-col justify-between">
-                {/* Dynamic Aura */}
-                <div className="absolute -top-32 -right-32 w-80 h-80 bg-primary/10 blur-[100px] rounded-full group-hover:bg-primary/20 transition-all duration-1000" />
-                <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-primary/5 blur-[80px] rounded-full opacity-50" />
-                
-                <div className="relative z-10 flex justify-between items-start">
-                  <div className="space-y-1">
-                    <p className="text-[9px] md:text-[11px] font-black text-white/40 uppercase tracking-[0.4em] mb-1 md:mb-2">Total Institutional Assets</p>
-                    <h1 className="text-2xl md:text-4xl xl:text-5xl font-black text-white tracking-tighter flex items-baseline gap-2">
-                      <span className="text-sm md:text-xl text-white/30 font-bold uppercase">Idr</span>
+        <main className="max-w-7xl mx-auto w-full px-2 pb-24 space-y-6">
+
+          {/* ─── OVERVIEW: BALANCE + QUICK ACTIONS ─── */}
+          <section className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            {/* Balance hero */}
+            <div className="xl:col-span-7">
+              <div className="h-full rounded-3xl p-8 bg-gradient-to-br from-primary/90 via-primary to-emerald-600 relative overflow-hidden shadow-lg shadow-primary/20 flex flex-col justify-between min-h-[220px]">
+                <div className="absolute -top-24 -right-24 w-72 h-72 bg-white/10 blur-[90px] rounded-full" />
+                <div className="absolute -bottom-24 -left-16 w-64 h-64 bg-black/10 blur-[80px] rounded-full" />
+                <div className="relative z-10 flex items-start justify-between">
+                  <div>
+                    <p className="text-[11px] font-semibold text-white/70 uppercase tracking-[0.2em]">Total Saldo</p>
+                    <h1 className="mt-2 text-4xl xl:text-5xl font-bold text-white tracking-tight flex items-baseline gap-2">
+                      <span className="text-lg font-semibold text-white/60">Rp</span>
                       {formatIDR(animatedBalance)}
                     </h1>
                   </div>
-                  <div className="bg-primary/10 backdrop-blur-2xl border border-[#059669] rounded-xl md:rounded-2xl px-3 py-1 md:px-4 md:py-2 flex items-center gap-2 md:gap-2.5">
-                    <div className="size-1.5 md:size-2 rounded-full bg-primary animate-pulse shadow-[0_0_12px_#10b981]" />
-                    <span className="text-[8px] md:text-[10px] font-black text-primary uppercase tracking-[0.2em]">Verified Elite</span>
+                  <div className="flex items-center gap-2 bg-white/15 backdrop-blur-md rounded-full px-3 py-1.5">
+                    <span className="size-1.5 rounded-full bg-white animate-pulse" />
+                    <span className="text-[10px] font-semibold text-white uppercase tracking-wider">Realtime</span>
                   </div>
                 </div>
-
-                <div className="relative z-10">
-                  <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-8 opacity-40 group-hover:opacity-100 transition-opacity duration-700">
-                    <div className="w-10 h-7 md:w-14 md:h-10 rounded-lg bg-gradient-to-br from-amber-400/80 to-amber-600/80 border border-[#b45309] shadow-inner relative overflow-hidden">
-                       <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
-                    </div>
-                    <div className="flex gap-1">
-                      {[1,2,3].map(i => <div key={i} className="w-4 md:w-6 h-[1px] bg-white/20" />)}
-                    </div>
+                <div className="relative z-10 flex items-end justify-between">
+                  <div>
+                    <p className="text-[11px] font-medium text-white/60 uppercase tracking-wider">Pemilik Akun</p>
+                    <p className="text-base font-semibold text-white mt-0.5">{userName}</p>
                   </div>
-                  
-                  <div className="flex items-end justify-between">
-                    <div className="space-y-1">
-                      <p className="text-[16px] md:text-[22px] font-mono font-black tracking-[0.2em] md:tracking-[0.25em] text-white/90 drop-shadow-2xl">
-                        **** **** **** 8421
-                      </p>
-                      <p className="text-[10px] md:text-[12px] font-black text-white/40 uppercase tracking-[0.3em] font-sans">
-                        {userName}
-                      </p>
-                    </div>
-                    <div className="text-right hidden sm:block">
-                      <p className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">Tier Connection</p>
-                      <p className="text-[12px] md:text-[14px] font-mono font-black text-white/60">ACTIVE_X_72</p>
-                    </div>
+                  <div className="text-right">
+                    <p className="text-[11px] font-medium text-white/60 uppercase tracking-wider">Tingkat Menabung</p>
+                    <p className="text-base font-semibold text-white mt-0.5">{savingsRate.toFixed(0)}%</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Performance Metrics */}
-            <div className="lg:col-span-6 xl:col-span-7 grid grid-cols-2 gap-4 md:gap-6">
-              <div className="bg-card/40 backdrop-blur-3xl rounded-[32px] md:rounded-[40px] p-6 md:p-10 flex flex-col justify-between border border-zinc-800 relative overflow-hidden group hover:border-[#059669] transition-all duration-500">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="relative z-10 space-y-4 md:space-y-6">
-                  <div className="size-12 md:size-16 rounded-[20px] md:rounded-[24px] bg-primary/10 border border-[#059669] flex items-center justify-center text-primary shadow-[0_20px_40px_rgba(16,185,129,0.1)] group-hover:scale-110 transition-transform duration-500">
-                    <i className="fa-solid fa-arrow-down-long text-xl md:text-2xl"></i>
-                  </div>
-                  <div>
-                    <p className="text-[9px] md:text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-1 md:mb-3">Institutional Inflow</p>
-                    <p className="text-xl md:text-3xl xl:text-4xl font-black text-white tracking-tighter">Rp{formatIDR(totals.income)}</p>
-                  </div>
+            {/* Income + Expense stacked */}
+            <div className="xl:col-span-5 grid grid-rows-2 gap-6">
+              <div className="rounded-3xl p-6 bg-card border border-border flex items-center gap-5 shadow-sm hover:shadow-md transition-shadow">
+                <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <i className="fa-solid fa-arrow-down-long text-xl"></i>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Pemasukan (30 Hari)</p>
+                  <p className="text-2xl xl:text-3xl font-bold text-foreground tracking-tight mt-1">Rp{formatIDR(totals.income)}</p>
                 </div>
               </div>
-
-              <div className="bg-card/40 backdrop-blur-3xl rounded-[32px] md:rounded-[40px] p-6 md:p-10 flex flex-col justify-between border border-zinc-800 relative overflow-hidden group hover:border-[#be123c] transition-all duration-500">
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="relative z-10 space-y-4 md:space-y-6">
-                  <div className="size-12 md:size-16 rounded-[20px] md:rounded-[24px] bg-rose-500/10 border border-[#be123c] flex items-center justify-center text-rose-500 shadow-[0_20px_40px_rgba(244,63,94,0.1)] group-hover:scale-110 transition-transform duration-500">
-                    <i className="fa-solid fa-arrow-up-long text-xl md:text-2xl"></i>
-                  </div>
-                  <div>
-                    <p className="text-[9px] md:text-[11px] font-black text-white/30 uppercase tracking-[0.3em] mb-1 md:mb-3">Operating Expense</p>
-                    <p className="text-xl md:text-3xl xl:text-4xl font-black text-white tracking-tighter">Rp{formatIDR(totals.expense)}</p>
-                  </div>
+              <div className="rounded-3xl p-6 bg-card border border-border flex items-center gap-5 shadow-sm hover:shadow-md transition-shadow">
+                <div className="size-14 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0">
+                  <i className="fa-solid fa-arrow-up-long text-xl"></i>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Pengeluaran (30 Hari)</p>
+                  <p className="text-2xl xl:text-3xl font-bold text-foreground tracking-tight mt-1">Rp{formatIDR(totals.expense)}</p>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* ─── QUICK COMMANDS ─── */}
-          <section className="bg-card/20 backdrop-blur-xl rounded-[40px] p-8 border border-zinc-800 shadow-2xl">
-            <div className="flex items-center gap-10 overflow-x-auto no-scrollbar py-2">
+          {/* ─── QUICK ACTIONS ─── */}
+          <section className="rounded-3xl p-6 bg-card border border-border shadow-sm">
+            <div className="grid grid-cols-6 gap-4">
               {quickActions.map((action) => (
-                <button 
+                <button
                   key={action.id}
                   onClick={action.action}
-                  className="flex flex-col items-center gap-4 min-w-[90px] group transition-all"
+                  className="flex flex-col items-center gap-3 group transition-all"
                 >
-                  <div className={`size-20 rounded-[28px] ${action.bg} ${action.color} flex items-center justify-center text-2xl transition-all duration-500 border border-zinc-800 group-hover:scale-110 group-hover:shadow-2xl group-active:scale-95`}>
+                  <div className={`size-16 rounded-2xl ${action.bg} ${action.color} flex items-center justify-center text-xl transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-0.5 group-active:scale-95`}>
                     <i className={`fa-solid ${action.icon}`}></i>
                   </div>
-                  <span className="text-[11px] font-black text-white/40 group-hover:text-white uppercase tracking-[0.2em] transition-colors">{action.label}</span>
+                  <span className="text-[12px] font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{action.label}</span>
                 </button>
               ))}
             </div>
           </section>
 
           {/* ─── DATA GRID ─── */}
-          <section className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-            
-            {/* Allocation Panel */}
+          <section className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+            {/* Portfolio Allocation */}
             <div className="xl:col-span-4">
-              <div className="bg-card/40 backdrop-blur-3xl rounded-[48px] p-10 border border-zinc-800 h-full shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 blur-[60px]" />
-                
-                <div className="flex items-center justify-between mb-10">
-                  <h3 className="text-[11px] font-black tracking-[0.4em] text-white/30 uppercase">Portfolio Allocation</h3>
-                  <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-[#059669]">
-                    <i className="fa-solid fa-vault text-sm"></i>
+              <div className="bg-card rounded-3xl p-7 border border-border h-full shadow-sm">
+                <div className="flex items-center justify-between mb-7">
+                  <h3 className="text-sm font-bold text-foreground tracking-tight">Alokasi Portofolio</h3>
+                  <div className="size-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <i className="fa-solid fa-wallet text-sm"></i>
                   </div>
                 </div>
-                
-                <div className="space-y-8">
+
+                <div className="space-y-6">
                   {wallets.map((wallet) => {
                     const percent = totals.balance > 0 ? (Number(wallet.balance) / totals.balance) * 100 : 0;
                     return (
                       <div key={wallet.id} onClick={() => setActiveTab('wallets')} className="group cursor-pointer">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-4">
-                            <div className="size-10 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white/30 group-hover:text-primary transition-colors">
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="flex items-center gap-3">
+                            <div className="size-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
                               <WalletLogo wallet={wallet} size={16} />
                             </div>
                             <div>
-                              <p className="text-[14px] font-black text-white/80 group-hover:text-white transition-colors">{wallet.name}</p>
-                              <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">{percent.toFixed(1)}% Weight</p>
+                              <p className="text-[13px] font-semibold text-foreground">{wallet.name}</p>
+                              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{percent.toFixed(1)}% dari total</p>
                             </div>
                           </div>
-                          <p className="text-[14px] font-black tabular-nums text-white">Rp{formatIDR(Number(wallet.balance))}</p>
+                          <p className="text-[13px] font-bold tabular-nums text-foreground">Rp{formatIDR(Number(wallet.balance))}</p>
                         </div>
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary rounded-full transition-all duration-1000"
                             style={{ width: `${percent}%` }}
                           />
                         </div>
@@ -266,72 +262,92 @@ const Dashboard: React.FC<DashboardProps> = React.memo(({ userName, profile, tra
                     );
                   })}
 
-                  <button 
+                  <button
                     onClick={() => setActiveTab('wallets')}
-                    className="w-full mt-6 py-5 rounded-3xl border-2 border-dashed border-zinc-800 text-[11px] font-black text-white/20 uppercase tracking-[0.3em] hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all duration-500"
+                    className="w-full mt-2 py-4 rounded-2xl border-2 border-dashed border-border text-[12px] font-semibold text-muted-foreground hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all duration-300"
                   >
-                    <i className="fa-solid fa-plus-circle mr-3"></i>
-                    Expand Portfolio
+                    <i className="fa-solid fa-plus mr-2"></i>
+                    Kelola Dompet
                   </button>
+
+                  {/* Top spending categories */}
+                  {topExpenseCategories.items.length > 0 && (
+                    <div className="pt-5 border-t border-border space-y-3">
+                      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Pengeluaran Terbesar</p>
+                      {topExpenseCategories.items.map((c) => (
+                        <div key={c.name} className="flex items-center justify-between text-[12px]">
+                          <span className="font-medium text-foreground">{c.name}</span>
+                          <span className="font-semibold tabular-nums text-muted-foreground">Rp{formatIDR(c.amount)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Ledger Panel */}
+            {/* Transaction history */}
             <div className="xl:col-span-8">
-              <div className="bg-card/40 backdrop-blur-3xl rounded-[48px] p-10 border border-zinc-800 h-full shadow-2xl">
-                <div className="flex items-center justify-between mb-10">
-                  <h3 className="text-[11px] font-black tracking-[0.4em] text-white/30 uppercase">Transaction Ledger</h3>
-                  <button onClick={onShowAll} className="px-6 py-2.5 rounded-full bg-primary/10 text-[10px] font-black text-primary hover:bg-primary hover:text-black tracking-[0.2em] transition-all uppercase">
-                    Audit All
+              <div className="bg-card rounded-3xl p-7 border border-border h-full shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-bold text-foreground tracking-tight">Transaksi Terbaru</h3>
+                  <button onClick={onShowAll} className="px-4 py-2 rounded-full bg-primary/10 text-[11px] font-semibold text-primary hover:bg-primary hover:text-primary-foreground transition-all">
+                    Lihat Semua
                   </button>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="border-b border-zinc-800">
-                        <th className="pb-6 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Signature</th>
-                        <th className="pb-6 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Classification</th>
-                        <th className="pb-6 text-[10px] font-black text-white/20 uppercase tracking-[0.3em] text-right">Settlement</th>
+                      <tr className="border-b border-border">
+                        <th className="pb-4 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Transaksi</th>
+                        <th className="pb-4 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Kategori</th>
+                        <th className="pb-4 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-right">Jumlah</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {recentTransactions.map((tx) => (
-                        <tr key={tx.id} className="group hover:bg-white/[0.02] transition-colors">
-                          <td className="py-6">
-                            <div className="flex items-center gap-5">
-                              <div className={`size-12 rounded-2xl flex items-center justify-center shrink-0 border border-zinc-800 group-hover:scale-110 transition-transform ${
-                                (tx.type === TransactionType.INCOME || tx.type === TransactionType.DEBT)
-                                  ? 'bg-primary/10 text-primary shadow-[0_0_20px_rgba(16,185,129,0.1)]'
-                                  : 'bg-rose-500/10 text-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.1)]'
-                              }`}>
-                                <i className={`fa-solid ${getCategoryIcon(tx.category)} text-base`}></i>
+                    <tbody className="divide-y divide-border">
+                      {recentTransactions.map((tx) => {
+                        const isIncome = tx.type === TransactionType.INCOME || tx.type === TransactionType.DEBT;
+                        return (
+                          <tr key={tx.id} className="group hover:bg-muted/50 transition-colors">
+                            <td className="py-4">
+                              <div className="flex items-center gap-4">
+                                <div className={`size-11 rounded-xl flex items-center justify-center shrink-0 ${
+                                  isIncome ? 'bg-primary/10 text-primary' : 'bg-rose-500/10 text-rose-500'
+                                }`}>
+                                  <i className={`fa-solid ${getCategoryIcon(tx.category)} text-sm`}></i>
+                                </div>
+                                <div>
+                                  <p className="text-[13px] font-semibold text-foreground group-hover:text-primary transition-colors">{tx.description}</p>
+                                  <p className="text-[11px] font-medium text-muted-foreground mt-0.5">
+                                    {new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-[14px] font-black text-white group-hover:text-primary transition-colors">{tx.description}</p>
-                                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">
-                                  {new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-6">
-                            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-[10px] font-black text-white/50 group-hover:text-white transition-colors uppercase tracking-widest">
-                              {tx.category}
-                            </span>
-                          </td>
-                          <td className="py-6 text-right">
-                            <p className={`text-[16px] font-black tabular-nums tracking-tighter ${
-                              (tx.type === TransactionType.INCOME || tx.type === TransactionType.DEBT) ? 'text-primary' : 'text-white/90'
-                            }`}>
-                              {(tx.type === TransactionType.INCOME || tx.type === TransactionType.DEBT) ? '+' : '-'}{formatIDR(tx.amount)}
-                            </p>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="py-4">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full bg-muted text-[11px] font-semibold text-muted-foreground">
+                                {tx.category}
+                              </span>
+                            </td>
+                            <td className="py-4 text-right">
+                              <p className={`text-[14px] font-bold tabular-nums ${isIncome ? 'text-primary' : 'text-foreground'}`}>
+                                {isIncome ? '+' : '-'}Rp{formatIDR(tx.amount)}
+                              </p>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
+                  {recentTransactions.length === 0 && (
+                    <div className="py-16 text-center">
+                      <div className="size-14 mx-auto rounded-2xl bg-muted flex items-center justify-center text-muted-foreground mb-3">
+                        <i className="fa-solid fa-receipt text-xl"></i>
+                      </div>
+                      <p className="text-[13px] font-medium text-muted-foreground">Belum ada transaksi</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

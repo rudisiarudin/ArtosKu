@@ -107,6 +107,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.modal-open {
+  overflow: hidden;
+}
+
 /* Hide scrollbars for cleaner mobile UI */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
