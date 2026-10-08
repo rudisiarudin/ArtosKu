@@ -97,8 +97,8 @@ const PinScreen: React.FC<PinScreenProps> = ({
                 <div className="mb-10">
                     <div className="w-16 h-16 rounded-3xl bg-card border border-border flex items-center justify-center mb-6 shadow-2xl relative group mx-auto"
                         onClick={() => biometricAvailable && performBiometricVerification()}>
-                        <div className="absolute inset-0 bg-[#00d293]/10 blur-xl rounded-full opacity-50"></div>
-                        <i className={`fa-solid ${error ? 'fa-lock-open text-rose-500' : 'fa-lock text-[#00d293]'} text-xl z-10 transition-colors`}></i>
+                        <div className="absolute inset-0 bg-primary/10 blur-xl rounded-full opacity-50"></div>
+                        <i className={`fa-solid ${error ? 'fa-lock-open text-rose-500' : 'fa-lock text-primary'} text-xl z-10 transition-colors`}></i>
                     </div>
                     <h1 className="text-2xl font-bold tracking-tight text-foreground mb-2">{title}</h1>
                     <p className={`text-xs font-medium px-4 transition-colors ${error ? 'text-rose-500' : 'text-muted-foreground opacity-60'}`}>
@@ -111,10 +111,10 @@ const PinScreen: React.FC<PinScreenProps> = ({
                     {[...Array(6)].map((_, i) => (
                         <div
                             key={i}
-                            className={`w-3.5 h-3.5 rounded-full transition-all duration-300 border shadow-[0_0_10px_rgba(0,0,0,0.5)]
+                            className={`w-3.5 h-3.5 rounded-full transition-all duration-300 border
                                 ${pin.length > i
-                                    ? 'bg-[#00d293] border-[#00d293] scale-125 shadow-[0_0_15px_rgba(0,210,147,0.4)]'
-                                    : 'bg-[rgba(var(--bg-inner-rgb),0.5)] border-border scale-100'
+                                    ? 'bg-primary border-primary scale-125 shadow-[0_0_15px_hsl(var(--primary)/0.4)]'
+                                    : 'bg-muted border-border scale-100'
                                 }
                                 ${error ? 'bg-rose-500 border-rose-500 animate-shake' : ''}
                             `}
@@ -138,7 +138,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
                     {biometricAvailable ? (
                         <button
                             onClick={performBiometricVerification}
-                            className="w-16 h-16 rounded-full flex items-center justify-center text-emerald-500 hover:text-emerald-400 hover:bg-white/5 active:bg-white/10 active:scale-95 transition-all"
+                            className="w-16 h-16 rounded-full flex items-center justify-center text-primary hover:text-primary/80 hover:bg-muted active:bg-muted/70 active:scale-95 transition-all"
                         >
                             <i className="fa-solid fa-fingerprint text-3xl"></i>
                         </button>
@@ -169,7 +169,7 @@ const PinScreen: React.FC<PinScreenProps> = ({
 
                 {/* Footer Actions */}
                 {biometricAvailable && (
-                    <button onClick={onLogout} className="mt-12 text-[10px] font-bold tracking-widest text-zinc-600 hover:text-rose-500">
+                    <button onClick={onLogout} type="button" className="mt-12 text-[10px] font-bold tracking-widest text-muted-foreground hover:text-rose-500 transition-colors">
                         Sign out
                     </button>
                 )}

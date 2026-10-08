@@ -269,21 +269,21 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
   }, [debts, activeTab, filterMode]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#09090b] text-foreground pb-28 animate-in fade-in duration-300 overflow-x-hidden font-sans">
+    <div className="flex flex-col min-h-screen bg-background text-foreground pb-28 animate-in fade-in duration-300 overflow-x-hidden font-sans">
       {/* Sticky Header with NO Collision */}
-      <header className="sticky top-0 z-40 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.06] px-4 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] pb-3.5">
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border px-4 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] pb-3.5">
         <div className="flex items-center justify-between mb-3 max-w-md xl:max-w-6xl mx-auto">
           <button 
             onClick={onBack} 
             type="button"
-            className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-sm"
+            className="w-9 h-9 rounded-xl bg-card border border-border text-foreground hover:text-foreground flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-sm"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
           
           <div className="text-center">
-            <h2 className="text-sm font-bold text-white tracking-tight">Cicilan & Hutang</h2>
-            <p className="text-[10px] text-zinc-400 font-medium">Kelola Tagihan & Piutang</p>
+            <h2 className="text-sm font-bold text-foreground tracking-tight">Cicilan & Hutang</h2>
+            <p className="text-[10px] text-muted-foreground font-medium">Kelola Tagihan & Piutang</p>
           </div>
 
           <button 
@@ -298,7 +298,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
 
         <div className="flex flex-col items-center gap-2.5 max-w-md xl:max-w-6xl mx-auto">
           {/* Segmented Control */}
-          <div className="bg-zinc-900/90 p-1 rounded-xl flex items-center gap-1 border border-white/[0.08] w-full max-w-xs shadow-inner">
+          <div className="bg-card/90 p-1 rounded-xl flex items-center gap-1 border border-border w-full max-w-xs shadow-inner">
             {[
               { id: 'ACTIVE', label: 'Tagihan Aktif' },
               { id: 'HISTORY', label: 'Riwayat Lunas' }
@@ -309,8 +309,8 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                 type="button"
                 className={`flex-1 py-1.5 rounded-lg text-xs font-semibold tracking-tight transition-all cursor-pointer ${
                   activeTab === tab.id 
-                    ? 'bg-zinc-800 text-white shadow-sm' 
-                    : 'text-zinc-400 hover:text-zinc-300'
+                    ? 'bg-muted text-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {tab.label}
@@ -333,7 +333,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                   className={`px-3 py-1 rounded-full text-xs font-semibold tracking-tight transition-all select-none cursor-pointer ${
                     filterMode === f.id
                       ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/25'
-                      : 'bg-zinc-900 text-zinc-400 border border-white/[0.08] hover:text-white'
+                      : 'bg-card text-muted-foreground border border-border hover:text-foreground'
                   }`}
                 >
                   {f.label}
@@ -347,19 +347,19 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
       {/* Main Content Area */}
       <div className={`px-4 pt-4 space-y-4 ${isMobile ? 'max-w-md mx-auto' : 'max-w-6xl mx-auto xl:px-8'}`}>
         {/* Net Balance Card with Real Depth */}
-        <section className="rounded-2xl p-5 bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-white/[0.08] shadow-2xl relative overflow-hidden">
+        <section className="rounded-2xl p-5 bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-border shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl -mr-16 -mt-16 pointer-events-none" />
-          <p className="text-[11px] font-semibold text-zinc-400 mb-1">Posisi Saldo Bersih</p>
+          <p className="text-[11px] font-semibold text-muted-foreground mb-1">Posisi Saldo Bersih</p>
           <h1 className={`text-3xl font-extrabold tracking-tight tabular-nums ${totals.netValue >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
             {totals.netValue >= 0 ? '+' : ''}Rp{formatIDR(Math.abs(totals.netValue))}
           </h1>
-          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/[0.06]">
+          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border">
             <div>
-              <p className="text-[11px] font-medium text-zinc-400 mb-0.5">Total Hutang (Saya)</p>
+              <p className="text-[11px] font-medium text-muted-foreground mb-0.5">Total Hutang (Saya)</p>
               <p className="text-sm font-bold text-rose-400 tabular-nums">Rp{formatIDR(totals.hutang)}</p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] font-medium text-zinc-400 mb-0.5">Piutang & Cicilan (Orang)</p>
+              <p className="text-[11px] font-medium text-muted-foreground mb-0.5">Piutang & Cicilan (Orang)</p>
               <p className="text-sm font-bold text-emerald-400 tabular-nums">Rp{formatIDR(totals.piutang)}</p>
             </div>
           </div>
@@ -367,7 +367,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
 
         {/* List Section or Empty State */}
         {filteredDebts.length === 0 ? (
-          <div className="py-12 px-6 rounded-2xl bg-zinc-900/40 border border-white/[0.06] text-center flex flex-col items-center justify-center mt-2 shadow-inner">
+          <div className="py-12 px-6 rounded-2xl bg-muted/40 border border-border text-center flex flex-col items-center justify-center mt-2 shadow-inner">
             <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
               {filterMode === 'CICILAN' ? (
                 <CreditCard className="w-7 h-7" />
@@ -375,10 +375,10 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                 <Receipt className="w-7 h-7" />
               )}
             </div>
-            <h3 className="text-sm font-bold text-white mb-1">
+            <h3 className="text-sm font-bold text-foreground mb-1">
               {activeTab === 'HISTORY' ? 'Belum Ada Riwayat Pelunasan' : 'Belum Ada Catatan'}
             </h3>
-            <p className="text-xs text-zinc-400 max-w-xs leading-relaxed mb-5">
+            <p className="text-xs text-muted-foreground max-w-xs leading-relaxed mb-5">
               {activeTab === 'HISTORY'
                 ? 'Catatan cicilan atau hutang yang sudah lunas akan tersimpan di sini.'
                 : filterMode === 'CICILAN'
@@ -405,7 +405,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                 : 0;
 
               return (
-                <div key={debt.id} className="p-4 rounded-2xl border border-white/[0.08] bg-zinc-900/70 hover:border-emerald-500/30 transition-all shadow-md">
+                <div key={debt.id} className="p-4 rounded-2xl border border-border bg-card/70 hover:border-emerald-500/30 transition-all shadow-md">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center border flex-shrink-0 ${
@@ -413,7 +413,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                           ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                           : (!debt.isPaid && new Date(debt.dueDate) < new Date() 
                               ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
-                              : 'bg-zinc-800 text-zinc-400 border-white/5')
+                              : 'bg-muted text-muted-foreground border-border')
                       }`}>
                         {installment ? (
                           <CreditCard className="w-5 h-5 text-emerald-400" />
@@ -423,7 +423,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <h4 className="text-[13px] font-bold text-white truncate uppercase tracking-tight">{name}</h4>
+                          <h4 className="text-[13px] font-bold text-foreground truncate uppercase tracking-tight">{name}</h4>
                           {installment && (
                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                               Cicilan
@@ -435,7 +435,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                             {installment.item || 'Barang / Kredit'}
                           </p>
                         ) : (
-                          <div className="flex items-center gap-1 text-zinc-400 mt-0.5">
+                          <div className="flex items-center gap-1 text-muted-foreground mt-0.5">
                             <Calendar className="w-3 h-3" />
                             <p className="text-[10px] font-medium">
                               {new Date(debt.dueDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -444,39 +444,39 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                         )}
                       </div>
                     </div>
-                    <button onClick={() => handleOpenEditForm(debt)} className="text-zinc-400 hover:text-white p-1 transition-colors flex-shrink-0 cursor-pointer">
+                    <button onClick={() => handleOpenEditForm(debt)} className="text-muted-foreground hover:text-foreground p-1 transition-colors flex-shrink-0 cursor-pointer">
                       <MoreVertical className="w-4 h-4" />
                     </button>
                   </div>
 
                   {/* Cicilan Progress Bar */}
                   {installment && (
-                    <div className="mb-3 p-3 rounded-xl bg-black/40 border border-white/[0.04]">
+                    <div className="mb-3 p-3 rounded-xl bg-muted/50 border border-border">
                       <div className="flex justify-between items-center text-[10px] font-semibold mb-1.5">
-                        <span className="text-zinc-400">
+                        <span className="text-muted-foreground">
                           Angsuran: {installment.paidTenor} dari {installment.totalTenor} bulan
                         </span>
                         <span className="text-emerald-400 font-mono font-bold">{progressPct}%</span>
                       </div>
-                      <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden border border-white/5">
+                      <div className="w-full bg-muted rounded-full h-2 overflow-hidden border border-border">
                         <div 
                           className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
                           style={{ width: `${progressPct}%` }}
                         />
                       </div>
-                      <div className="flex justify-between items-center text-[10px] text-zinc-400 mt-2">
-                        <span>Tagihan: <strong className="text-white">Rp{formatIDR(installment.monthlyAmount)}/bln</strong></span>
-                        <span>Sisa: <strong className="text-white">{Math.max(0, installment.totalTenor - installment.paidTenor)} bln lagi</strong></span>
+                      <div className="flex justify-between items-center text-[10px] text-muted-foreground mt-2">
+                        <span>Tagihan: <strong className="text-foreground">Rp{formatIDR(installment.monthlyAmount)}/bln</strong></span>
+                        <span>Sisa: <strong className="text-foreground">{Math.max(0, installment.totalTenor - installment.paidTenor)} bln lagi</strong></span>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex items-end justify-between pt-3 border-t border-white/[0.06]">
+                  <div className="flex items-end justify-between pt-3 border-t border-border">
                     <div>
-                      <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">
                         {debt.type === TransactionType.DEBT ? 'Sisa Hutang' : 'Sisa Tagihan'}
                       </p>
-                      <p className="text-base font-bold tabular-nums text-white tracking-tight">
+                      <p className="text-base font-bold tabular-nums text-foreground tracking-tight">
                         Rp{formatIDR(debt.amount)}
                       </p>
                     </div>
@@ -495,7 +495,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                           onClick={() => setSelectedDebtForPayment(debt)} 
                           className={`h-8 px-3 rounded-lg border text-[11px] font-bold tracking-tight active:scale-95 transition-all cursor-pointer ${
                             installment 
-                              ? 'bg-zinc-800 border-white/10 text-zinc-300 hover:text-white'
+                              ? 'bg-muted border-border text-foreground hover:text-foreground'
                               : 'bg-emerald-500 text-black border-transparent shadow-md shadow-emerald-500/20'
                           }`}
                         >
@@ -514,28 +514,28 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
       {showAddForm && (
         <div className="fixed inset-0 z-[1000] flex flex-col items-center justify-end md:justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="absolute inset-0" onClick={() => setShowAddForm(false)} />
-          <div className="relative w-full max-w-lg bg-[#0e121b] text-white rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] animate-in slide-in-from-bottom-8 duration-300 border border-white/[0.08] overflow-hidden">
-            <div className="w-10 h-1 bg-zinc-700/80 rounded-full mx-auto mt-3 mb-1" />
+          <div className="relative w-full max-w-lg bg-card text-foreground rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] animate-in slide-in-from-bottom-8 duration-300 border border-border overflow-hidden">
+            <div className="w-10 h-1 bg-muted-foreground/40 rounded-full mx-auto mt-3 mb-1" />
             
             <div className="flex-1 overflow-y-auto no-scrollbar px-6 pb-24">
               <div className="flex items-center justify-between py-4">
                 <div>
                   <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-0.5">Pencatatan Keuangan</p>
-                  <h2 className="text-lg font-bold text-white tracking-tight">
+                  <h2 className="text-lg font-bold text-foreground tracking-tight">
                     {editingDebtId ? 'Edit Catatan' : isInstallmentMode ? 'Catat Cicilan Kartu Kredit' : 'Catat Hutang / Piutang'}
                   </h2>
                 </div>
                 <button 
                   onClick={() => setShowAddForm(false)} 
                   type="button"
-                  className="w-8 h-8 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white active:scale-90 transition-all cursor-pointer"
+                  className="w-8 h-8 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90 transition-all cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Mode Selector: Regular vs Installment */}
-              <div className="flex bg-zinc-900 p-1 rounded-xl w-full max-w-sm mx-auto mb-6 border border-white/[0.08]">
+              <div className="flex bg-card p-1 rounded-xl w-full max-w-sm mx-auto mb-6 border border-border">
                 <button
                   type="button"
                   onClick={() => {
@@ -548,7 +548,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                   className={`flex-1 py-2 rounded-lg text-xs font-semibold tracking-tight transition-all cursor-pointer ${
                     isInstallmentMode 
                       ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20' 
-                      : 'text-zinc-400 hover:text-white'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   💳 Cicilan Kartu Kredit
@@ -561,8 +561,8 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                   }}
                   className={`flex-1 py-2 rounded-lg text-xs font-semibold tracking-tight transition-all cursor-pointer ${
                     !isInstallmentMode 
-                      ? 'bg-zinc-800 text-white font-bold shadow-sm' 
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'bg-muted text-foreground font-bold shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   🤝 Hutang Uang Kas
@@ -570,12 +570,12 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
               </div>
 
               {/* Big Amount Card */}
-              <div className="mb-5 p-4 rounded-2xl bg-zinc-900/60 border border-white/[0.08] text-center max-w-sm mx-auto">
-                <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+              <div className="mb-5 p-4 rounded-2xl bg-card/60 border border-border text-center max-w-sm mx-auto">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
                   {isInstallmentMode ? 'Total Harga Barang / Tagihan KK' : 'Nominal Pinjaman'}
                 </p>
                 <div className="inline-flex items-baseline justify-center gap-1.5">
-                  <span className="text-base font-bold text-zinc-400">Rp</span>
+                  <span className="text-base font-bold text-muted-foreground">Rp</span>
                   <input 
                     type="text" 
                     inputMode="numeric" 
@@ -591,7 +591,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                         }
                       }
                     }} 
-                    className="bg-transparent border-none outline-none text-3xl font-extrabold tabular-nums text-center text-white tracking-tight" 
+                    className="bg-transparent border-none outline-none text-3xl font-extrabold tabular-nums text-center text-foreground tracking-tight" 
                     placeholder="0" 
                     style={{ width: `${Math.max(3, formData.amount.length + 0.5)}ch` }} 
                   />
@@ -599,14 +599,14 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
               </div>
 
               {!isInstallmentMode ? (
-                <div className="flex bg-zinc-900 p-1 rounded-xl w-full max-w-xs mx-auto mb-5 border border-white/[0.08]">
+                <div className="flex bg-card p-1 rounded-xl w-full max-w-xs mx-auto mb-5 border border-border">
                   <button 
                     type="button"
                     onClick={() => setFormData(d => ({ ...d, type: TransactionType.DEBT }))} 
                     className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       formData.type === TransactionType.DEBT 
-                        ? 'bg-rose-500 text-white font-bold shadow-md shadow-rose-500/20' 
-                        : 'text-zinc-400 hover:text-white'
+                        ? 'bg-rose-500 text-foreground font-bold shadow-md shadow-rose-500/20' 
+                        : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     Saya Berhutang
@@ -617,20 +617,20 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                     className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       formData.type === TransactionType.RECEIVABLE 
                         ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20' 
-                        : 'text-zinc-400 hover:text-white'
+                        : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     Orang Berhutang
                   </button>
                 </div>
               ) : (
-                <div className="p-3.5 rounded-xl bg-zinc-900/90 border border-white/[0.08] mb-5 flex items-start gap-3">
+                <div className="p-3.5 rounded-xl bg-card/90 border border-border mb-5 flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <CreditCard className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold text-white mb-0.5">Catatan Mandiri Kartu Kredit</h5>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed font-medium">
+                    <h5 className="text-xs font-bold text-foreground mb-0.5">Catatan Mandiri Kartu Kredit</h5>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">
                       Pencatatan ini mandiri khusus kartu kredit. <strong>Tidak ada dompet kas yang terpotong atau terhubung</strong>.
                     </p>
                   </div>
@@ -639,23 +639,23 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
 
               {/* Form Fields */}
               <div className="space-y-3">
-                <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                  <span className="text-[10px] font-semibold text-zinc-400">
+                <div className="bg-card/80 rounded-xl p-3 border border-border flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                  <span className="text-[10px] font-semibold text-muted-foreground">
                     {isInstallmentMode ? 'Nama Debitur / Yang Mencicil' : 'Nama Pihak Kedua'}
                   </span>
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+                    <User className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input 
                       type="text" 
                       value={formData.title} 
                       onChange={e => setFormData({ ...formData, title: e.target.value })} 
                       placeholder={isInstallmentMode ? "Contoh: Budi Santoso" : "Nama teman / relasi"} 
-                      className="bg-transparent border-none outline-none text-xs font-semibold text-white placeholder:text-zinc-400 w-full" 
+                      className="bg-transparent border-none outline-none text-xs font-semibold text-foreground placeholder:text-muted-foreground w-full" 
                     />
                     <button 
                       type="button" 
                       onClick={pickContact} 
-                      className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-emerald-400 text-[10px] font-semibold flex items-center gap-1 active:scale-95 transition-all cursor-pointer flex-shrink-0"
+                      className="px-2 py-1 rounded-lg bg-muted hover:bg-muted/80 text-emerald-400 text-[10px] font-semibold flex items-center gap-1 active:scale-95 transition-all cursor-pointer flex-shrink-0"
                       title="Pilih dari Kontak"
                     >
                       <Plus className="w-3 h-3" />
@@ -666,8 +666,8 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
 
                 {isInstallmentMode && (
                   <>
-                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                      <span className="text-[10px] font-semibold text-zinc-400">
+                    <div className="bg-card/80 rounded-xl p-3 border border-border flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                      <span className="text-[10px] font-semibold text-muted-foreground">
                         Nama Barang / Keperluan Cicilan
                       </span>
                       <input 
@@ -675,12 +675,12 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                         value={installmentItem} 
                         onChange={e => setInstallmentItem(e.target.value)} 
                         placeholder="Contoh: iPhone 15 Pro 128GB / Laptop Asus" 
-                        className="bg-transparent border-none outline-none text-xs font-semibold text-white placeholder:text-zinc-400 w-full" 
+                        className="bg-transparent border-none outline-none text-xs font-semibold text-foreground placeholder:text-muted-foreground w-full" 
                       />
                     </div>
 
-                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-2">
-                      <span className="text-[10px] font-semibold text-zinc-400">
+                    <div className="bg-card/80 rounded-xl p-3 border border-border flex flex-col gap-2">
+                      <span className="text-[10px] font-semibold text-muted-foreground">
                         Pilihan Tenor Pembayaran
                       </span>
                       <div className="flex gap-1.5">
@@ -696,7 +696,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                             className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                               installmentTenor === t 
                                 ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20' 
-                                : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                                : 'bg-muted text-muted-foreground hover:text-foreground'
                             }`}
                           >
                             {t} Bln
@@ -705,12 +705,12 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                       </div>
                     </div>
 
-                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                      <span className="text-[10px] font-semibold text-zinc-400">
+                    <div className="bg-card/80 rounded-xl p-3 border border-border flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                      <span className="text-[10px] font-semibold text-muted-foreground">
                         Nominal Angsuran per Bulan (Bisa disesuaikan manual)
                       </span>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-zinc-400">Rp</span>
+                        <span className="text-xs font-bold text-muted-foreground">Rp</span>
                         <input 
                           type="text" 
                           inputMode="numeric"
@@ -728,42 +728,42 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
                 )}
 
                 {isInstallmentMode ? (
-                  <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                    <span className="text-[10px] font-semibold text-zinc-400">
+                  <div className="bg-card/80 rounded-xl p-3 border border-border flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                    <span className="text-[10px] font-semibold text-muted-foreground">
                       Jatuh Tempo Pembayaran Tiap Bulan
                     </span>
                     <input 
                       type="date" 
                       value={formData.dueDate} 
                       onChange={e => setFormData({ ...formData, dueDate: e.target.value })} 
-                      className="bg-transparent border-none outline-none text-xs font-semibold text-white [color-scheme:dark] w-full cursor-pointer py-1" 
+                      className="bg-transparent border-none outline-none text-xs font-semibold text-foreground [color-scheme:light] dark:[color-scheme:dark] w-full cursor-pointer py-1" 
                     />
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2.5">
-                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                      <span className="text-[10px] font-semibold text-zinc-400">
+                    <div className="bg-card/80 rounded-xl p-3 border border-border flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                      <span className="text-[10px] font-semibold text-muted-foreground">
                         Jatuh Tempo
                       </span>
                       <input 
                         type="date" 
                         value={formData.dueDate} 
                         onChange={e => setFormData({ ...formData, dueDate: e.target.value })} 
-                        className="bg-transparent border-none outline-none text-xs font-semibold text-white [color-scheme:dark] w-full cursor-pointer py-1" 
+                        className="bg-transparent border-none outline-none text-xs font-semibold text-foreground [color-scheme:light] dark:[color-scheme:dark] w-full cursor-pointer py-1" 
                       />
                     </div>
-                    <div className="bg-zinc-900/80 rounded-xl p-3 border border-white/[0.08] flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
-                      <span className="text-[10px] font-semibold text-zinc-400">
+                    <div className="bg-card/80 rounded-xl p-3 border border-border flex flex-col gap-1 focus-within:border-emerald-500/40 transition-all">
+                      <span className="text-[10px] font-semibold text-muted-foreground">
                         Sumber Dompet Kas
                       </span>
                       <div className="flex items-center gap-2">
-                        <WalletIcon className="w-3.5 h-3.5 text-zinc-400" />
+                        <WalletIcon className="w-3.5 h-3.5 text-muted-foreground" />
                         <select 
                           value={formData.walletId} 
                           onChange={e => setFormData({ ...formData, walletId: e.target.value })} 
-                          className="bg-transparent border-none outline-none text-xs font-semibold text-white appearance-none w-full cursor-pointer"
+                          className="bg-transparent border-none outline-none text-xs font-semibold text-foreground appearance-none w-full cursor-pointer"
                         >
-                          {wallets.map(w => <option key={w.id} value={w.id} className="bg-zinc-900 text-white">{w.name}</option>)}
+                          {wallets.map(w => <option key={w.id} value={w.id} className="bg-card text-foreground">{w.name}</option>)}
                         </select>
                       </div>
                     </div>
@@ -773,7 +773,7 @@ const DebtManagement: React.FC<DebtManagementProps> = React.memo(({
             </div>
 
             {/* Bottom Sheet CTA Button */}
-            <div className="absolute bottom-0 left-0 right-0 px-6 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom,16px))] bg-[#0e121b]/98 backdrop-blur-md border-t border-white/[0.08]">
+            <div className="absolute bottom-0 left-0 right-0 px-6 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom,16px))] bg-card/95 backdrop-blur-md border-t border-border">
               <button 
                 onClick={handleSubmit} 
                 type="button"

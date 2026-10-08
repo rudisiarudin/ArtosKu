@@ -167,28 +167,28 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
   }, [assetRanking]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#09090b] text-foreground pb-28">
+    <div className="flex flex-col min-h-screen bg-background text-foreground pb-28">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-[#09090b]/95 backdrop-blur-xl border-b border-white/[0.06] px-4 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] pb-3">
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border px-4 pt-[calc(0.75rem+env(safe-area-inset-top,16px))] pb-3">
         <div className="flex items-center justify-between mb-3 max-w-md mx-auto">
-          <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-emerald-400">
+          <div className="w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center text-emerald-400">
             <TrendingUp size={17} />
           </div>
           <div className="text-center">
-            <h2 className="text-sm font-bold text-white tracking-tight">Manajemen Dompet</h2>
-            <p className="text-[10px] text-zinc-500 font-medium">Rekening & Aset Keuangan</p>
+            <h2 className="text-sm font-bold text-foreground tracking-tight">Manajemen Dompet</h2>
+            <p className="text-[10px] text-muted-foreground font-medium">Rekening & Aset Keuangan</p>
           </div>
           <button
             onClick={onTransfer}
             type="button"
-            className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white active:scale-90 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center text-foreground hover:text-foreground active:scale-90 transition-all cursor-pointer"
             title="Transfer Antar Dompet"
           >
             <ArrowLeftRight size={16} />
           </button>
         </div>
 
-        <div className="flex bg-zinc-900/90 rounded-xl p-1 border border-white/[0.08] max-w-md mx-auto">
+        <div className="flex bg-card/90 rounded-xl p-1 border border-border max-w-md mx-auto">
           {[
             { id: 'PORTFOLIO', label: 'Portofolio' },
             { id: 'ALOKASI', label: 'Alokasi' },
@@ -200,8 +200,8 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
               type="button"
               className={`flex-1 py-1.5 text-xs font-semibold tracking-tight transition-all rounded-lg cursor-pointer ${
                 activeTab === tab.id 
-                  ? 'bg-zinc-800 text-white shadow-sm' 
-                  : 'text-zinc-500 hover:text-zinc-300'
+                  ? 'bg-muted text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {tab.label}
@@ -213,16 +213,16 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       {activeTab === 'PORTFOLIO' && (
         <div className="px-4 pt-4 pb-28 space-y-4 max-w-md mx-auto">
           {/* Summary Performance Card */}
-          <section className="bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-white/[0.08] rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+          <section className="bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-border rounded-2xl p-5 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 blur-[80px] pointer-events-none" />
             
             <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[10px] font-semibold text-zinc-400">{t('wallet.true_net_worth')}</span>
+              <span className="text-[10px] font-semibold text-muted-foreground">{t('wallet.true_net_worth')}</span>
               <ShieldCheck size={12} className="text-emerald-400" />
             </div>
             <div className="mb-6 flex items-end justify-between">
               <div>
-                <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums ${metrics.trueNetWorth >= 0 ? 'text-white' : 'text-rose-400'}`}>
+                <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums ${metrics.trueNetWorth >= 0 ? 'text-foreground' : 'text-rose-400'}`}>
                   Rp{formatIDR(metrics.trueNetWorth)}
                 </h1>
                 <p className="text-[10px] font-bold text-muted-foreground/60 tracking-widest mt-1 uppercase">{t('wallet.assets_minus_liabilities')}</p>
@@ -405,9 +405,9 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
       {activeTab === 'ALOKASI' && (
         <div className="px-4 pt-4 pb-28 max-w-md mx-auto">
           {/* Donut Chart for Allocation */}
-          <section className="bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-white/[0.08] rounded-2xl p-5 mb-4 flex flex-col items-center relative overflow-hidden">
+          <section className="bg-gradient-to-b from-zinc-900/90 to-zinc-950 border border-border rounded-2xl p-5 mb-4 flex flex-col items-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-[40px] pointer-events-none" />
-            <p className="text-xs font-semibold text-zinc-400 mb-6 text-center w-full">{t('wallet.portfolio_distribution')}</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-6 text-center w-full">{t('wallet.portfolio_distribution')}</p>
             <div className="h-[200px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
                 <RePieChart>
@@ -451,7 +451,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
             {allocationData.map((item, i) => {
               const percent = (item.total / metrics.totalCurrent) * 100;
               return (
-                <div key={i} className="premium-glass rounded-[28px] p-5 border border-white/[0.05] animate-list-enter" style={{ animationDelay: `${i * 100}ms` }}>
+                <div key={i} className="bg-card shadow-sm rounded-[28px] p-5 border border-border animate-list-enter" style={{ animationDelay: `${i * 100}ms` }}>
                   <div className="flex justify-between items-center mb-3">
                     <div className="flex items-center gap-3">
                       <div className={`w-1 h-4 rounded-full ${i === 0 ? 'bg-[#10b981]' : i === 1 ? 'bg-[#3b82f6]' : i === 2 ? 'bg-[#f43f5e]' : 'bg-[#f59e0b]'}`} />
@@ -572,7 +572,7 @@ const WalletManagement: React.FC<WalletManagementProps> = React.memo(({ wallets,
                       setShowAddForm(false);
                       setEditingWallet(null);
                     }}
-                    className="size-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center active:scale-95 transition-all hover:bg-rose-500 hover:text-white"
+                    className="size-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center active:scale-95 transition-all hover:bg-rose-500 hover:text-foreground"
                   >
                     <Trash2 size={20} />
                   </button>

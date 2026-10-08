@@ -706,10 +706,10 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#00d293]/20 border-t-[#00d293] rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[11px] font-semibold text-zinc-600 tracking-widest">Loading ArtosKu...</p>
+          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[11px] font-semibold text-muted-foreground tracking-widest">Loading ArtosKu...</p>
         </div>
       </div>
     );
